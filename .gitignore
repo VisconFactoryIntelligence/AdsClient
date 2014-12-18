@@ -1,0 +1,8 @@
+obj
+bin
+TestResults
+*.suo
+*.pdb
+*.csproj.user
+*.userprefs
+temp

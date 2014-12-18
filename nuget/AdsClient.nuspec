@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+    <metadata>
+        <id>AdsClient</id>
+        <version>0.7</version>
+        <title>AdsClient PCL library</title>
+        <authors>Inando</authors>
+        <licenseUrl>https://github.com/inando/adsclient/blob/master/LICENSE</licenseUrl>
+        <projectUrl>https://github.com/inando/adsclient</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>A client implementation of the Beckhoff Twincat ADS protocol. 
+This is a PCL library for .Net &gt;=4.5/Mono &gt;=3.2.8/Xamarin/WinRT.
+
+The socket implementation can't be placed in the PCL library.
+Therefore you need an extra dll depending on you program.
+- Winsock (normal .Net app or Mono/Xamarin)
+- WinRT (windows 8.1 WinRT/Phone)</description>
+        <summary>A client implementation of the Beckhoff Twincat ADS protocol. 
+This is a PCL library for .Net &gt;=4.5/Mono &gt;=3.2.8/Xamarin/WinRT.</summary>
+        <releaseNotes />
+        <copyright>Inando</copyright>
+        <tags>Ads AdsClient Twincat Beckhoff</tags>
+    </metadata>
+    <files>
+        <file src="..\bin\Release\AdsClient.dll" target="lib\portable-net45+wp8+win8\AdsClient.dll" />
+    </files>
+</package>
