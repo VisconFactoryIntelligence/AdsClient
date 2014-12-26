@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/inando/adsclient.svg?branch=master)](https://travis-ci.org/inando/adsclient)
+
 This is the client implementation of the [Twincat](http://www.beckhoff.com/english.asp?twincat/default.htm) Ads protocol from [Beckhoff](http://http://www.beckhoff.com/).   
 (I'm not affiliated with Beckhoff)
 
