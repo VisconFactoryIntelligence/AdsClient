@@ -134,8 +134,11 @@ namespace Ads.Client
         /// <returns>The handle</returns>
         public async Task<uint> GetSymhandleByNameAsync(string varName) 
         {
-            AdsWriteReadCommand adsCommand = new AdsWriteReadCommand(0x0000F003, 0x00000000, varName.ToAdsBytes(), 4);
+            var adsCommand = new AdsWriteReadCommand(0x0000F003, 0x00000000, varName.ToAdsBytes(), 4);
             var result = await adsCommand.RunAsync(this.ams);
+            if (result == null || result.Data == null)
+                return 0;
+
             var handle = BitConverter.ToUInt32(result.Data, 0);
             activeSymhandles.Add(handle);
             return handle;
@@ -205,7 +208,10 @@ namespace Ads.Client
         public async Task<T> ReadAsync<T>(uint varHandle) 
         {
             byte[] value = await ReadBytesAsync(varHandle, GenericHelper.GetByteLengthFromType<T>(DefaultStringLength));
-            return GenericHelper.GetResultFromBytes<T>(value, DefaultStringLength);
+            if (value != null)
+                return GenericHelper.GetResultFromBytes<T>(value, DefaultStringLength);
+            else
+                return default(T);
         }
 
         public Task<T> ReadAsync<T>(IAdsSymhandle adsSymhandle) 
