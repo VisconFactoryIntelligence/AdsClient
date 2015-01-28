@@ -26,7 +26,7 @@ namespace Ads.Client.Winsock
             using (SocketAsyncEventArgs args = new SocketAsyncEventArgs())
             {
                 args.RemoteEndPoint = new DnsEndPoint(amsSocket.IpTarget, amsSocket.PortTarget);
-                args.Completed += (sender, e) => { tcs.TrySetResult(e.SocketError == SocketError.Success); };
+                args.Completed += (sender, e) => { tcs.TrySetResult(e.SocketError == SocketError.Success); e.Dispose(); };
                 amsSocket.Socket.ConnectAsync(args);
             }
             return tcs.Task;
@@ -36,7 +36,7 @@ namespace Ads.Client.Winsock
         {
             var tcs = new TaskCompletionSource<bool>(amsSocket.Socket);
             SocketAsyncEventArgs args = new SocketAsyncEventArgs();
-            args.Completed += (sender, e) => { tcs.TrySetResult(e.SocketError == SocketError.Success); };
+            args.Completed += (sender, e) => { tcs.TrySetResult(e.SocketError == SocketError.Success); e.Dispose(); };
             args.SetBuffer(message, 0, message.Length);
             amsSocket.Socket.SendAsync(args);
             return tcs.Task;
@@ -48,7 +48,7 @@ namespace Ads.Client.Winsock
             SocketAsyncEventArgs args = new SocketAsyncEventArgs();
             args.Completed += (sender, e) =>
             {
-                try { tcs.TrySetResult(e.SocketError == SocketError.Success); }
+                try { tcs.TrySetResult(e.SocketError == SocketError.Success); e.Dispose(); }
                 catch (Exception ex) { tcs.TrySetException(ex); }
             };
             args.SetBuffer(message, 0, message.Length);
@@ -62,6 +62,5 @@ namespace Ads.Client.Winsock
             }
             return tcs.Task;
         }
-
     }
 }
