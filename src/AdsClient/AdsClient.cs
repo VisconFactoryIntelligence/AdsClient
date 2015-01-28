@@ -141,7 +141,7 @@ namespace Ads.Client
             return handle;
         }
 
-        public async Task<uint> GetSymhandlByNameAsync(IAdsSymhandle symhandle)
+        public async Task<uint> GetSymhandleByNameAsync(IAdsSymhandle symhandle)
         {
             //var symhandle = new AdsSymhandle();
             symhandle.Symhandle = await GetSymhandleByNameAsync(symhandle.VarName);
