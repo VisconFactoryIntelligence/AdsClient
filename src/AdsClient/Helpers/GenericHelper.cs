@@ -78,7 +78,7 @@ namespace Ads.Client.Helpers
             var adsType = GetEnumFromType(type);
             if (adsType != AdsTypeEnum.Unknown)
             {
-                object v = ConvertBytesTotype(adsType, value);
+                object v = ConvertBytesToType(adsType, value);
                 if (v == null)
                     throw new AdsException("Function GetResultFromBytes doesn't support this type yet!");
                 return v;
@@ -97,7 +97,7 @@ namespace Ads.Client.Helpers
                         Array.Copy(value, (int)pos, valarray, 0, (int)attr.ByteSize);
 						var proptype = attr.GetPropery().FieldType;
                         adsType = GetEnumFromType(proptype);
-                        object val = ConvertBytesTotype(adsType, valarray);
+                        object val = ConvertBytesToType(adsType, valarray);
                         attr.GetPropery().SetValue(adsObj, val);
                         pos += attr.ByteSize;
                     }
@@ -217,7 +217,7 @@ namespace Ads.Client.Helpers
             return length;
         }
 
-        private static object ConvertBytesTotype(AdsTypeEnum adsType, byte[] value)
+        private static object ConvertBytesToType(AdsTypeEnum adsType, byte[] value)
         {
             object v = null;
             
