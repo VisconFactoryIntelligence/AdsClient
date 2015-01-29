@@ -72,11 +72,15 @@ namespace Ads.Client.Helpers
         /// <returns></returns>
         public static object GetResultFromBytes(Type type, byte[] value, uint defaultStringLength)
         {
+            if (value == null)
+                throw new ArgumentNullException("value", "GetResultFromBytes");
+
             var adsType = GetEnumFromType(type);
             if (adsType != AdsTypeEnum.Unknown)
             {
-                object v = ConvertBytesTotype(adsType, value);
-                if (v == null) throw new AdsException("Function GetResultFromBytes doesn't support this type yet!");
+                object v = ConvertBytesToType(adsType, value);
+                if (v == null)
+                    throw new AdsException("Function GetResultFromBytes doesn't support this type yet!");
                 return v;
             }
             else
@@ -93,7 +97,7 @@ namespace Ads.Client.Helpers
                         Array.Copy(value, (int)pos, valarray, 0, (int)attr.ByteSize);
 						var proptype = attr.GetPropery().FieldType;
                         adsType = GetEnumFromType(proptype);
-                        object val = ConvertBytesTotype(adsType, valarray);
+                        object val = ConvertBytesToType(adsType, valarray);
                         attr.GetPropery().SetValue(adsObj, val);
                         pos += attr.ByteSize;
                     }
@@ -213,10 +217,10 @@ namespace Ads.Client.Helpers
             return length;
         }
 
-        private static object ConvertBytesTotype(AdsTypeEnum adsType, byte[] value)
+        private static object ConvertBytesToType(AdsTypeEnum adsType, byte[] value)
         {
             object v = null;
-
+            
             switch (adsType)
             {
                 case AdsTypeEnum.Bool: v = value[0]; break;
@@ -234,6 +238,7 @@ namespace Ads.Client.Helpers
                 case AdsTypeEnum.Date: v = new Date(BitConverter.ToUInt32(value, 0)); break;
                 case AdsTypeEnum.Time: v = new Time(BitConverter.ToUInt32(value, 0)); break;
             }
+
             return (v);
         }
 

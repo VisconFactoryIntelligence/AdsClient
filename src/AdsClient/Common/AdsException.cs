@@ -27,7 +27,16 @@ using System.Runtime.Serialization;
 
 namespace Ads.Client.Common
 {
-    public class AdsException : Exception
+    public class TestException : Exception
+    {
+        public TestException(string message)
+            : base(message)
+        {
+            System.Diagnostics.Debug.WriteLine("Cause: " + message);
+        }
+    }
+
+    public class AdsException : TestException
     {
         public AdsException(uint errorCode) : base(GetErrorMessage(errorCode))
         {

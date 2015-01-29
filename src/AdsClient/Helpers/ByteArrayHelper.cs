@@ -48,7 +48,10 @@ namespace Ads.Client.Helpers
 
         public static string ByteArrayToString(byte[] value)
         {
-            return string.Concat(value.Select(b => b <= 0x7f ? (char)b : '?').TakeWhile(b => b > 0));
+            if (value == null)
+                return "";
+            else
+                return string.Concat(value.Select(b => b <= 0x7f ? (char)b : '?').TakeWhile(b => b > 0)) ?? "";
         }
 
         public static string ByteArrayToTestString(byte[] value)

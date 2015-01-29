@@ -72,9 +72,11 @@ namespace Ads.Client
                         {
                             byte[] response = GetAmsMessage(buffer);
 
+#if DEBUG_AMS
                             Debug.WriteLine("Received bytes: " +
                                     ByteArrayHelper.ByteArrayToTestString(buffer) + ',' +
                                     ByteArrayHelper.ByteArrayToTestString(response));
+#endif
 
                             var syncContext = synchronizationContext;
                             if (usertoken != null) syncContext = usertoken as SynchronizationContext;

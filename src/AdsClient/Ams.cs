@@ -97,6 +97,8 @@ namespace Ads.Client
         private IAmsSocket amsSocket;
 		public IAmsSocket AmsSocket {get; private set;}
         private uint invokeId = 0;
+
+        private object pendingResultsLock = new object();
         private List<AdsCommandResponse> pendingResults = new List<AdsCommandResponse>();
 
         private byte[] GetAmsMessage(AdsCommand adsCommand) 
@@ -129,15 +131,19 @@ namespace Ads.Client
         {
             if (args.Error != null)
             {
-                if ((pendingResults != null) && (pendingResults.Count() > 0))
+                // Lock the list.
+                lock (pendingResultsLock)
                 {
-                    foreach (var adsCommandResult in pendingResults)
+                    if (pendingResults.Count > 0)
                     {
-                        adsCommandResult.UnknownException = args.Error;
-                        adsCommandResult.Callback.Invoke(adsCommandResult);
+                        foreach (var adsCommandResult in pendingResults.ToList())
+                        {
+                            adsCommandResult.UnknownException = args.Error;
+                            adsCommandResult.Callback.Invoke(adsCommandResult);
+                        }
                     }
+                    else throw args.Error;
                 }
-                else throw args.Error;
             }
 
             if ((args.Response != null) && (args.Response.Length > 0) && (args.Error == null))
@@ -175,17 +181,24 @@ namespace Ads.Client
                 //If not a notification then find the original command and call async callback
                 if (!isNotification)
                 {
-                    AdsCommandResponse adsCommandResult = pendingResults.FirstOrDefault(r => r.CommandInvokeId == invokeId);
-                    if (adsCommandResult != null) 
+                    AdsCommandResponse adsCommandResult = null;
+
+                    // Do some locking before fiddling with the list.
+                    lock (pendingResultsLock)
                     {
+                        adsCommandResult = pendingResults.FirstOrDefault(r => r.CommandInvokeId == invokeId);
+                        if (adsCommandResult == null)
+                            return;
+                            //throw new AdsException("I received a response from a request I didn't send?");
+
                         pendingResults.Remove(adsCommandResult);
-                        if (amsErrorCode > 0) 
-                            adsCommandResult.AmsErrorCode = amsErrorCode;
-                        else
-                            adsCommandResult.SetResponse(args.Response);
-                        adsCommandResult.Callback.Invoke(adsCommandResult);
                     }
-                    else throw new AdsException("I received a response from a request I didn't send?");
+
+                    if (amsErrorCode > 0)
+                        adsCommandResult.AmsErrorCode = amsErrorCode;
+                    else
+                        adsCommandResult.SetResponse(args.Response);
+                    adsCommandResult.Callback.Invoke(adsCommandResult);
                 }
             }
         }
@@ -201,7 +214,11 @@ namespace Ads.Client
             var result = Activator.CreateInstance<T>();
             result.CommandInvokeId = invokeId;
             result.Callback = callback;
-            pendingResults.Add(result);
+            // Do some locking before fiddling with the list.
+            lock (pendingResultsLock)
+            {
+                pendingResults.Add(result);
+            }
             return result;
         }
 
