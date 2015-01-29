@@ -268,3 +268,8 @@ using (AdsClient client = new AdsClient(
   xml = XDocument.Parse(xml).ToString();
 }
 ```
+
+Contributors
+============
+MrCircuit (https://github.com/MrCircuit)
+
