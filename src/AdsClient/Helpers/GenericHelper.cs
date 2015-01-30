@@ -38,28 +38,39 @@ namespace Ads.Client.Helpers
         /// </summary>
         /// <typeparam name="T">ValueType or AdsSerializable</typeparam>
         /// <returns></returns>
-        public static uint GetByteLengthFromType<T>(uint defaultStringLength) 
+        public static uint GetByteLengthFromType<T>(uint defaultStringLength, uint arrayLength = 1) 
         {
-            var adsType =  GetEnumFromType(typeof(T));
+            Type type = typeof(T);
+            uint factor = 1;
+
+            if (type.IsArray)
+            {
+                factor = arrayLength;
+                type = type.GetElementType();
+            }
+
+            var adsType = GetEnumFromType(type);
+
             if (adsType != AdsTypeEnum.Unknown)
             {
                 var length = GetByteLengthFromType(adsType, defaultStringLength);
-                if (length == 0) throw new AdsException(String.Format("Function GetByteLengthFromType doesn't support this type ({0}) yet!", typeof(T).FullName));
-                return length;
+                if (length == 0) throw new AdsException(String.Format("Function GetByteLengthFromType doesn't support this type ({0}) yet!", type.FullName));
+                return length * factor;
             }
             else
             {
-                if (AdsAttribute.IsAdsSerializable<T>())
+                if (type.IsAdsSerializable())
                 {
                     uint length = 0;
-                    List<AdsAttribute> attributes = GetAdsAttributes(typeof(T), defaultStringLength);
+                    var attributes = GetAdsAttributes(type, defaultStringLength);
                     foreach (var a in attributes)
                     {
                         length += a.ByteSize;
                     }
-                    return length;
+                    return length * factor;
                 }
-                else throw new AdsException(String.Format(TypeNotImplementedError, typeof(T).FullName));
+                else
+                    throw new AdsException(String.Format(TypeNotImplementedError, type.FullName));
             }
         }
 
@@ -70,11 +81,33 @@ namespace Ads.Client.Helpers
         /// <param name="value"></param>
         /// <param name="defaultStringLength"></param>
         /// <returns></returns>
-        public static object GetResultFromBytes(Type type, byte[] value, uint defaultStringLength)
+        public static object GetResultFromBytes(Type type, byte[] value, uint defaultStringLength, uint arrayLength = 1)
         {
             if (value == null)
                 throw new ArgumentNullException("value", "GetResultFromBytes");
 
+            if (type.IsArray)
+            {
+                var elementType = type.GetElementType();
+                var elementSize = (int)(value.Length / arrayLength);
+                var array = Array.CreateInstance(elementType, new int[] { (int)arrayLength });
+
+                for (var i = 0; i < arrayLength; i++)
+                {
+                    var valarray = new byte[elementSize];
+                    Array.Copy(value, i * elementSize, valarray, 0, elementSize);
+                    var val = GetResultFromBytesInternal(elementType, valarray, defaultStringLength);
+                    array.SetValue(val, new int[] { i });
+                }
+
+                return array;
+            }
+            else
+                return GetResultFromBytesInternal(type, value, defaultStringLength);
+        }
+
+        private static object GetResultFromBytesInternal(Type type, byte[] value, uint defaultStringLength)
+        {
             var adsType = GetEnumFromType(type);
             if (adsType != AdsTypeEnum.Unknown)
             {
@@ -85,26 +118,27 @@ namespace Ads.Client.Helpers
             }
             else
             {
-                if (AdsAttribute.IsAdsSerializable(type))
+                if (type.IsAdsSerializable())
                 {
                     var adsObj = Activator.CreateInstance(type);
-                    List<AdsAttribute> attributes = GetAdsAttributes(type, defaultStringLength);
+                    var attributes = GetAdsAttributes(type, defaultStringLength);
 
                     uint pos = 0;
                     foreach (var attr in attributes)
                     {
                         byte[] valarray = new byte[attr.ByteSize];
                         Array.Copy(value, (int)pos, valarray, 0, (int)attr.ByteSize);
-						var proptype = attr.GetPropery().FieldType;
+                        var proptype = attr.Member.GetMemberType();
                         adsType = GetEnumFromType(proptype);
                         object val = ConvertBytesToType(adsType, valarray);
-                        attr.GetPropery().SetValue(adsObj, val);
+                        attr.Member.SetValue(adsObj, val);
                         pos += attr.ByteSize;
                     }
 
                     return adsObj;
                 }
-                else throw new AdsException(String.Format(TypeNotImplementedError, type.FullName));
+                else
+                    throw new AdsException(String.Format(TypeNotImplementedError, type.FullName));
             }
         }
 
@@ -115,10 +149,11 @@ namespace Ads.Client.Helpers
         /// <typeparam name="T">ValueType or AdsSerializable</typeparam>
         /// <param name="value"></param>
         /// <returns></returns>
-        public static T GetResultFromBytes<T>(byte[] value, uint defaultStringLength) 
+        public static T GetResultFromBytes<T>(byte[] value, uint defaultStringLength, uint arrayLength = 1) 
         {
-            var o = GetResultFromBytes(typeof(T), value, defaultStringLength);
-            return (T)Convert.ChangeType(o, typeof(T));
+            Type type = typeof(T);
+            var o = GetResultFromBytes(type, value, defaultStringLength, arrayLength);
+            return (T)Convert.ChangeType(o, type);
         }
 
         /// <summary>
@@ -130,24 +165,26 @@ namespace Ads.Client.Helpers
         public static IEnumerable<byte> GetBytesFromType<T>(T varValue, uint defaultStringLength) 
         {
             List<byte> varValueBytes = null;
+            var type = typeof(T);
 
-            var adsType = GetEnumFromType(typeof(T));
+            var adsType = GetEnumFromType(type);
             if (adsType != AdsTypeEnum.Unknown)
             {
                 varValueBytes = GetBytesFromConvertible(adsType, varValue, defaultStringLength).ToList();
             }
             else
             {
-                if (AdsAttribute.IsAdsSerializable<T>())
+                if (type.IsAdsSerializable())
                 {
                     var totallength = GetByteLengthFromType<T>(defaultStringLength);
                     varValueBytes = new List<byte>((int)totallength);
-                    List<AdsAttribute> attributes = GetAdsAttributes(typeof(T), defaultStringLength);
+                    var attributes = GetAdsAttributes(type, defaultStringLength);
+                    
                     foreach (var attr in attributes)
                     {
-						var type = attr.GetPropery().FieldType;
-                        adsType = GetEnumFromType(type);
-                        var val = attr.GetPropery().GetValue(varValue);
+						var memberType = attr.Member.GetMemberType();
+                        adsType = GetEnumFromType(memberType);
+                        var val = attr.Member.GetValue(varValue);
                         var bytes = GetBytesFromConvertible(adsType, val, defaultStringLength);
                         if (bytes.Count() != attr.ByteSize)
                         {
@@ -219,53 +256,49 @@ namespace Ads.Client.Helpers
 
         private static object ConvertBytesToType(AdsTypeEnum adsType, byte[] value)
         {
-            object v = null;
-            
             switch (adsType)
             {
-                case AdsTypeEnum.Bool: v = value[0]; break;
-                case AdsTypeEnum.Byte: v = value[0]; break;
-                case AdsTypeEnum.Int16: v = BitConverter.ToInt16(value, 0); break;
-                case AdsTypeEnum.Int32: v = BitConverter.ToInt32(value, 0); break;
-                case AdsTypeEnum.Int64: v = BitConverter.ToInt64(value, 0); break;
-                case AdsTypeEnum.UInt16: v = BitConverter.ToUInt16(value, 0); break;
-                case AdsTypeEnum.UInt32: v = BitConverter.ToUInt32(value, 0); break;
-                case AdsTypeEnum.UInt64: v = BitConverter.ToUInt64(value, 0); break;
-                case AdsTypeEnum.Single: v = BitConverter.ToSingle(value, 0); break;
-                case AdsTypeEnum.Double: v = BitConverter.ToDouble(value, 0); break;
-                case AdsTypeEnum.String: v = ByteArrayHelper.ByteArrayToString(value); break;
-                case AdsTypeEnum.DateTime: v = ByteArrayHelper.ByteArrayToDateTime(value); break;
-                case AdsTypeEnum.Date: v = new Date(BitConverter.ToUInt32(value, 0)); break;
-                case AdsTypeEnum.Time: v = new Time(BitConverter.ToUInt32(value, 0)); break;
+                case AdsTypeEnum.Bool: return BitConverter.ToBoolean(value, 0);
+                case AdsTypeEnum.Byte: return value[0];
+                case AdsTypeEnum.Int16: return BitConverter.ToInt16(value, 0);
+                case AdsTypeEnum.Int32: return BitConverter.ToInt32(value, 0);
+                case AdsTypeEnum.Int64: return BitConverter.ToInt64(value, 0);
+                case AdsTypeEnum.UInt16: return BitConverter.ToUInt16(value, 0);
+                case AdsTypeEnum.UInt32: return BitConverter.ToUInt32(value, 0);
+                case AdsTypeEnum.UInt64: return BitConverter.ToUInt64(value, 0);
+                case AdsTypeEnum.Single: return BitConverter.ToSingle(value, 0);
+                case AdsTypeEnum.Double: return BitConverter.ToDouble(value, 0);
+                case AdsTypeEnum.String: return ByteArrayHelper.ByteArrayToString(value);
+                case AdsTypeEnum.DateTime: return ByteArrayHelper.ByteArrayToDateTime(value);
+                case AdsTypeEnum.Date: return new Date(BitConverter.ToUInt32(value, 0));
+                case AdsTypeEnum.Time: return new Time(BitConverter.ToUInt32(value, 0));
+                default:
+                    return null;
             }
-
-            return (v);
         }
 
-        public static List<AdsAttribute> GetAdsAttributes(Type type, uint defaultStringLength)
+        public static IEnumerable<AdsAttribute> GetAdsAttributes(Type type, uint defaultStringLength)
         {
-            List<AdsAttribute> attributes = new List<AdsAttribute>();
+            var attributes = new List<AdsAttribute>();
+            var members = type.GetPublicFieldsAndProperties();
 
-			var props = type.GetRuntimeFields().Where(f => f.IsPublic);
-			//var props = type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-            foreach (var p in props)
+            foreach (var member in members)
             {
-                AdsAttribute attr = AdsAttribute.GetAdsAttribute(p);
+                var attr = member.GetAdsAttribute();
+
                 if (attr != null)
                 {
-                    attr.SetProperty(p);
+                    attr.Member = member;
                     if (attr.ByteSize == 0)
                     {
-						var adsType = GetEnumFromType(p.FieldType);
+						var adsType = GetEnumFromType(member.GetMemberType());
                         attr.ByteSize = GetByteLengthFromType(adsType, defaultStringLength);
                     }
                     attributes.Add(attr);
                 }
             }
 
-            attributes = attributes.OrderBy(a => a.Order).ToList();
-
-            return attributes;
+            return attributes.OrderBy(a => a.Order);
         }
 
         const string TypeNotImplementedError = "Type {0} must be implemented or has the AdsSerializable attribute!";

@@ -204,12 +204,15 @@ namespace Ads.Client
         /// </summary>
         /// <typeparam name="T">A type like byte, ushort, uint depending on the length of the twincat variable</typeparam>
         /// <param name="varHandle">The handle returned by GetSymhandleByNameAsync</param>
+        /// <param name="arrayLength">An optional array length.</param>
         /// <returns>The value of the twincat variable</returns>
-        public async Task<T> ReadAsync<T>(uint varHandle) 
+        public async Task<T> ReadAsync<T>(uint varHandle, uint arrayLength = 1) 
         {
-            byte[] value = await ReadBytesAsync(varHandle, GenericHelper.GetByteLengthFromType<T>(DefaultStringLength));
+            var length = GenericHelper.GetByteLengthFromType<T>(DefaultStringLength, arrayLength);
+            var value = await ReadBytesAsync(varHandle, length);
+
             if (value != null)
-                return GenericHelper.GetResultFromBytes<T>(value, DefaultStringLength);
+                return GenericHelper.GetResultFromBytes<T>(value, DefaultStringLength, arrayLength);
             else
                 return default(T);
         }

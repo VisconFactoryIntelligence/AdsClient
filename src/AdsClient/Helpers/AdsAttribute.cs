@@ -39,40 +39,14 @@ namespace Ads.Client
             Order = 99;
         }
 
-		private FieldInfo propertyInfo;
-
-		public void SetProperty(FieldInfo p)
+		private MemberInfo member;
+        /// <summary>
+        /// Gets or sets the member.
+        /// </summary>
+        public MemberInfo Member
         {
-            propertyInfo = p;
+            get { return member; }
+            set { member = value; }
         }
-
-		public FieldInfo GetPropery()
-        {
-            return propertyInfo;
-        }
-
-
-		public static AdsAttribute GetAdsAttribute(FieldInfo p)
-        {
-            AdsAttribute attribute = null;
-            var attributes = p.GetCustomAttributes(typeof(AdsAttribute), false);
-            if ((attributes != null) && (attributes.Count() > 0))
-            {
-                attribute = (AdsAttribute)attributes.FirstOrDefault();
-            }
-            return attribute;
-        }
-
-        public static bool IsAdsSerializable<T>()
-        {
-			return typeof(T).GetTypeInfo().IsDefined(typeof(AdsSerializableAttribute), false);
-        }
-
-        public static bool IsAdsSerializable(Type type)
-        {
-			return type.GetTypeInfo().IsDefined(typeof(AdsSerializableAttribute), false);
-        }
-
-
     }
 }
