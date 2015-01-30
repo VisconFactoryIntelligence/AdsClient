@@ -136,7 +136,7 @@ namespace Ads.Client
         {
             var adsCommand = new AdsWriteReadCommand(0x0000F003, 0x00000000, varName.ToAdsBytes(), 4);
             var result = await adsCommand.RunAsync(this.ams);
-            if (result == null || result.Data == null)
+            if (result == null || result.Data == null || result.Data.Length < 4)
                 return 0;
 
             var handle = BitConverter.ToUInt32(result.Data, 0);

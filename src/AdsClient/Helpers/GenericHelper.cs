@@ -124,15 +124,21 @@ namespace Ads.Client.Helpers
                     var attributes = GetAdsAttributes(type, defaultStringLength);
 
                     uint pos = 0;
+
                     foreach (var attr in attributes)
                     {
-                        byte[] valarray = new byte[attr.ByteSize];
-                        Array.Copy(value, (int)pos, valarray, 0, (int)attr.ByteSize);
-                        var proptype = attr.Member.GetMemberType();
-                        adsType = GetEnumFromType(proptype);
-                        object val = ConvertBytesToType(adsType, valarray);
-                        attr.Member.SetValue(adsObj, val);
-                        pos += attr.ByteSize;
+                        try
+                        {
+                            byte[] valarray = new byte[attr.ByteSize];
+                            Array.Copy(value, (int)pos, valarray, 0, (int)attr.ByteSize);
+                            var proptype = attr.Member.GetMemberType();
+                            adsType = GetEnumFromType(proptype);
+                            object val = ConvertBytesToType(adsType, valarray);
+                            attr.Member.SetValue(adsObj, val);
+                            pos += attr.ByteSize;
+                        }
+                        catch
+                        { break; }
                     }
 
                     return adsObj;
