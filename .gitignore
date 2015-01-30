@@ -6,3 +6,6 @@ TestResults
 *.csproj.user
 *.userprefs
 temp
+TestResult.xml
+testrunner
+

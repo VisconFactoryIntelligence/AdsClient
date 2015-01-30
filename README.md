@@ -13,6 +13,10 @@ AdsClient is the Portable Class Library.
 AdsClient.WinSock can be used in normal .Net programs and Mono/Xamarin.  
 AdsClient.WinRT can be use in Widows 8.1 WinRT/Phone.  
 
+Contributors
+============
+MrCircuit (https://github.com/MrCircuit)
+
 Getting started
 ===============
 
@@ -268,8 +272,4 @@ using (AdsClient client = new AdsClient(
   xml = XDocument.Parse(xml).ToString();
 }
 ```
-
-Contributors
-============
-MrCircuit (https://github.com/MrCircuit)
 
