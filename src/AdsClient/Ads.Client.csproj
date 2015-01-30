@@ -35,6 +35,7 @@
   <ItemGroup>
     <Compile Include="AmsSocketBaseSync.cs" />
     <Compile Include="AmsSocketBaseAsync.cs" />
+    <Compile Include="Helpers\MemberInfoHelper.cs" />
     <Compile Include="IAmsSocketAsync.cs" />
     <Compile Include="IAmsSocketSync.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

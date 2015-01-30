@@ -48,10 +48,30 @@ namespace Ads.Client.Winsock
             SocketAsyncEventArgs args = new SocketAsyncEventArgs();
             args.Completed += (sender, e) =>
             {
-                try { tcs.TrySetResult(e.SocketError == SocketError.Success); e.Dispose(); }
+                try
+                {
+                    // Watch out for chunked data transfer!
+                    if (e.Count != e.BytesTransferred)
+                    {
+                        // We set the same buffer, but with an offset and new byte count. The already received data stays untouched.
+                        e.SetBuffer(e.Buffer, e.BytesTransferred, e.Count - e.BytesTransferred);
+                        StartReceiveAsync(e);
+                    }
+                    else
+                    {
+                        tcs.TrySetResult(e.SocketError == SocketError.Success);
+                        e.Dispose();
+                    }
+                }
                 catch (Exception ex) { tcs.TrySetException(ex); }
             };
             args.SetBuffer(message, 0, message.Length);
+            StartReceiveAsync(args);
+            return tcs.Task;
+        }
+
+        private void StartReceiveAsync(SocketAsyncEventArgs args)
+        {
             try
             {
                 amsSocket.Socket.ReceiveAsync(args);
@@ -60,7 +80,6 @@ namespace Ads.Client.Winsock
             {
                 if (!Object.ReferenceEquals(ex.GetType(), typeof(ObjectDisposedException))) throw ex;
             }
-            return tcs.Task;
         }
     }
 }
