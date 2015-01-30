@@ -111,10 +111,7 @@ namespace Ads.Client.Helpers
             var adsType = GetEnumFromType(type);
             if (adsType != AdsTypeEnum.Unknown)
             {
-                object v = ConvertBytesToType(adsType, value);
-                if (v == null)
-                    throw new AdsException("Function GetResultFromBytes doesn't support this type yet!");
-                return v;
+                return ConvertBytesToType(adsType, value);
             }
             else
             {
@@ -262,24 +259,31 @@ namespace Ads.Client.Helpers
 
         private static object ConvertBytesToType(AdsTypeEnum adsType, byte[] value)
         {
-            switch (adsType)
+            try
             {
-                case AdsTypeEnum.Bool: return BitConverter.ToBoolean(value, 0);
-                case AdsTypeEnum.Byte: return value[0];
-                case AdsTypeEnum.Int16: return BitConverter.ToInt16(value, 0);
-                case AdsTypeEnum.Int32: return BitConverter.ToInt32(value, 0);
-                case AdsTypeEnum.Int64: return BitConverter.ToInt64(value, 0);
-                case AdsTypeEnum.UInt16: return BitConverter.ToUInt16(value, 0);
-                case AdsTypeEnum.UInt32: return BitConverter.ToUInt32(value, 0);
-                case AdsTypeEnum.UInt64: return BitConverter.ToUInt64(value, 0);
-                case AdsTypeEnum.Single: return BitConverter.ToSingle(value, 0);
-                case AdsTypeEnum.Double: return BitConverter.ToDouble(value, 0);
-                case AdsTypeEnum.String: return ByteArrayHelper.ByteArrayToString(value);
-                case AdsTypeEnum.DateTime: return ByteArrayHelper.ByteArrayToDateTime(value);
-                case AdsTypeEnum.Date: return new Date(BitConverter.ToUInt32(value, 0));
-                case AdsTypeEnum.Time: return new Time(BitConverter.ToUInt32(value, 0));
-                default:
-                    return null;
+                switch (adsType)
+                {
+                    case AdsTypeEnum.Bool: return BitConverter.ToBoolean(value, 0);
+                    case AdsTypeEnum.Byte: return value[0];
+                    case AdsTypeEnum.Int16: return BitConverter.ToInt16(value, 0);
+                    case AdsTypeEnum.Int32: return BitConverter.ToInt32(value, 0);
+                    case AdsTypeEnum.Int64: return BitConverter.ToInt64(value, 0);
+                    case AdsTypeEnum.UInt16: return BitConverter.ToUInt16(value, 0);
+                    case AdsTypeEnum.UInt32: return BitConverter.ToUInt32(value, 0);
+                    case AdsTypeEnum.UInt64: return BitConverter.ToUInt64(value, 0);
+                    case AdsTypeEnum.Single: return BitConverter.ToSingle(value, 0);
+                    case AdsTypeEnum.Double: return BitConverter.ToDouble(value, 0);
+                    case AdsTypeEnum.String: return ByteArrayHelper.ByteArrayToString(value);
+                    case AdsTypeEnum.DateTime: return ByteArrayHelper.ByteArrayToDateTime(value);
+                    case AdsTypeEnum.Date: return new Date(BitConverter.ToUInt32(value, 0));
+                    case AdsTypeEnum.Time: return new Time(BitConverter.ToUInt32(value, 0));
+                    default:
+                        return null;
+                }
+            }
+            catch
+            {
+                return null;
             }
         }
 
