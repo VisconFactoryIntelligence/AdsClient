@@ -20,7 +20,7 @@
  */
 using System;
 using System.Collections.Generic;
-using System.Net;
+using System.Linq;
 using System.Threading.Tasks;
 using Ads.Client.Commands;
 using Ads.Client.Common;
@@ -67,7 +67,20 @@ namespace Ads.Client
         private Ams ams;
         public Ams Ams { get { return ams; } }
 
-        private List<uint> activeSymhandles = new List<uint>();
+        /// <summary>
+        /// An internal list of handles and its associated lock object.
+        /// </summary>
+        private Dictionary<string, uint> activeSymhandles = new Dictionary<string, uint>();
+        private object activeSymhandlesLock = new object();
+
+        /// <summary>
+        /// Clears the dictionary of handles.
+        /// </summary>
+        public void ClearSymhandleDictionary()
+        {
+            lock (activeSymhandlesLock)
+                activeSymhandles.Clear();
+        }
 
         /// <summary>
         /// Special functions. (functionality not documented by Beckhoff)
@@ -134,14 +147,29 @@ namespace Ads.Client
         /// <returns>The handle</returns>
         public async Task<uint> GetSymhandleByNameAsync(string varName) 
         {
+            // Check, if the handle is already present.
+            lock (activeSymhandlesLock)
+            {
+                if (activeSymhandles.ContainsKey(varName))
+                    return activeSymhandles[varName];
+            }
+
+            // It was not retrieved before - get it from the control.
             var adsCommand = new AdsWriteReadCommand(0x0000F003, 0x00000000, varName.ToAdsBytes(), 4);
             var result = await adsCommand.RunAsync(this.ams);
             if (result == null || result.Data == null || result.Data.Length < 4)
                 return 0;
 
             var handle = BitConverter.ToUInt32(result.Data, 0);
-            activeSymhandles.Add(handle);
-            return handle;
+
+            // Now, try to add it.
+            lock (activeSymhandlesLock)
+            {
+                if (!activeSymhandles.ContainsKey(varName))
+                    activeSymhandles.Add(varName, handle);
+
+                return handle;
+            }
         }
 
         public async Task<uint> GetSymhandleByNameAsync(IAdsSymhandle symhandle)
@@ -156,13 +184,40 @@ namespace Ads.Client
         /// Release symhandle
         /// </summary>
         /// <param name="symhandle">The handle returned by GetSymhandleByName</param>
+        /// <returns>An awaitable task.</returns>
         public Task ReleaseSymhandleAsync(uint symhandle)
         {
-            activeSymhandles.Remove(symhandle);
-            AdsWriteCommand adsCommand = new AdsWriteCommand(0x0000F006, 0x00000000, BitConverter.GetBytes(symhandle));
+            // Perform a reverse-lookup at the dictionary.
+            lock (activeSymhandlesLock)
+            {
+                var key = "";
+
+                foreach (var kvp in activeSymhandles)
+                {
+                    if (kvp.Value != symhandle)
+                        continue;
+                    key = kvp.Key;
+                    break;
+                }
+
+                activeSymhandles.Remove(key);
+            }
+
+            return ReleaseSymhandleAsyncInternal(symhandle);
+        }
+
+        private Task ReleaseSymhandleAsyncInternal(uint symhandle)
+        {
+            // Run the release command.
+            var adsCommand = new AdsWriteCommand(0x0000F006, 0x00000000, BitConverter.GetBytes(symhandle));
             return adsCommand.RunAsync(this.ams);
         }
 
+        /// <summary>
+        /// Release symhandle.
+        /// </summary>
+        /// <param name="adsSymhandle">The handle.</param>
+        /// <returns>An awaitable task.</returns>
         public Task ReleaseSymhandleAsync(IAdsSymhandle adsSymhandle)
         {
             return ReleaseSymhandleAsync(adsSymhandle.Symhandle);
@@ -217,9 +272,9 @@ namespace Ads.Client
                 return default(T);
         }
 
-        public Task<T> ReadAsync<T>(IAdsSymhandle adsSymhandle) 
+        public Task<T> ReadAsync<T>(IAdsSymhandle adsSymhandle, uint arrayLength = 1) 
         {
-            return ReadAsync<T>(adsSymhandle.Symhandle);
+            return ReadAsync<T>(adsSymhandle.Symhandle, arrayLength);
         }
 
         /// <summary>
@@ -364,10 +419,16 @@ namespace Ads.Client
 
         public async Task ReleaseActiveSymhandlesAsync()
         {
-            while (activeSymhandles.Count > 0)
+            var handles = new List<uint>();
+
+            lock (activeSymhandlesLock)
             {
-                await ReleaseSymhandleAsync(activeSymhandles[0]);
+                handles = activeSymhandles.Values.ToList();
+                activeSymhandles.Clear();
             }
+
+            foreach (var handle in handles)
+                await ReleaseSymhandleAsyncInternal(handle);
         }
 #endif
         #endregion
@@ -382,11 +443,29 @@ namespace Ads.Client
         /// <returns>The handle</returns>
         public uint GetSymhandleByName(string varName)
         {
-            AdsWriteReadCommand adsCommand = new AdsWriteReadCommand(0x0000F003, 0x00000000, varName.ToAdsBytes(), 4);
+            // Check, if the handle is already present.
+            lock (activeSymhandlesLock)
+            {
+                if (activeSymhandles.ContainsKey(varName))
+                    return activeSymhandles[varName];
+            }
+
+            // It was not retrieved before - get it from the control.
+            var adsCommand = new AdsWriteReadCommand(0x0000F003, 0x00000000, varName.ToAdsBytes(), 4);
             var result = adsCommand.Run(this.ams);
+            if (result == null || result.Data == null || result.Data.Length < 4)
+                return 0;
+
             var handle = BitConverter.ToUInt32(result.Data, 0);
-            activeSymhandles.Add(handle);
-            return handle;
+
+            // Now, try to add it.
+            lock (activeSymhandlesLock)
+            {
+                if (!activeSymhandles.ContainsKey(varName))
+                    activeSymhandles.Add(varName, handle);
+
+                return handle;
+            }
         }
 
         /// <summary>
@@ -401,17 +480,42 @@ namespace Ads.Client
             return symHandle.Symhandle;
         }
 
+        private void ReleaseSymhandleInternal(uint symhandle)
+        {
+            // Run the release command.
+            var adsCommand = new AdsWriteCommand(0x0000F006, 0x00000000, BitConverter.GetBytes(symhandle));
+            adsCommand.Run(this.ams);
+        }
+
         /// <summary>
         /// Release symhandle
         /// </summary>
         /// <param name="symhandle">The handle returned by GetSymhandleByName</param>
         public void ReleaseSymhandle(uint symhandle)
         {
-            activeSymhandles.Remove(symhandle);
-            AdsWriteCommand adsCommand = new AdsWriteCommand(0x0000F006, 0x00000000, BitConverter.GetBytes(symhandle));
-            var result = adsCommand.Run(this.ams);
+            // Perform a reverse-lookup at the dictionary.
+            lock (activeSymhandlesLock)
+            {
+                var key = "";
+
+                foreach (var kvp in activeSymhandles)
+                {
+                    if (kvp.Value != symhandle)
+                        continue;
+                    key = kvp.Key;
+                    break;
+                }
+
+                activeSymhandles.Remove(key);
+            }
+
+            ReleaseSymhandleInternal(symhandle);
         }
 
+        /// <summary>
+        /// Release symhandle.
+        /// </summary>
+        /// <param name="adsSymhandle">The handle.</param>
         public void ReleaseSymhandle(IAdsSymhandle adsSymhandle)
         {
             ReleaseSymhandle(adsSymhandle.Symhandle);
@@ -448,22 +552,28 @@ namespace Ads.Client
             return result.Data;
         }
 
-
         /// <summary>
         /// Read the value from the handle returned by GetSymhandleByName
         /// </summary>
         /// <typeparam name="T">A type like byte, ushort, uint depending on the length of the twincat variable</typeparam>
         /// <param name="varHandle">The handle returned by GetSymhandleByName</param>
+        /// <param name="arrayLength">An optional array length.</param>
         /// <returns>The value of the twincat variable</returns>
-        public T Read<T>(uint varHandle) 
+        public T Read<T>(uint varHandle, uint arrayLength = 1)
         {
-            byte[] value = ReadBytes(varHandle, GenericHelper.GetByteLengthFromType<T>(DefaultStringLength));
-            return GenericHelper.GetResultFromBytes<T>(value, DefaultStringLength);
+            var length = GenericHelper.GetByteLengthFromType<T>(DefaultStringLength, arrayLength);
+            var value = ReadBytes(varHandle, length);
+
+            if (value != null)
+                return GenericHelper.GetResultFromBytes<T>(value, DefaultStringLength, arrayLength);
+            else
+                return default(T);
         }
 
-        public T Read<T>(IAdsSymhandle adsSymhandle) 
+
+        public T Read<T>(IAdsSymhandle adsSymhandle, uint arrayLength = 1) 
         {
-            return Read<T>(adsSymhandle.Symhandle);
+            return Read<T>(adsSymhandle.Symhandle, arrayLength);
         }
 
         /// <summary>
@@ -610,10 +720,16 @@ namespace Ads.Client
 
         public void ReleaseActiveSymhandles()
         {
-            while (activeSymhandles.Count > 0)
+            var handles = new List<uint>();
+
+            lock (activeSymhandlesLock)
             {
-                ReleaseSymhandle(activeSymhandles[0]);
+                handles = activeSymhandles.Values.ToList();
+                activeSymhandles.Clear();
             }
+
+            foreach (var handle in handles)
+                ReleaseSymhandleInternal(handle);
         }
 
         #endif

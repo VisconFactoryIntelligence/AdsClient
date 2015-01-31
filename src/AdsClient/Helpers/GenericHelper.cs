@@ -21,26 +21,42 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Ads.Client.Common;
-using System.Reflection;
 
 namespace Ads.Client.Helpers
 {
-
+    /// <summary>
+    /// An enumeration of types known to ADS.
+    /// </summary>
     internal enum AdsTypeEnum { Unknown, Bool, Byte, Char, Int16, Int32, Int64, UInt16, UInt32, UInt64, Single, Double, String, DateTime, Date, Time };
 
+    /// <summary>
+    /// A helper class for various conversions.
+    /// </summary>
     internal static class GenericHelper
     {
+        const string TypeNotImplementedError = "Type {0} must be implemented or has the AdsSerializable attribute!";
+
         /// <summary>
         /// Get length in bytes from a valuetype or AdsSerializable 
         /// </summary>
-        /// <typeparam name="T">ValueType or AdsSerializable</typeparam>
-        /// <returns></returns>
+        /// <param name="defaultStringLength">The default string length.</param>
+        /// <param name="arrayLength">The array length.</param>
+        /// <returns>The length.</returns>
         public static uint GetByteLengthFromType<T>(uint defaultStringLength, uint arrayLength = 1) 
         {
-            Type type = typeof(T);
+            return GetByteLengthFromType(typeof(T), defaultStringLength, arrayLength);
+        }
+
+        /// <summary>
+        /// Get length in bytes from a valuetype or AdsSerializable 
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <param name="defaultStringLength">The default string length.</param>
+        /// <param name="arrayLength">The array length.</param>
+        /// <returns>The length</returns>
+        public static uint GetByteLengthFromType(Type type, uint defaultStringLength, uint arrayLength = 1)
+        {
             uint factor = 1;
 
             if (type.IsArray)
@@ -53,8 +69,9 @@ namespace Ads.Client.Helpers
 
             if (adsType != AdsTypeEnum.Unknown)
             {
-                var length = GetByteLengthFromType(adsType, defaultStringLength);
-                if (length == 0) throw new AdsException(String.Format("Function GetByteLengthFromType doesn't support this type ({0}) yet!", type.FullName));
+                var length = GetByteLengthFromConvertible(adsType, defaultStringLength);
+                if (length == 0)
+                    throw new AdsException(String.Format("Function GetByteLengthFromType doesn't support this type ({0}) yet!", type.FullName));
                 return length * factor;
             }
             else
@@ -179,7 +196,7 @@ namespace Ads.Client.Helpers
             {
                 if (type.IsAdsSerializable())
                 {
-                    var totallength = GetByteLengthFromType<T>(defaultStringLength);
+                    var totallength = GetByteLengthFromType(type, defaultStringLength);
                     varValueBytes = new List<byte>((int)totallength);
                     var attributes = GetAdsAttributes(type, defaultStringLength);
                     
@@ -199,9 +216,40 @@ namespace Ads.Client.Helpers
                 }
             }
 
-            if (varValueBytes == null) throw new AdsException("Function GetBytesFromType doesn't support this type yet!");
+            if (varValueBytes == null)
+                throw new AdsException("Function GetBytesFromType doesn't support this type yet!");
 
             return varValueBytes;
+        }
+
+        /// <summary>
+        /// Gets all members marked with an <see cref="AdsAttribute"/>.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <param name="defaultStringLength">The default string length.</param>
+        /// <returns>An enumeration of attributes.</returns>
+        public static IEnumerable<AdsAttribute> GetAdsAttributes(Type type, uint defaultStringLength)
+        {
+            var attributes = new List<AdsAttribute>();
+            var members = type.GetPublicFieldsAndProperties();
+
+            foreach (var member in members)
+            {
+                var attr = member.GetAdsAttribute();
+
+                if (attr != null)
+                {
+                    attr.Member = member;
+                    if (attr.ByteSize == 0)
+                    {
+                        var memberType = member.GetMemberType();
+                        attr.ByteSize = GetByteLengthFromType(memberType, defaultStringLength, attr.ArraySize);
+                    }
+                    attributes.Add(attr);
+                }
+            }
+
+            return attributes.OrderBy(a => a.Order);
         }
 
         private static IEnumerable<byte> GetBytesFromConvertible(AdsTypeEnum adsType, object value, uint defaultStringLength)
@@ -232,7 +280,7 @@ namespace Ads.Client.Helpers
             return varValueBytes;
         }
 
-        private static uint GetByteLengthFromType(AdsTypeEnum adsType, uint defaultStringLength)
+        private static uint GetByteLengthFromConvertible(AdsTypeEnum adsType, uint defaultStringLength)
         {
             uint length = 0;
 
@@ -286,32 +334,6 @@ namespace Ads.Client.Helpers
                 return null;
             }
         }
-
-        public static IEnumerable<AdsAttribute> GetAdsAttributes(Type type, uint defaultStringLength)
-        {
-            var attributes = new List<AdsAttribute>();
-            var members = type.GetPublicFieldsAndProperties();
-
-            foreach (var member in members)
-            {
-                var attr = member.GetAdsAttribute();
-
-                if (attr != null)
-                {
-                    attr.Member = member;
-                    if (attr.ByteSize == 0)
-                    {
-						var adsType = GetEnumFromType(member.GetMemberType());
-                        attr.ByteSize = GetByteLengthFromType(adsType, defaultStringLength);
-                    }
-                    attributes.Add(attr);
-                }
-            }
-
-            return attributes.OrderBy(a => a.Order);
-        }
-
-        const string TypeNotImplementedError = "Type {0} must be implemented or has the AdsSerializable attribute!";
 
         public static AdsTypeEnum GetEnumFromType(Type type)
         {
