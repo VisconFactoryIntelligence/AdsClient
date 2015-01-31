@@ -31,21 +31,12 @@ namespace Ads.Client.Winsock
         {
             try
             {
-                if (message.Length <= maxPacketSize)
-                {
-                    amsSocket.Socket.Receive(message);
-                }
-                else
-                {
-                    byte[] msg = new byte[maxPacketSize];
-                    int totalread = 0;
+                int totalread = 0;
 
-                    while (totalread < message.Length)
-                    {
-                        int read = amsSocket.Socket.Receive(msg);
-                        Array.Copy(msg, 0, message, totalread, read);
-                        totalread += read;
-                    }
+                while (totalread < message.Length)
+                {
+                    var read = amsSocket.Socket.Receive(message, totalread, message.Length - totalread, SocketFlags.None);
+                    totalread += read;
                 }
             }
             catch (Exception ex)

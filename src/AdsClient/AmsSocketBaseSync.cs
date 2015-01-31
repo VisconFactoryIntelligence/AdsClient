@@ -36,8 +36,6 @@ namespace Ads.Client
 			this.amsSocket = amsSocket;
         }
 
-        protected int maxPacketSize = 1514;
-
         public void ConnectAndListen()
         {
             if (!amsSocket.IsConnected)
