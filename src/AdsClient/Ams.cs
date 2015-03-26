@@ -95,7 +95,7 @@ namespace Ads.Client
         internal bool? ConnectedAsync { get { return amsSocket.ConnectedAsync; } }
 
         private IAmsSocket amsSocket;
-		public IAmsSocket AmsSocket {get; private set;}
+        public IAmsSocket AmsSocket { get { return amsSocket; } private set { amsSocket = value; } }
         private uint invokeId = 0;
 
         private object pendingResultsLock = new object();

@@ -173,7 +173,10 @@ namespace Ads.Client.Helpers
         {
             Type type = typeof(T);
             var o = GetResultFromBytes(type, value, defaultStringLength, arrayLength);
-            return (T)Convert.ChangeType(o, type);
+            if (o == null)
+                return default(T);
+            else
+                return (T)Convert.ChangeType(o, type);
         }
 
         /// <summary>
