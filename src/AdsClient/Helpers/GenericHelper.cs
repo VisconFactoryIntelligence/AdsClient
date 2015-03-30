@@ -143,11 +143,10 @@ namespace Ads.Client.Helpers
                     {
                         try
                         {
-                            byte[] valarray = new byte[attr.ByteSize];
+                            var valarray = new byte[attr.ByteSize];
                             Array.Copy(value, (int)pos, valarray, 0, (int)attr.ByteSize);
                             var proptype = attr.Member.GetMemberType();
-                            adsType = GetEnumFromType(proptype);
-                            object val = ConvertBytesToType(adsType, valarray);
+                            var val = GetResultFromBytes(proptype, valarray, defaultStringLength, attr.ArraySize);
                             attr.Member.SetValue(adsObj, val);
                             pos += attr.ByteSize;
                         }
