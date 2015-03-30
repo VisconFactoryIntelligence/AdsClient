@@ -255,26 +255,35 @@ namespace Ads.Client
         }
 
         /// <summary>
-        /// Read the value from the handle returned by GetSymhandleByNameAsync
+        /// Read the value from the handle returned by GetSymhandleByNameAsync.
         /// </summary>
         /// <typeparam name="T">A type like byte, ushort, uint depending on the length of the twincat variable</typeparam>
         /// <param name="varHandle">The handle returned by GetSymhandleByNameAsync</param>
         /// <param name="arrayLength">An optional array length.</param>
+        /// <param name="adsObj">An optional existing object.</param>
         /// <returns>The value of the twincat variable</returns>
-        public async Task<T> ReadAsync<T>(uint varHandle, uint arrayLength = 1) 
+        public async Task<T> ReadAsync<T>(uint varHandle, uint arrayLength = 1, object adsObj = null) 
         {
             var length = GenericHelper.GetByteLengthFromType<T>(DefaultStringLength, arrayLength);
             var value = await ReadBytesAsync(varHandle, length);
 
             if (value != null)
-                return GenericHelper.GetResultFromBytes<T>(value, DefaultStringLength, arrayLength);
+                return GenericHelper.GetResultFromBytes<T>(value, DefaultStringLength, arrayLength, adsObj);
             else
                 return default(T);
         }
 
-        public Task<T> ReadAsync<T>(IAdsSymhandle adsSymhandle, uint arrayLength = 1) 
+        /// <summary>
+        /// Read the value from the handle.
+        /// </summary>
+        /// <typeparam name="T">A type like byte, ushort, uint depending on the length of the twincat variable</typeparam>
+        /// <param name="adsSymhandle">The handle.</param>
+        /// <param name="arrayLength">An optional array length.</param>
+        /// <param name="adsObj">An optional existing object.</param>
+        /// <returns>The value of the twincat variable</returns>
+        public Task<T> ReadAsync<T>(IAdsSymhandle adsSymhandle, uint arrayLength = 1, object adsObj = null) 
         {
-            return ReadAsync<T>(adsSymhandle.Symhandle, arrayLength);
+            return ReadAsync<T>(adsSymhandle.Symhandle, arrayLength, adsObj);
         }
 
         /// <summary>
@@ -553,27 +562,35 @@ namespace Ads.Client
         }
 
         /// <summary>
-        /// Read the value from the handle returned by GetSymhandleByName
+        /// Read the value from the handle returned by GetSymhandleByName.
         /// </summary>
         /// <typeparam name="T">A type like byte, ushort, uint depending on the length of the twincat variable</typeparam>
         /// <param name="varHandle">The handle returned by GetSymhandleByName</param>
         /// <param name="arrayLength">An optional array length.</param>
+        /// <param name="adsObj">An optional existing object.</param>
         /// <returns>The value of the twincat variable</returns>
-        public T Read<T>(uint varHandle, uint arrayLength = 1)
+        public T Read<T>(uint varHandle, uint arrayLength = 1, object adsObj = null)
         {
             var length = GenericHelper.GetByteLengthFromType<T>(DefaultStringLength, arrayLength);
             var value = ReadBytes(varHandle, length);
 
             if (value != null)
-                return GenericHelper.GetResultFromBytes<T>(value, DefaultStringLength, arrayLength);
+                return GenericHelper.GetResultFromBytes<T>(value, DefaultStringLength, arrayLength, adsObj);
             else
                 return default(T);
         }
 
-
-        public T Read<T>(IAdsSymhandle adsSymhandle, uint arrayLength = 1) 
+        /// <summary>
+        /// Read the value from the handle.
+        /// </summary>
+        /// <typeparam name="T">A type like byte, ushort, uint depending on the length of the twincat variable</typeparam>
+        /// <param name="adsSymhandle">The handle.</param>
+        /// <param name="arrayLength">An optional array length.</param>
+        /// <param name="adsObj">An optional existing object.</param>
+        /// <returns>The value of the twincat variable</returns>
+        public T Read<T>(IAdsSymhandle adsSymhandle, uint arrayLength = 1, object adsObj = null) 
         {
-            return Read<T>(adsSymhandle.Symhandle, arrayLength);
+            return Read<T>(adsSymhandle.Symhandle, arrayLength, adsObj);
         }
 
         /// <summary>

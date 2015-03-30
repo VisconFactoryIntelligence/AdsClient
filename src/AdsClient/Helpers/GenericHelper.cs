@@ -37,13 +37,14 @@ namespace Ads.Client.Helpers
     {
         const string TypeNotImplementedError = "Type {0} must be implemented or has the AdsSerializable attribute!";
 
+        #region Type byte length
         /// <summary>
         /// Get length in bytes from a valuetype or AdsSerializable 
         /// </summary>
         /// <param name="defaultStringLength">The default string length.</param>
         /// <param name="arrayLength">The array length.</param>
         /// <returns>The length.</returns>
-        public static uint GetByteLengthFromType<T>(uint defaultStringLength, uint arrayLength = 1) 
+        public static uint GetByteLengthFromType<T>(uint defaultStringLength, uint arrayLength = 1)
         {
             return GetByteLengthFromType(typeof(T), defaultStringLength, arrayLength);
         }
@@ -89,16 +90,20 @@ namespace Ads.Client.Helpers
                 else
                     throw new AdsException(String.Format(TypeNotImplementedError, type.FullName));
             }
-        }
+        } 
+        #endregion
 
+        #region Byte array -> Object
         /// <summary>
-        ///     Convert byte array to valuetype or AdsSerializable
+        /// Convert byte array to valuetype or AdsSerializable
         /// </summary>
         /// <param name="type"></param>
         /// <param name="value"></param>
         /// <param name="defaultStringLength"></param>
-        /// <returns></returns>
-        public static object GetResultFromBytes(Type type, byte[] value, uint defaultStringLength, uint arrayLength = 1)
+        /// <param name="arrayLength"></param>
+        /// <param name="adsObj"></param>
+        /// <returns>The resulting object.</returns>
+        public static object GetResultFromBytes(Type type, byte[] value, uint defaultStringLength, uint arrayLength = 1, object adsObj = null)
         {
             if (value == null)
                 throw new ArgumentNullException("value", "GetResultFromBytes");
@@ -107,23 +112,27 @@ namespace Ads.Client.Helpers
             {
                 var elementType = type.GetElementType();
                 var elementSize = (int)(value.Length / arrayLength);
-                var array = Array.CreateInstance(elementType, new int[] { (int)arrayLength });
+                var array = (adsObj as Array) ?? Array.CreateInstance(elementType, new int[] { (int)arrayLength });
 
                 for (var i = 0; i < arrayLength; i++)
                 {
+                    // Prepare the new value array.
                     var valarray = new byte[elementSize];
                     Array.Copy(value, i * elementSize, valarray, 0, elementSize);
-                    var val = GetResultFromBytesInternal(elementType, valarray, defaultStringLength);
-                    array.SetValue(val, new int[] { i });
+
+                    // Get the previous value (if available) and store the results.
+                    var val = array.GetValue(i);
+                    val = GetResultFromBytes(elementType, valarray, defaultStringLength, 1, val);
+                    array.SetValue(val, i);
                 }
 
                 return array;
             }
             else
-                return GetResultFromBytesInternal(type, value, defaultStringLength);
+                return GetResultFromBytesInternal(type, value, defaultStringLength, adsObj);
         }
 
-        private static object GetResultFromBytesInternal(Type type, byte[] value, uint defaultStringLength)
+        private static object GetResultFromBytesInternal(Type type, byte[] value, uint defaultStringLength, object adsObj)
         {
             var adsType = GetEnumFromType(type);
             if (adsType != AdsTypeEnum.Unknown)
@@ -134,7 +143,9 @@ namespace Ads.Client.Helpers
             {
                 if (type.IsAdsSerializable())
                 {
-                    var adsObj = Activator.CreateInstance(type);
+                    if (adsObj == null)
+                        adsObj = Activator.CreateInstance(type);
+
                     var attributes = GetAdsAttributes(type, defaultStringLength);
 
                     uint pos = 0;
@@ -143,11 +154,17 @@ namespace Ads.Client.Helpers
                     {
                         try
                         {
+                            // Prepare the new value array.
                             var valarray = new byte[attr.ByteSize];
                             Array.Copy(value, (int)pos, valarray, 0, (int)attr.ByteSize);
+
+                            // Get the previous data (if available) and store the results.
                             var proptype = attr.Member.GetMemberType();
-                            var val = GetResultFromBytes(proptype, valarray, defaultStringLength, attr.ArraySize);
+                            var val = attr.Member.GetValue(adsObj);
+                            val = GetResultFromBytes(proptype, valarray, defaultStringLength, attr.ArraySize, val);
                             attr.Member.SetValue(adsObj, val);
+
+                            // Increment byte pointer.
                             pos += attr.ByteSize;
                         }
                         catch
@@ -168,23 +185,25 @@ namespace Ads.Client.Helpers
         /// <typeparam name="T">ValueType or AdsSerializable</typeparam>
         /// <param name="value"></param>
         /// <returns></returns>
-        public static T GetResultFromBytes<T>(byte[] value, uint defaultStringLength, uint arrayLength = 1) 
+        public static T GetResultFromBytes<T>(byte[] value, uint defaultStringLength, uint arrayLength = 1, object adsObj = null)
         {
             Type type = typeof(T);
-            var o = GetResultFromBytes(type, value, defaultStringLength, arrayLength);
+            var o = GetResultFromBytes(type, value, defaultStringLength, arrayLength, adsObj);
             if (o == null)
                 return default(T);
             else
                 return (T)Convert.ChangeType(o, type);
-        }
+        } 
+        #endregion
 
+        #region Object -> Byte array
         /// <summary>
         /// Convert ValueType or AdsSerializable to byte array
         /// </summary>
         /// <typeparam name="T">ValueType or AdsSerializable</typeparam>
         /// <param name="varValue2">The value that needs conversion</param>
         /// <returns></returns>
-        public static IEnumerable<byte> GetBytesFromType<T>(T varValue, uint defaultStringLength) 
+        public static IEnumerable<byte> GetBytesFromType<T>(T varValue, uint defaultStringLength)
         {
             List<byte> varValueBytes = null;
             var type = typeof(T);
@@ -201,10 +220,10 @@ namespace Ads.Client.Helpers
                     var totallength = GetByteLengthFromType(type, defaultStringLength);
                     varValueBytes = new List<byte>((int)totallength);
                     var attributes = GetAdsAttributes(type, defaultStringLength);
-                    
+
                     foreach (var attr in attributes)
                     {
-						var memberType = attr.Member.GetMemberType();
+                        var memberType = attr.Member.GetMemberType();
                         adsType = GetEnumFromType(memberType);
                         var val = attr.Member.GetValue(varValue);
                         var bytes = GetBytesFromConvertible(adsType, val, defaultStringLength);
@@ -222,8 +241,10 @@ namespace Ads.Client.Helpers
                 throw new AdsException("Function GetBytesFromType doesn't support this type yet!");
 
             return varValueBytes;
-        }
+        } 
+        #endregion
 
+        #region AdsAttribute enumeration
         /// <summary>
         /// Gets all members marked with an <see cref="AdsAttribute"/>.
         /// </summary>
@@ -252,8 +273,10 @@ namespace Ads.Client.Helpers
             }
 
             return attributes.OrderBy(a => a.Order);
-        }
+        } 
+        #endregion
 
+        #region Known type conversions
         private static IEnumerable<byte> GetBytesFromConvertible(AdsTypeEnum adsType, object value, uint defaultStringLength)
         {
             IEnumerable<byte> varValueBytes = null;
@@ -261,7 +284,7 @@ namespace Ads.Client.Helpers
             if (value == null) return null;
 
             switch (adsType)
-            {  
+            {
                 case AdsTypeEnum.Bool: varValueBytes = BitConverter.GetBytes((bool)value); break;
                 case AdsTypeEnum.Byte: varValueBytes = new byte[] { (byte)value }; break;
                 case AdsTypeEnum.Char: varValueBytes = BitConverter.GetBytes((char)value); break;
@@ -355,6 +378,7 @@ namespace Ads.Client.Helpers
             if (Type.Equals(type, typeof(Time))) return AdsTypeEnum.Time;
 
             return AdsTypeEnum.Unknown;
-        }
+        } 
+        #endregion
     }
 }

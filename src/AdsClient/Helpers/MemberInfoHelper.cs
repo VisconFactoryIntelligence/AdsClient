@@ -93,8 +93,7 @@
 
             // Then, return all properties.
             foreach (var p in type.GetRuntimeProperties())
-                if (p.CanWrite)
-                    yield return p;
+                yield return p;
         }
 
         /// <summary>
@@ -121,7 +120,11 @@
             if (info is FieldInfo)
                 ((FieldInfo)info).SetValue(obj, value);
             else
-                ((PropertyInfo)info).SetValue(obj, value);
+            {
+                var pi = (PropertyInfo)info;
+                if (pi.CanWrite)
+                    pi.SetValue(obj, value);
+            }
         }
 
         /// <summary>
