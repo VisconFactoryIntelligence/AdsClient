@@ -136,14 +136,16 @@ namespace Ads.Client.Special
 
         private IList<IAdsSymhandle> GetSymbolsFromBytes(byte[] data)
         {
-            int pos = 0;
+            int symbolStartPos = 0;
             var symbols = new List<IAdsSymhandle>();
 
-            while (pos < data.Length)
+            while (symbolStartPos < data.Length)
             {
+                int pos = symbolStartPos;
                 IAdsSymhandle symbol = new AdsSymhandle();
 
-                uint readLength = BitConverter.ToUInt32(data, pos);
+                int readLength = (int)BitConverter.ToUInt32(data, pos);
+                symbolStartPos += readLength;
 
                 symbol.IndexGroup = BitConverter.ToUInt32(data, pos + 4);
                 symbol.IndexOffset = BitConverter.ToUInt32(data, pos + 8);
