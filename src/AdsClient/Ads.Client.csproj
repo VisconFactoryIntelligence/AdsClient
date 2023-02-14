@@ -1,88 +1,19 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>12.0.0</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{FDF3424C-C451-4790-BBFE-187FBE06BD57}</ProjectGuid>
-    <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <OutputType>Library</OutputType>
-    <RootNamespace>Ads.Client</RootNamespace>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Company>webding</Company>
+    <Copyright>Inando</Copyright>
     <AssemblyName>AdsClient</AssemblyName>
-    <TargetFrameworkProfile>Profile78</TargetFrameworkProfile>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <ReleaseVersion>0.6.0</ReleaseVersion>
+    <Version>0.7</Version>
+    <Title>AdsClient PCL library</Title>
+    <Description>
+      A client implementation of the Beckhoff Twincat ADS protocol, targeting
+      NetStandard2.0 compatible platforms.
+    </Description>
+    <Authors>Inando</Authors>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageTags>Ads;AdsClient;Twincat;Beckhoff</PackageTags>
+    <PackageProjectUrl>https://github.com/MrCircuit/adsclient</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/MrCircuit/adsclient.git</RepositoryUrl>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>..\..\bin\Debug</OutputPath>
-    <DefineConstants>DEBUG;</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <ConsolePause>false</ConsolePause>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>full</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>..\..\bin\Release</OutputPath>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <ConsolePause>false</ConsolePause>
-  </PropertyGroup>
-  <ItemGroup>
-    <Compile Include="AmsSocketBaseSync.cs" />
-    <Compile Include="AmsSocketBaseAsync.cs" />
-    <Compile Include="Helpers\MemberInfoHelper.cs" />
-    <Compile Include="IAmsSocketAsync.cs" />
-    <Compile Include="IAmsSocketSync.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="CommandResponse\AdsAddDeviceNotificationCommandResponse.cs" />
-    <Compile Include="CommandResponse\AdsCommandResponse.cs" />
-    <Compile Include="CommandResponse\AdsDeleteDeviceNotificationCommandResponse.cs" />
-    <Compile Include="CommandResponse\AdsReadCommandResponse.cs" />
-    <Compile Include="CommandResponse\AdsReadDeviceInfoCommandResponse.cs" />
-    <Compile Include="CommandResponse\AdsReadStateCommandResponse.cs" />
-    <Compile Include="CommandResponse\AdsWriteCommandResponse.cs" />
-    <Compile Include="CommandResponse\AdsWriteReadCommandResponse.cs" />
-    <Compile Include="Commands\AdsAddDeviceNotificationCommand.cs" />
-    <Compile Include="Commands\AdsCommand.cs" />
-    <Compile Include="Commands\AdsDeleteDeviceNotificationCommand.cs" />
-    <Compile Include="Commands\AdsReadCommand.cs" />
-    <Compile Include="Commands\AdsReadDeviceInfoCommand.cs" />
-    <Compile Include="Commands\AdsReadStateCommand.cs" />
-    <Compile Include="Commands\AdsWriteCommand.cs" />
-    <Compile Include="Commands\AdsWriteReadCommand.cs" />
-    <Compile Include="Common\AdsCommandId.cs" />
-    <Compile Include="Common\AdsConnectionSettings.cs" />
-    <Compile Include="Common\AdsDeviceInfo.cs" />
-    <Compile Include="Common\AdsException.cs" />
-    <Compile Include="Common\AdsNotification.cs" />
-    <Compile Include="Common\AdsNotificationArgs.cs" />
-    <Compile Include="Common\AdsState.cs" />
-    <Compile Include="Common\AdsSymhandle.cs" />
-    <Compile Include="Common\AdsTransmissionMode.cs" />
-    <Compile Include="Common\AmsNetId.cs" />
-    <Compile Include="Common\AmsSocketResponseArgs.cs" />
-    <Compile Include="Common\Date.cs" />
-    <Compile Include="Common\IAdsConnectionSettings.cs" />
-    <Compile Include="Common\IAdsSymhandle.cs" />
-    <Compile Include="Common\Time.cs" />
-    <Compile Include="Helpers\AdsAttribute.cs" />
-    <Compile Include="Helpers\AdsSerializableAttribute.cs" />
-    <Compile Include="Helpers\AmsHeaderHelper.cs" />
-    <Compile Include="Helpers\AmsSocketHelper.cs" />
-    <Compile Include="Helpers\ByteArrayHelper.cs" />
-    <Compile Include="Helpers\Extensions.cs" />
-    <Compile Include="Helpers\GenericHelper.cs" />
-    <Compile Include="Special\AdsSpecial.cs" />
-    <Compile Include="AdsClient.cs" />
-    <Compile Include="Ams.cs" />
-    <Compile Include="AmsSocketBase.cs" />
-    <Compile Include="IAmsSocket.cs" />
-  </ItemGroup>
-  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
-  <ItemGroup />
 </Project>
