@@ -1,22 +1,22 @@
 ﻿/*  Copyright (c) 2011 Inando
- 
-    Permission is hereby granted, free of charge, to any person obtaining a 
-    copy of this software and associated documentation files (the "Software"), 
-    to deal in the Software without restriction, including without limitation 
-    the rights to use, copy, modify, merge, publish, distribute, sublicense, 
-    and/or sell copies of the Software, and to permit persons to whom the 
+
+    Permission is hereby granted, free of charge, to any person obtaining a
+    copy of this software and associated documentation files (the "Software"),
+    to deal in the Software without restriction, including without limitation
+    the rights to use, copy, modify, merge, publish, distribute, sublicense,
+    and/or sell copies of the Software, and to permit persons to whom the
     Software is furnished to do so, subject to the following conditions:
 
-    The above copyright notice and this permission notice shall be included 
+    The above copyright notice and this permission notice shall be included
     in all copies or substantial portions of the Software.
 
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, 
-    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF 
-    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-    IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
-    DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, 
-    TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
-    OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+    IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+    DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+    TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
+    OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 using System;
 using System.Collections.Generic;
@@ -33,12 +33,12 @@ namespace Ads.Client
     {
 
         /// <summary>
-        /// AdsClient Constructor 
+        /// AdsClient Constructor
         /// This can be used if you wan't to use your own IAmsSocket implementation.
         /// </summary>
         /// <param name="amsSocket">Your own IAmsSocket implementation</param>
         /// <param name="amsNetIdSource">
-        /// The AmsNetId of this device. You can choose something in the form of x.x.x.x.x.x 
+        /// The AmsNetId of this device. You can choose something in the form of x.x.x.x.x.x
         /// You have to define this ID in combination with the IP as a route on the target Ads device
         /// </param>
         /// <param name="amsNetIdTarget">The AmsNetId of the target Ads device</param>
@@ -49,6 +49,21 @@ namespace Ads.Client
             ams.AmsNetIdSource = new AmsNetId(amsNetIdSource);
             ams.AmsNetIdTarget = new AmsNetId(amsNetIdTarget);
             ams.AmsPortTarget = amsPortTarget;
+        }
+
+        /// <summary>
+        /// AdsClient Constructor
+        /// </summary>
+        /// <param name="ipTarget">IP of the target Ads device</param>
+        /// <param name="amsNetIdSource">
+        /// The AmsNetId of this device. You can choose something in the form of x.x.x.x.x.x
+        /// You have to define this ID in combination with the IP as a route on the target Ads device
+        /// </param>
+        /// <param name="amsNetIdTarget">The AmsNetId of the target Ads device</param>
+        /// <param name="amsPortTarget">Ams port. Default 801</param>
+        public AdsClient(string amsNetIdSource, string ipTarget, string amsNetIdTarget, ushort amsPortTarget = 801) :
+            this(amsNetIdSource, new AmsSocket(ipTarget), amsNetIdTarget, amsPortTarget)
+        {
         }
 
         /// <summary>
@@ -88,16 +103,16 @@ namespace Ads.Client
         private AdsSpecial special;
         public AdsSpecial Special
         {
-            get 
+            get
             {
                 if (special == null)
                 {
                     special = new AdsSpecial(ams);
                 }
-                return special; 
+                return special;
             }
         }
-        
+
         /// <summary>
         /// When using the generic string method, this is the default string length
         /// </summary>
@@ -107,9 +122,9 @@ namespace Ads.Client
             get { return defaultStringLenght; }
             set { defaultStringLenght = value; }
         }
- 
+
         public string Name { get; set; }
-        
+
         /// <summary>
         /// This event is called when a subscribed notification is raised
         /// </summary>
@@ -122,7 +137,7 @@ namespace Ads.Client
         protected virtual void Dispose(bool managed)
         {
             #if !SILVERLIGHT
-            if (ams.ConnectedAsync == false) 
+            if (ams.ConnectedAsync == false)
             {
                 DeleteActiveNotifications();
                 ReleaseActiveSymhandles();
@@ -145,7 +160,7 @@ namespace Ads.Client
         /// </summary>
         /// <param name="varName">A twincat variable like ".XXX"</param>
         /// <returns>The handle</returns>
-        public async Task<uint> GetSymhandleByNameAsync(string varName) 
+        public async Task<uint> GetSymhandleByNameAsync(string varName)
         {
             // Check, if the handle is already present.
             lock (activeSymhandlesLock)
@@ -262,7 +277,7 @@ namespace Ads.Client
         /// <param name="arrayLength">An optional array length.</param>
         /// <param name="adsObj">An optional existing object.</param>
         /// <returns>The value of the twincat variable</returns>
-        public async Task<T> ReadAsync<T>(uint varHandle, uint arrayLength = 1, object adsObj = null) 
+        public async Task<T> ReadAsync<T>(uint varHandle, uint arrayLength = 1, object adsObj = null)
         {
             var length = GenericHelper.GetByteLengthFromType<T>(DefaultStringLength, arrayLength);
             var value = await ReadBytesAsync(varHandle, length);
@@ -281,7 +296,7 @@ namespace Ads.Client
         /// <param name="arrayLength">An optional array length.</param>
         /// <param name="adsObj">An optional existing object.</param>
         /// <returns>The value of the twincat variable</returns>
-        public Task<T> ReadAsync<T>(IAdsSymhandle adsSymhandle, uint arrayLength = 1, object adsObj = null) 
+        public Task<T> ReadAsync<T>(IAdsSymhandle adsSymhandle, uint arrayLength = 1, object adsObj = null)
         {
             return ReadAsync<T>(adsSymhandle.Symhandle, arrayLength, adsObj);
         }
@@ -340,7 +355,7 @@ namespace Ads.Client
         /// <param name="cycleTime">The cyclic time in ms. If used with OnChange, then the value is send once after this time in ms</param>
         /// <param name="userData">A custom object that can be used in the callback</param>
         /// <returns></returns>
-        public Task<uint> AddNotificationAsync<T>(uint varHandle, AdsTransmissionMode transmissionMode, uint cycleTime, object userData) 
+        public Task<uint> AddNotificationAsync<T>(uint varHandle, AdsTransmissionMode transmissionMode, uint cycleTime, object userData)
         {
             uint length = GenericHelper.GetByteLengthFromType<T>(DefaultStringLength);
             return AddNotificationAsync(varHandle, length, transmissionMode, cycleTime, userData, typeof(T));
@@ -384,13 +399,13 @@ namespace Ads.Client
         /// <typeparam name="T">A type like byte, ushort, uint depending on the length of the twincat variable</typeparam>
         /// <param name="varHandle">The handle returned by GetSymhandleByNameAsync</param>
         /// <param name="varValue">The value to be sent</param>
-        public Task WriteAsync<T>(uint varHandle, T varValue) 
+        public Task WriteAsync<T>(uint varHandle, T varValue)
         {
             IEnumerable<byte> varValueBytes = GenericHelper.GetBytesFromType<T>(varValue, defaultStringLenght);
             return this.WriteBytesAsync(varHandle, varValueBytes);
         }
 
-        public Task WriteAsync<T>(IAdsSymhandle adsSymhandle, T varValue) 
+        public Task WriteAsync<T>(IAdsSymhandle adsSymhandle, T varValue)
         {
             return WriteAsync<T>(adsSymhandle.Symhandle, varValue);
         }
@@ -407,7 +422,7 @@ namespace Ads.Client
         }
 
         /// <summary>
-        /// Read the ads state 
+        /// Read the ads state
         /// </summary>
         /// <returns></returns>
         public async Task<AdsState> ReadStateAsync()
@@ -588,7 +603,7 @@ namespace Ads.Client
         /// <param name="arrayLength">An optional array length.</param>
         /// <param name="adsObj">An optional existing object.</param>
         /// <returns>The value of the twincat variable</returns>
-        public T Read<T>(IAdsSymhandle adsSymhandle, uint arrayLength = 1, object adsObj = null) 
+        public T Read<T>(IAdsSymhandle adsSymhandle, uint arrayLength = 1, object adsObj = null)
         {
             return Read<T>(adsSymhandle.Symhandle, arrayLength, adsObj);
         }
@@ -653,7 +668,7 @@ namespace Ads.Client
             return AddNotification(varHandle, length, transmissionMode, cycleTime, userData, typeof(T));
         }
 
-        public uint AddNotification<T>(IAdsSymhandle adsSymhandle, AdsTransmissionMode transmissionMode, uint cycleTime, object userData) 
+        public uint AddNotification<T>(IAdsSymhandle adsSymhandle, AdsTransmissionMode transmissionMode, uint cycleTime, object userData)
         {
             return AddNotification<T>(adsSymhandle.Symhandle, transmissionMode, cycleTime, userData);
         }
@@ -714,7 +729,7 @@ namespace Ads.Client
         }
 
         /// <summary>
-        /// Read the ads state 
+        /// Read the ads state
         /// </summary>
         /// <returns></returns>
         public AdsState ReadState()
