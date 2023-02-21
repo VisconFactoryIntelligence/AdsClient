@@ -13,7 +13,7 @@
     <Authors>Inando</Authors>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageTags>Ads;AdsClient;Twincat;Beckhoff</PackageTags>
-    <PackageProjectUrl>https://github.com/MrCircuit/adsclient</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/MrCircuit/adsclient.git</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/mycroes/adsclient</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/mycroes/adsclient.git</RepositoryUrl>
   </PropertyGroup>
 </Project>
