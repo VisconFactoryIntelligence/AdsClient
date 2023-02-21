@@ -9,3 +9,5 @@ temp
 TestResult.xml
 testrunner
 
+.vs
+*.DotSettings.user
