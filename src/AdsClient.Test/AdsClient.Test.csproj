@@ -1,57 +1,15 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>12.0.0</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{39A1FBFC-72EC-46A3-8889-1ECBDD52C35E}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <RootNamespace>Ads.Client.Test</RootNamespace>
+    <TargetFrameworks>net48</TargetFrameworks>
+    <Company>webding</Company>
+    <Copyright>Inando</Copyright>
     <AssemblyName>AdsClient.Test</AssemblyName>
-    <ReleaseVersion>0.6.0</ReleaseVersion>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <UseMSBuildEngine>False</UseMSBuildEngine>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug</OutputPath>
-    <DefineConstants>DEBUG;</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <ConsolePause>false</ConsolePause>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>full</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release</OutputPath>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <ConsolePause>false</ConsolePause>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="nunit.framework">
-      <HintPath>..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
+    <PackageReference Include="NUnit" Version="2.6.3" />
   </ItemGroup>
+
   <ItemGroup>
-    <Compile Include="AdsCommandsAsyncTest.cs" />
-    <Compile Include="AdsCommandsTest.cs" />
-    <Compile Include="AmsSocketTest.cs" />
-    <Compile Include="AmsSocketAsyncTest.cs" />
-    <Compile Include="AmsSocketSyncTest.cs" />
+    <ProjectReference Include="..\AdsClient\Ads.Client.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\AdsClient\Ads.Client.csproj">
-      <Project>{FDF3424C-C451-4790-BBFE-187FBE06BD57}</Project>
-      <Name>Ads.Client</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
