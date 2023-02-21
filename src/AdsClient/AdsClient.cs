@@ -699,7 +699,7 @@ namespace Ads.Client
 
         public void Write<T>(IAdsSymhandle adsSymhandle, T varValue)
         {
-            Write<T>(adsSymhandle, varValue);
+            Write<T>(adsSymhandle.Symhandle, varValue);
         }
 
         /// <summary>
