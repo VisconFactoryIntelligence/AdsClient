@@ -33,10 +33,22 @@ namespace Ads.Client
             {
                 args.SetBuffer(amsheader, 0, amsheader.Length);
                 args.UserToken = synchronizationContext;
-                args.Completed += (sender, e) => lambda(e.Buffer, e.UserToken as SynchronizationContext);
+                args.Completed += (sender, e) =>
+                {
+                    if (args.BytesTransferred == 0)
+                    {
+                        throw new Exception($"Remote host closed the connection.");
+                    }
+
+                    lambda(e.Buffer, e.UserToken as SynchronizationContext);
+                };
                 bool receivedAsync = Socket.ReceiveAsync(args);
                 if (!receivedAsync)
                 {
+                    if (args.BytesTransferred == 0)
+                    {
+                        throw new Exception($"Remote host closed the connection.");
+                    }
                     lambda(amsheader, null);
                 }
             }
