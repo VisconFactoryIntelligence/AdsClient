@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
@@ -20,22 +20,30 @@ namespace Ads.Client
             #if !SILVERLIGHT
             amsSocket.Socket.Bind(amsSocket.LocalEndPoint);
             #endif
-            using (SocketAsyncEventArgs args = new SocketAsyncEventArgs())
+            var args = new SocketAsyncEventArgs();
+            args.RemoteEndPoint = new DnsEndPoint(amsSocket.IpTarget, amsSocket.PortTarget);
+            args.Completed += (_, e) => CompleteSocketCall(tcs, e);
+
+            if (!amsSocket.Socket.ConnectAsync(args))
             {
-                args.RemoteEndPoint = new DnsEndPoint(amsSocket.IpTarget, amsSocket.PortTarget);
-                args.Completed += (sender, e) => { tcs.TrySetResult(e.SocketError == SocketError.Success); e.Dispose(); };
-                amsSocket.Socket.ConnectAsync(args);
+                CompleteSocketCall(tcs, args);
             }
+
             return tcs.Task;
         }
 
         public override Task SendAsync(byte[] message)
         {
             var tcs = new TaskCompletionSource<bool>(amsSocket.Socket);
-            SocketAsyncEventArgs args = new SocketAsyncEventArgs();
-            args.Completed += (sender, e) => { tcs.TrySetResult(e.SocketError == SocketError.Success); e.Dispose(); };
+            var args = new SocketAsyncEventArgs();
+            args.Completed += (_, e) => CompleteSocketCall(tcs, e);
+
             args.SetBuffer(message, 0, message.Length);
-            amsSocket.Socket.SendAsync(args);
+
+            if (!amsSocket.Socket.SendAsync(args))
+            {
+                CompleteSocketCall(tcs, args);
+            }
             return tcs.Task;
         }
 
@@ -43,7 +51,8 @@ namespace Ads.Client
         {
             var tcs = new TaskCompletionSource<bool>(amsSocket.Socket);
             SocketAsyncEventArgs args = new SocketAsyncEventArgs();
-            args.Completed += (sender, e) =>
+
+            void Complete(SocketAsyncEventArgs e)
             {
                 try
                 {
@@ -52,30 +61,56 @@ namespace Ads.Client
                     {
                         // We set the same buffer, but with an offset and new byte count. The already received data stays untouched.
                         e.SetBuffer(e.Buffer, e.BytesTransferred, e.Count - e.BytesTransferred);
-                        StartReceiveAsync(e);
+                        StartReceiveAsync(e, Complete);
                     }
                     else
                     {
-                        tcs.TrySetResult(e.SocketError == SocketError.Success);
-                        e.Dispose();
+                        CompleteSocketCall(tcs, e);
                     }
                 }
-                catch (Exception ex) { tcs.TrySetException(ex); }
-            };
+                catch (Exception ex)
+                {
+                    tcs.TrySetException(ex);
+                }
+            }
+
+            args.Completed += (_, e) => Complete(e);
             args.SetBuffer(message, 0, message.Length);
-            StartReceiveAsync(args);
+            StartReceiveAsync(args, Complete);
             return tcs.Task;
         }
 
-        private void StartReceiveAsync(SocketAsyncEventArgs args)
+        private void StartReceiveAsync(SocketAsyncEventArgs args, Action<SocketAsyncEventArgs> onComplete)
         {
             try
             {
-                amsSocket.Socket.ReceiveAsync(args);
+                if (!amsSocket.Socket.ReceiveAsync(args))
+                {
+                    onComplete(args);
+                }
             }
             catch (Exception ex)
             {
                 if (!Object.ReferenceEquals(ex.GetType(), typeof(ObjectDisposedException))) throw ex;
+            }
+        }
+
+        private static void CompleteSocketCall(TaskCompletionSource<bool> taskCompletionSource, SocketAsyncEventArgs args)
+        {
+            try
+            {
+                if (args.SocketError == SocketError.Success)
+                {
+                    taskCompletionSource.TrySetResult(true);
+                }
+                else
+                {
+                    taskCompletionSource.SetException(new SocketException((int)args.SocketError));
+                }
+            }
+            finally
+            {
+                args.Dispose();
             }
         }
     }
