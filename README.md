@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/inando/adsclient.svg?branch=master)](https://travis-ci.org/inando/adsclient)
+[![Build Status](https://github.com/mycroes/adsclient/actions/workflows/dotnet.yml/badge.svg)](https://github.com/mycroes/adsclient/actions/workflows/dotnet.yml)
 
 This is the client implementation of the [Twincat](http://www.beckhoff.com/english.asp?twincat/default.htm) Ads protocol from [Beckhoff](http://http://www.beckhoff.com/).   
 (I'm not affiliated with Beckhoff)
@@ -15,7 +15,8 @@ AdsClient.WinRT can be use in Widows 8.1 WinRT/Phone.
 
 Contributors
 ============
-MrCircuit (https://github.com/MrCircuit)
+[MrCircuit](https://github.com/MrCircuit)
+[mycroes](https://github.com/mycroes)
 
 Getting started
 ===============
