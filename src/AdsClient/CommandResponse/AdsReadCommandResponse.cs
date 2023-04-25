@@ -37,7 +37,7 @@ namespace Ads.Client.CommandResponse
         
         protected override void AdsResponseIsChanged()
         {
-            uint dataLength = BitConverter.ToUInt16(this.AdsResponse, 4);
+            uint dataLength = BitConverter.ToUInt32(this.AdsResponse, 4);
             data = new byte[dataLength];
             Array.Copy(AdsResponse, 8, data, 0, (int)dataLength);
         }
