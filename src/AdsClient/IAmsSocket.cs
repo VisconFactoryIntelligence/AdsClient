@@ -5,7 +5,7 @@ using System;
 
 namespace Ads.Client
 {
-    public delegate void AmsSocketResponseDelegate(object sender, AmsSocketResponseArgs e); 
+    public delegate void AmsSocketResponseDelegate(object sender, AmsSocketResponseArgs e);
 
     public interface IAmsSocket : IDisposable
     {

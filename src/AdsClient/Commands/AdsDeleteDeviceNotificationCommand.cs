@@ -10,10 +10,10 @@ namespace Ads.Client.Commands
 {
     public class AdsDeleteDeviceNotificationCommand : AdsCommand
     {
-        public AdsDeleteDeviceNotificationCommand(uint notificationHandle) 
+        public AdsDeleteDeviceNotificationCommand(uint notificationHandle)
             : base(AdsCommandId.DeleteDeviceNotification)
         {
-           
+
             this.notificationHandle = notificationHandle;
         }
 

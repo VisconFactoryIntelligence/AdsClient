@@ -13,7 +13,7 @@ namespace Ads.Client.Commands
             this.commandId = commandId;
         }
 
-        
+
         private ushort commandId;
         public ushort CommandId
         {

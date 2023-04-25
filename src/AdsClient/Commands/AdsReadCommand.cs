@@ -31,14 +31,14 @@ namespace Ads.Client.Commands
         }
 
 #if !NO_ASYNC
-        public Task<AdsReadCommandResponse> RunAsync(Ams ams) 
+        public Task<AdsReadCommandResponse> RunAsync(Ams ams)
         {
             return RunAsync<AdsReadCommandResponse>(ams);
         }
 #endif
 
 #if !SILVERLIGHT
-        public AdsReadCommandResponse Run(Ams ams) 
+        public AdsReadCommandResponse Run(Ams ams)
         {
             return Run<AdsReadCommandResponse>(ams);
         }

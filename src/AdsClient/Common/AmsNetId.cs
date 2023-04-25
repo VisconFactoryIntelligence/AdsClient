@@ -15,7 +15,7 @@ namespace Ads.Client.Common
         private void ParseString(string amsNetId)
         {
             Bytes = new List<byte>();
-            
+
             string[] byteStrings = amsNetId.Split('.');
             foreach (string byteString in byteStrings)
             {

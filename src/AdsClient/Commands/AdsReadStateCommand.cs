@@ -13,7 +13,7 @@ namespace Ads.Client.Commands
         public AdsReadStateCommand()
             : base(AdsCommandId.ReadState)
         {
-            
+
         }
 
         internal override IEnumerable<byte> GetBytes()

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Ads.Client.Common
 {
-    public static class AdsCommandId 
+    public static class AdsCommandId
     {
         public const ushort ReadDeviceInfo             = 1;
         public const ushort Read                       = 2;

@@ -18,7 +18,7 @@ namespace Ads.Client.Commands
             this.indexOffset = indexOffset;
             this.transmissionMode = transmissionMode;
             this.notification = new AdsNotification();
-       
+
         }
 
         private AdsNotification notification;

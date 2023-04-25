@@ -16,9 +16,9 @@ namespace Ads.Client
             for (int index = 0; index < value.Length; ++index)
             {
                 char ch = value[index];
-                if (ch <= 0x7f) 
+                if (ch <= 0x7f)
                     result[index] = (byte)ch;
-                else 
+                else
                     result[index] = (byte)'?';
             }
             result[result.Length-1] = 0;

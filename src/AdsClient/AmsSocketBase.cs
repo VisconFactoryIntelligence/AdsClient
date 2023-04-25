@@ -46,7 +46,7 @@ namespace Ads.Client
                     byte[] amsheader = new byte[AmsHeaderHelper.AmsTcpHeaderSize];
 
                     ListenForHeader(amsheader, (buffer, usertoken) =>
-                    { 
+                    {
                         //If a ams header is received, then read the rest (this is the new thread)
                         try
                         {
@@ -61,8 +61,8 @@ namespace Ads.Client
                             var syncContext = synchronizationContext;
                             if (usertoken != null) syncContext = usertoken as SynchronizationContext;
 
-                            var callbackArgs = new AmsSocketResponseArgs() { 
-                                Response = response, 
+                            var callbackArgs = new AmsSocketResponseArgs() {
+                                Response = response,
                                 Context = syncContext };
                             OnReadCallBack(this, callbackArgs);
                             Listen();
@@ -72,7 +72,7 @@ namespace Ads.Client
                             var callbackArgs = new AmsSocketResponseArgs() { Error = ex };
                             OnReadCallBack(this, callbackArgs);
                         }
-                    });                                          
+                    });
                 }
                 catch (Exception ex)
                 {
@@ -92,10 +92,10 @@ namespace Ads.Client
         private void GetMessage(byte[] response)
         {
             if (ConnectedAsync)
-                Async.ReceiveAsync(response).Wait(); 
+                Async.ReceiveAsync(response).Wait();
             else
                 Sync.Receive(response);
-            
+
         }
 
         protected abstract void CloseConnection();

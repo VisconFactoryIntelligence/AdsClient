@@ -12,7 +12,7 @@ namespace Ads.Client.Commands
         public AdsReadDeviceInfoCommand()
             : base(AdsCommandId.ReadDeviceInfo)
         {
-            
+
         }
 
         internal override IEnumerable<byte> GetBytes()

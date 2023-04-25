@@ -47,7 +47,7 @@ namespace Ads.Client.CommandResponse
         }
 
         public Exception UnknownException { get; set; }
-        
+
         protected virtual uint GetErrorCode()
         {
             return BitConverter.ToUInt32(AdsResponse, 0);

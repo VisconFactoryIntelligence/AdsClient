@@ -26,7 +26,7 @@ namespace Ads.Client.Commands
         private uint indexGroup;
 
         internal override IEnumerable<byte> GetBytes()
-        { 
+        {
             IEnumerable<byte> data = BitConverter.GetBytes(indexGroup);
             data = data.Concat(BitConverter.GetBytes(indexOffset));
             data = data.Concat(BitConverter.GetBytes(readLength));

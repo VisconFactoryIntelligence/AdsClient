@@ -38,7 +38,7 @@ namespace Ads.Client.Common
         {
             get
             {
-                string desc = ""; 
+                string desc = "";
                 switch (State)
                 {
                     case ADSSTATE_INVALID: desc = "Invalid"; break;
@@ -58,10 +58,10 @@ namespace Ads.Client.Common
                     case ADSSTATE_RESUME: desc = "Resume"; break;
                     case ADSSTATE_CONFIG: desc = "Configuration"; break;
                     case ADSSTATE_RECONFIG: desc = "Reconfiguration"; break;
-                }            
+                }
                 return desc;
             }
         }
-        
+
     }
 }

@@ -14,7 +14,7 @@ namespace Ads.Client.CommandResponse
         {
             get { return adsState; }
         }
-        
+
         protected override void AdsResponseIsChanged()
         {
             adsState = new AdsState();

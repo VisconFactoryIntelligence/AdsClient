@@ -15,7 +15,7 @@ namespace Ads.Client.CommandResponse
         {
             get { return adsDeviceInfo; }
         }
-        
+
         protected override void AdsResponseIsChanged()
         {
             adsDeviceInfo = new AdsDeviceInfo();

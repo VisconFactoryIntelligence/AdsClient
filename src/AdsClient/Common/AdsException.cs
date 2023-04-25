@@ -64,7 +64,7 @@ namespace Ads.Client.Common
                 case 25: msg = "No memory"; break;
                 case 26: msg = "TCP send error"; break;
                 case 27: msg = "Host unreachable"; break;
-                           
+
                 case 1792: msg="error class <device error>"; break;
                 case 1793: msg="Service is not supported by server"; break;
                 case 1794: msg="invalid index group"; break;

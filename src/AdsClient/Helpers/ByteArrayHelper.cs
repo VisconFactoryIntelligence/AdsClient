@@ -39,7 +39,7 @@ namespace Ads.Client.Helpers
             foreach (byte val in value)
             {
                 if (sb.Length > 0) sb.Append(',');
-                sb.Append(val.ToString());   
+                sb.Append(val.ToString());
             }
             return sb.ToString();
         }

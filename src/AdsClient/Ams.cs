@@ -38,7 +38,7 @@ namespace Ads.Client
         {
             get { return amsPortSource; }
             set { amsPortSource = value; }
-        }        
+        }
 
         /// <summary>
         /// The localendpoint for the socket connection
@@ -51,7 +51,7 @@ namespace Ads.Client
 
         /// <summary>
         /// Specify a timeout time for the non async functions.
-        /// The default is 5000 ms. 
+        /// The default is 5000 ms.
         /// -1 means wait forever
         /// </summary>
         private int commandTimeOut = 5000;
@@ -81,7 +81,7 @@ namespace Ads.Client
         private object pendingResultsLock = new object();
         private List<AdsCommandResponse> pendingResults = new List<AdsCommandResponse>();
 
-        private byte[] GetAmsMessage(AdsCommand adsCommand) 
+        private byte[] GetAmsMessage(AdsCommand adsCommand)
         {
             IEnumerable<byte> data = adsCommand.GetBytes();
             IEnumerable<byte> message = AmsNetIdTarget.Bytes;                       //AmsNetId Target
@@ -142,15 +142,15 @@ namespace Ads.Client
                     foreach (var notification in notifications)
                     {
                         var notificationRequest = NotificationRequests.FirstOrDefault(n => n.NotificationHandle == notification.NotificationHandle);
-                        if (notificationRequest != null) 
+                        if (notificationRequest != null)
                         {
                             notificationRequest.ByteValue = notification.ByteValue;
 
                             if ((args.Context != null) && (RunNotificationsOnMainThread))
                                 args.Context.Post(
-                                    new SendOrPostCallback(delegate 
-                                    { 
-                                        OnNotification(null, new AdsNotificationArgs(notificationRequest)); 
+                                    new SendOrPostCallback(delegate
+                                    {
+                                        OnNotification(null, new AdsNotificationArgs(notificationRequest));
                                     }), null);
                             else
                                 OnNotification(null, new AdsNotificationArgs(notificationRequest));

@@ -13,8 +13,8 @@ namespace Ads.Client.CommandResponse
         {
             get { return data; }
         }
-        
-        
+
+
         protected override void AdsResponseIsChanged()
         {
             uint dataLength = BitConverter.ToUInt32(this.AdsResponse, 4);
