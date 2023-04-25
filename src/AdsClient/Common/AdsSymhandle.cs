@@ -33,9 +33,6 @@ namespace Ads.Client.Common
         public UInt32 IndexOffset { get; set; }
         public string TypeName { get; set; }
         public string Comment { get; set; }
-        public uint Symhandle { get; set; }
-        public string ConnectionName { get; set; }
-        public uint ByteLength { get; set; }
 
         public override string ToString()
         {

@@ -187,14 +187,6 @@ namespace Ads.Client
             }
         }
 
-        public async Task<uint> GetSymhandleByNameAsync(IAdsSymhandle symhandle)
-        {
-            //var symhandle = new AdsSymhandle();
-            symhandle.Symhandle = await GetSymhandleByNameAsync(symhandle.VarName);
-            symhandle.ConnectionName = Name;
-            return symhandle.Symhandle;
-        }
-
         /// <summary>
         /// Release symhandle
         /// </summary>
@@ -229,16 +221,6 @@ namespace Ads.Client
         }
 
         /// <summary>
-        /// Release symhandle.
-        /// </summary>
-        /// <param name="adsSymhandle">The handle.</param>
-        /// <returns>An awaitable task.</returns>
-        public Task ReleaseSymhandleAsync(IAdsSymhandle adsSymhandle)
-        {
-            return ReleaseSymhandleAsync(adsSymhandle.Symhandle);
-        }
-
-        /// <summary>
         /// Read the value from the handle returned by GetSymhandleByNameAsync
         /// </summary>
         /// <param name="varHandle">The handle returned by GetSymhandleByNameAsync</param>
@@ -248,11 +230,6 @@ namespace Ads.Client
             AdsReadCommand adsCommand = new AdsReadCommand(0x0000F005, varHandle, readLength);
             var result = await adsCommand.RunAsync(this.ams);
             return result.Data;
-        }
-
-        public Task<byte[]> ReadBytesAsync(IAdsSymhandle adsSymhandle)
-        {
-            return ReadBytesAsync(adsSymhandle.Symhandle, adsSymhandle.ByteLength);
         }
 
         public async Task<byte[]> ReadBytesI_Async(uint offset, uint readLength)
@@ -289,19 +266,6 @@ namespace Ads.Client
         }
 
         /// <summary>
-        /// Read the value from the handle.
-        /// </summary>
-        /// <typeparam name="T">A type like byte, ushort, uint depending on the length of the twincat variable</typeparam>
-        /// <param name="adsSymhandle">The handle.</param>
-        /// <param name="arrayLength">An optional array length.</param>
-        /// <param name="adsObj">An optional existing object.</param>
-        /// <returns>The value of the twincat variable</returns>
-        public Task<T> ReadAsync<T>(IAdsSymhandle adsSymhandle, uint arrayLength = 1, object adsObj = null)
-        {
-            return ReadAsync<T>(adsSymhandle.Symhandle, arrayLength, adsObj);
-        }
-
-        /// <summary>
         /// Add a noticiation when a variable changes or cyclic after a defined time in ms
         /// </summary>
         /// <param name="varHandle">The handle returned by GetSymhandleByNameAsync</param>
@@ -313,11 +277,6 @@ namespace Ads.Client
         public Task<uint> AddNotificationAsync(uint varHandle, uint length, AdsTransmissionMode transmissionMode, uint cycleTime, object userData)
         {
             return AddNotificationAsync(varHandle, length, transmissionMode, cycleTime, userData, typeof(byte[]));
-        }
-
-        public Task<uint> AddNotificationAsync(IAdsSymhandle adsSymhandle, AdsTransmissionMode transmissionMode, uint cycleTime, object userData)
-        {
-            return AddNotificationAsync(adsSymhandle.Symhandle, adsSymhandle.ByteLength, transmissionMode, cycleTime, userData);
         }
 
         /// <summary>
@@ -341,11 +300,6 @@ namespace Ads.Client
             return result.NotificationHandle; ;
         }
 
-        public Task<uint> AddNotificationAsync(IAdsSymhandle adsSymhandle, AdsTransmissionMode transmissionMode, uint cycleTime, object userData, Type typeOfValue)
-        {
-            return AddNotificationAsync(adsSymhandle.Symhandle, adsSymhandle.ByteLength, transmissionMode, cycleTime, userData, typeOfValue);
-        }
-
         /// <summary>
         /// Add a noticiation when a variable changes or cyclic after a defined time in ms
         /// </summary>
@@ -359,11 +313,6 @@ namespace Ads.Client
         {
             uint length = GenericHelper.GetByteLengthFromType<T>(DefaultStringLength);
             return AddNotificationAsync(varHandle, length, transmissionMode, cycleTime, userData, typeof(T));
-        }
-
-        public Task<uint> AddNotificationAsync<T>(IAdsSymhandle adsSymhandle, AdsTransmissionMode transmissionMode, uint cycleTime, object userData)
-        {
-            return AddNotificationAsync<T>(adsSymhandle.Symhandle, transmissionMode, cycleTime, userData);
         }
 
         /// <summary>
@@ -388,11 +337,6 @@ namespace Ads.Client
             return adsCommand.RunAsync(this.ams);
         }
 
-        public Task WriteBytesAsync(IAdsSymhandle adsSymhandle, IEnumerable<byte> varValue)
-        {
-            return WriteBytesAsync(adsSymhandle.Symhandle, varValue);
-        }
-
         /// <summary>
         /// Write the value to the handle returned by GetSymhandleByNameAsync
         /// </summary>
@@ -403,11 +347,6 @@ namespace Ads.Client
         {
             IEnumerable<byte> varValueBytes = GenericHelper.GetBytesFromType<T>(varValue, defaultStringLenght);
             return this.WriteBytesAsync(varHandle, varValueBytes);
-        }
-
-        public Task WriteAsync<T>(IAdsSymhandle adsSymhandle, T varValue)
-        {
-            return WriteAsync<T>(adsSymhandle.Symhandle, varValue);
         }
 
         /// <summary>
@@ -492,18 +431,6 @@ namespace Ads.Client
             }
         }
 
-        /// <summary>
-        /// Get a handle object from a variable name
-        /// </summary>
-        /// <param name="varName">A twincat variable like ".XXX"</param>
-        /// <returns>An AdsSymhandle object</returns>
-        public uint GetSymhandleByName(IAdsSymhandle symHandle)
-        {
-            symHandle.Symhandle = GetSymhandleByName(symHandle.VarName);
-            symHandle.ConnectionName = Name;
-            return symHandle.Symhandle;
-        }
-
         private void ReleaseSymhandleInternal(uint symhandle)
         {
             // Run the release command.
@@ -537,15 +464,6 @@ namespace Ads.Client
         }
 
         /// <summary>
-        /// Release symhandle.
-        /// </summary>
-        /// <param name="adsSymhandle">The handle.</param>
-        public void ReleaseSymhandle(IAdsSymhandle adsSymhandle)
-        {
-            ReleaseSymhandle(adsSymhandle.Symhandle);
-        }
-
-        /// <summary>
         /// Read the value from the handle returned by GetSymhandleByName
         /// </summary>
         /// <param name="varHandle">The handle returned by GetSymhandleByName</param>
@@ -555,11 +473,6 @@ namespace Ads.Client
             AdsReadCommand adsCommand = new AdsReadCommand(0x0000F005, varHandle, readLength);
             var result = adsCommand.Run(this.ams);
             return result.Data;
-        }
-
-        public byte[] ReadBytes(IAdsSymhandle adsSymhandle)
-        {
-            return ReadBytes(adsSymhandle.Symhandle, adsSymhandle.ByteLength);
         }
 
         public byte[] ReadBytesI(uint offset, uint readLength)
@@ -596,19 +509,6 @@ namespace Ads.Client
         }
 
         /// <summary>
-        /// Read the value from the handle.
-        /// </summary>
-        /// <typeparam name="T">A type like byte, ushort, uint depending on the length of the twincat variable</typeparam>
-        /// <param name="adsSymhandle">The handle.</param>
-        /// <param name="arrayLength">An optional array length.</param>
-        /// <param name="adsObj">An optional existing object.</param>
-        /// <returns>The value of the twincat variable</returns>
-        public T Read<T>(IAdsSymhandle adsSymhandle, uint arrayLength = 1, object adsObj = null)
-        {
-            return Read<T>(adsSymhandle.Symhandle, arrayLength, adsObj);
-        }
-
-        /// <summary>
         /// Add a noticiation when a variable changes or cyclic after a defined time in ms
         /// </summary>
         /// <param name="varHandle">The handle returned by GetSymhandleByName</param>
@@ -620,11 +520,6 @@ namespace Ads.Client
         public uint AddNotification(uint varHandle, uint length, AdsTransmissionMode transmissionMode, uint cycleTime, object userData)
         {
             return AddNotification(varHandle, length, transmissionMode, cycleTime, userData, typeof(byte[]));
-        }
-
-        public uint AddNotification(IAdsSymhandle adsSymhandle, AdsTransmissionMode transmissionMode, uint cycleTime, object userData)
-        {
-            return AddNotification(adsSymhandle.Symhandle, adsSymhandle.ByteLength, transmissionMode, cycleTime, userData);
         }
 
         /// <summary>
@@ -648,11 +543,6 @@ namespace Ads.Client
             return result.NotificationHandle;
         }
 
-        public uint AddNotification(IAdsSymhandle adsSymhandle, AdsTransmissionMode transmissionMode, uint cycleTime, object userData, Type TypeOfValue)
-        {
-            return AddNotification(adsSymhandle.Symhandle, adsSymhandle.ByteLength, transmissionMode, cycleTime, userData, TypeOfValue);
-        }
-
         /// <summary>
         /// Add a noticiation when a variable changes or cyclic after a defined time in ms
         /// </summary>
@@ -666,11 +556,6 @@ namespace Ads.Client
         {
             uint length = GenericHelper.GetByteLengthFromType<T>(DefaultStringLength);
             return AddNotification(varHandle, length, transmissionMode, cycleTime, userData, typeof(T));
-        }
-
-        public uint AddNotification<T>(IAdsSymhandle adsSymhandle, AdsTransmissionMode transmissionMode, uint cycleTime, object userData)
-        {
-            return AddNotification<T>(adsSymhandle.Symhandle, transmissionMode, cycleTime, userData);
         }
 
         /// <summary>
@@ -695,11 +580,6 @@ namespace Ads.Client
             var result = adsCommand.Run(this.ams);
         }
 
-        public void WriteBytes(IAdsSymhandle adsSymhandle, IEnumerable<byte> varValue)
-        {
-            WriteBytes(adsSymhandle.Symhandle, varValue);
-        }
-
         /// <summary>
         /// Write the value to the handle returned by GetSymhandleByName
         /// </summary>
@@ -710,11 +590,6 @@ namespace Ads.Client
         {
             IEnumerable<byte> varValueBytes = GenericHelper.GetBytesFromType<T>(varValue, defaultStringLenght);
             this.WriteBytes(varHandle, varValueBytes);
-        }
-
-        public void Write<T>(IAdsSymhandle adsSymhandle, T varValue)
-        {
-            Write<T>(adsSymhandle.Symhandle, varValue);
         }
 
         /// <summary>
