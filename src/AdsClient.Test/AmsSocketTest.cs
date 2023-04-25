@@ -1,12 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
-using Ads.Client.Common;
-using Ads.Client.Helpers;
-using System.Diagnostics;
 using System.Threading;
 
 namespace Ads.Client.Test

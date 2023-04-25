@@ -1,9 +1,4 @@
-﻿using System.Net;
-using System.Threading.Tasks;
-using Ads.Client.Common;
-using System;
-
-namespace Ads.Client
+﻿namespace Ads.Client
 {
     public interface IAmsSocketSync
     {

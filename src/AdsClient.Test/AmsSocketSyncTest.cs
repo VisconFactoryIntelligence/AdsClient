@@ -1,7 +1,5 @@
 ﻿using System;
-using Ads.Client;
 using NUnit.Framework;
-using Ads.Client.Helpers;
 using System.Linq;
 
 namespace Ads.Client.Test

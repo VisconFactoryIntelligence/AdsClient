@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Ads.Client.CommandResponse
+﻿namespace Ads.Client.CommandResponse
 {
     public class AdsWriteCommandResponse : AdsCommandResponse
     {

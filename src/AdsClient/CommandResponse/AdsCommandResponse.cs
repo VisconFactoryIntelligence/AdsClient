@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using Ads.Client.Common;
 
 namespace Ads.Client.CommandResponse
 {

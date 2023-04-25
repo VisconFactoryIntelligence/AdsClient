@@ -1,8 +1,4 @@
-﻿using System;
-using System.Text;
-using System.Collections.Generic;
-using Ads.Client;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using Ads.Client.Common;
 
 namespace Ads.Client.Test

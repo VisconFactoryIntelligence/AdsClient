@@ -1,6 +1,4 @@
-﻿using System.Net;
-using System.Threading.Tasks;
-using Ads.Client.Common;
+﻿using Ads.Client.Common;
 using System;
 
 namespace Ads.Client

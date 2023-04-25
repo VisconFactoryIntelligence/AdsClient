@@ -1,5 +1,4 @@
 ﻿using System;
-using Ads.Client;
 using NUnit.Framework;
 using System.Threading.Tasks;
 using System.Linq;

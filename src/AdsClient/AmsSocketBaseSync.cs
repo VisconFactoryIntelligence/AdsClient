@@ -1,12 +1,4 @@
-﻿using System;
-using Ads.Client.Helpers;
-using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
-using Ads.Client.Common;
-using System.Diagnostics;
-
-namespace Ads.Client
+﻿namespace Ads.Client
 {
     public abstract class AmsSocketBaseSync : IAmsSocketSync
     {
