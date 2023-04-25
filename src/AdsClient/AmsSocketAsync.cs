@@ -60,7 +60,7 @@ namespace Ads.Client
                     if (e.Count != e.BytesTransferred)
                     {
                         // We set the same buffer, but with an offset and new byte count. The already received data stays untouched.
-                        e.SetBuffer(e.Buffer, e.BytesTransferred, e.Count - e.BytesTransferred);
+                        e.SetBuffer(e.Buffer, e.Offset + e.BytesTransferred, e.Count - e.BytesTransferred);
                         StartReceiveAsync(e, Complete);
                     }
                     else
