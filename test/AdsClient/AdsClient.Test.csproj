@@ -6,7 +6,7 @@
     <AssemblyName>AdsClient.Test</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="NUnit" Version="2.6.3" />
+    <PackageReference Include="NUnit" Version="3.13.3" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\AdsClient\Ads.Client.csproj" />
