@@ -8,8 +8,7 @@
   <ItemGroup>
     <PackageReference Include="NUnit" Version="2.6.3" />
   </ItemGroup>
-
   <ItemGroup>
-    <ProjectReference Include="..\AdsClient\Ads.Client.csproj" />
+    <ProjectReference Include="..\..\src\AdsClient\Ads.Client.csproj" />
   </ItemGroup>
 </Project>
