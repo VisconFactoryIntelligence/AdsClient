@@ -26,7 +26,7 @@ using System.Threading.Tasks;
 
 namespace Ads.Client.Common
 {
-    public class AdsSymhandle : IAdsSymhandle
+    public class AdsSymhandle
     {
         public string VarName { get; set; }
         public UInt32 IndexGroup { get; set; }

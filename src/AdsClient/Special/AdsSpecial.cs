@@ -102,7 +102,7 @@ namespace Ads.Client.Special
             return routes;
         }
 
-        public IList<IAdsSymhandle> GetSymbols()
+        public IList<AdsSymhandle> GetSymbols()
         {
             AdsReadCommand adsCommand = new AdsReadCommand(0x0000f00f, 0x000000, 0x30);
             var result = adsCommand.Run(this.ams);
@@ -118,7 +118,7 @@ namespace Ads.Client.Special
 
         #if !NO_ASYNC
 
-        public async Task<IList<IAdsSymhandle>> GetSymbolsAsync()
+        public async Task<IList<AdsSymhandle>> GetSymbolsAsync()
         {
             AdsReadCommand adsCommand = new AdsReadCommand(0x0000f00f, 0x000000, 0x30);
             var result = await adsCommand.RunAsync(ams);
@@ -134,15 +134,15 @@ namespace Ads.Client.Special
 
         #endif
 
-        private IList<IAdsSymhandle> GetSymbolsFromBytes(byte[] data)
+        private IList<AdsSymhandle> GetSymbolsFromBytes(byte[] data)
         {
             int symbolStartPos = 0;
-            var symbols = new List<IAdsSymhandle>();
+            var symbols = new List<AdsSymhandle>();
 
             while (symbolStartPos < data.Length)
             {
                 int pos = symbolStartPos;
-                IAdsSymhandle symbol = new AdsSymhandle();
+                AdsSymhandle symbol = new AdsSymhandle();
 
                 int readLength = (int)BitConverter.ToUInt32(data, pos);
                 symbolStartPos += readLength;
