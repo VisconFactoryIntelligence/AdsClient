@@ -15,7 +15,8 @@ AdsClient.WinRT can be use in Widows 8.1 WinRT/Phone.
 
 Contributors
 ============
-MrCircuit (https://github.com/MrCircuit)
+[MrCircuit](https://github.com/MrCircuit)
+[mycroes](https://github.com/mycroes)
 
 Getting started
 ===============
