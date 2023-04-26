@@ -76,13 +76,5 @@ namespace Ads.Client.Commands
             return RunAsync<AdsAddDeviceNotificationCommandResponse>(ams);
         }
         #endif
-
-        #if !SILVERLIGHT
-        public AdsAddDeviceNotificationCommandResponse Run(Ams ams)
-        {
-            return Run<AdsAddDeviceNotificationCommandResponse>(ams);
-        }
-        #endif
-
     }
 }

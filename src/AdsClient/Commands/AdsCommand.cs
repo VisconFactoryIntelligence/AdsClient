@@ -39,19 +39,6 @@ namespace Ads.Client.Commands
         }
         #endif
 
-
-        #if !SILVERLIGHT
-        protected T Run<T>(Ams ams) where T : AdsCommandResponse
-        {
-            RunBefore(ams);
-            var result = ams.RunCommand<T>(this);
-            if (result.AdsErrorCode > 0)
-                throw new AdsException(result.AdsErrorCode);
-            RunAfter(ams);
-            return result;
-        }
-        #endif
-
         internal abstract IEnumerable<byte> GetBytes();
     }
 }

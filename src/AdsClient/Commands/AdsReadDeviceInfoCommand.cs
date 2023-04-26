@@ -25,12 +25,5 @@ namespace Ads.Client.Commands
             return RunAsync<AdsReadDeviceInfoCommandResponse>(ams);
         }
         #endif
-
-        #if !SILVERLIGHT
-        public AdsReadDeviceInfoCommandResponse Run(Ams ams)
-        {
-            return Run<AdsReadDeviceInfoCommandResponse>(ams);
-        }
-        #endif
     }
 }

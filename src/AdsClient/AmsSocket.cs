@@ -10,8 +10,7 @@ namespace Ads.Client
 		public AmsSocket (string ipTarget, int portTarget = 48898) : base(ipTarget, portTarget)
 	    {
 			this.Async = new AmsSocketAsync(this);
-			this.Sync = new AmsSocketSync(this);
-	    }
+        }
 
         public Socket Socket { get; set; }
 		public IPEndPoint LocalEndPoint { get; set; }

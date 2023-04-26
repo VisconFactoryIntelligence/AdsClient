@@ -15,7 +15,6 @@ namespace Ads.Client
 
         event AmsSocketResponseDelegate OnReadCallBack;
 
-        IAmsSocketSync Sync { get; set; }
         IAmsSocketAsync Async { get; set; }
     }
 }

@@ -37,12 +37,5 @@ namespace Ads.Client.Commands
             return RunAsync<AdsDeleteDeviceNotificationCommandResponse>(ams);
         }
         #endif
-
-        #if !SILVERLIGHT
-        public AdsDeleteDeviceNotificationCommandResponse Run(Ams ams)
-        {
-            return Run<AdsDeleteDeviceNotificationCommandResponse>(ams);
-        }
-        #endif
     }
 }

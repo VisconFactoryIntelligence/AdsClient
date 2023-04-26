@@ -226,24 +226,5 @@ namespace Ads.Client
             return await responseTask;
         }
         #endif
-
-        #if !SILVERLIGHT
-
-        internal T RunCommand<T>(AdsCommand adsCommand) where T : AdsCommandResponse
-        {
-            this.amsSocket.Sync.ConnectAndListen();
-            if (ConnectedAsync == true) throw new AdsException("You are combining async and non-async methods!");
-            invokeId++;
-            byte[] message = GetAmsMessage(adsCommand);
-            var task = Task.Factory.FromAsync<T>(BeginGetResponse<T>, EndGetResponse<T>, invokeId);
-            amsSocket.Sync.Send(message);
-            if (!task.Wait(CommandTimeOut)) throw new AdsException(String.Format("Running the command timed out after {0} ms!", CommandTimeOut));
-            if (task.Result.UnknownException != null) throw task.Result.UnknownException;
-            return task.Result;
-        }
-        #endif
-
-
-
     }
 }

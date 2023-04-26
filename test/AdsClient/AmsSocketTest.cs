@@ -12,9 +12,8 @@ namespace Ads.Client.Test
 
 		public AmsSocketTest() : base("")
 		{
-			this.Async = new AmsSocketAsyncTest(this);	
-			this.Sync = new AmsSocketSyncTest(this);	
-			this.Connected = false;
+			this.Async = new AmsSocketAsyncTest(this);
+            this.Connected = false;
 		}
 
 		#region implemented abstract members of AmsSocketBase
@@ -50,7 +49,7 @@ namespace Ads.Client.Test
         public bool Verbose { get; set; }
         public event AmsSocketResponseDelegate OnReadCallBack;
 
-        public void ConnectAndListen() 
+        public void ConnectAndListen()
         {
             ConnectedAsync = false;
         }

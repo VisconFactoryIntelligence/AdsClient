@@ -89,11 +89,7 @@ namespace Ads.Client
 
         private void GetMessage(byte[] response)
         {
-            if (ConnectedAsync)
-                Async.ReceiveAsync(response).Wait();
-            else
-                Sync.Receive(response);
-
+            Async.ReceiveAsync(response).Wait();
         }
 
         protected abstract void CloseConnection();
@@ -108,8 +104,6 @@ namespace Ads.Client
             Dispose(true);
         }
 
-
-        public virtual IAmsSocketSync Sync { get; set; }
         public virtual IAmsSocketAsync Async { get; set; }
     }
 }
