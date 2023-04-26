@@ -125,7 +125,6 @@ namespace Ads.Client
         }
 
         #region Async Methods
-#if !NO_ASYNC
 
         /// <summary>
         /// Get a handle from a variable name
@@ -365,7 +364,6 @@ namespace Ads.Client
             foreach (var handle in handles)
                 await ReleaseSymhandleAsyncInternal(handle);
         }
-#endif
         #endregion
     }
 }

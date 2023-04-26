@@ -19,8 +19,6 @@ namespace Ads.Client.Special
             this.ams = ams;
         }
 
-        #if !NO_ASYNC
-
         /// <summary>
         /// Get an xml description of the plc
         /// You can use XDocument.Parse(xml).ToString() to make the xml more readable
@@ -92,8 +90,6 @@ namespace Ads.Client.Special
 
             return symbols;
         }
-
-        #endif
 
         private IList<AdsSymbol> GetSymbolsFromBytes(byte[] data)
         {

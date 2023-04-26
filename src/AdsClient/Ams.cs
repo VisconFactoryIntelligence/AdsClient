@@ -213,8 +213,6 @@ namespace Ads.Client
             Dispose(true);
         }
 
-        #if !NO_ASYNC
-
         internal async Task<T> RunCommandAsync<T>(AdsCommand adsCommand) where T : AdsCommandResponse
         {
             await this.amsSocket.Async.ConnectAndListenAsync();
@@ -225,6 +223,5 @@ namespace Ads.Client
             await amsSocket.Async.SendAsync(message);
             return await responseTask;
         }
-        #endif
     }
 }

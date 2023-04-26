@@ -18,11 +18,9 @@ namespace Ads.Client.Commands
             return new List<byte>();
         }
 
-        #if !NO_ASYNC
         public Task<AdsReadStateCommandResponse> RunAsync(Ams ams)
         {
             return RunAsync<AdsReadStateCommandResponse>(ams);
         }
-        #endif
     }
 }

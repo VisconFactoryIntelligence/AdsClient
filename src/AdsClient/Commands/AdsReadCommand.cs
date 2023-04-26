@@ -30,11 +30,9 @@ namespace Ads.Client.Commands
             return data;
         }
 
-#if !NO_ASYNC
         public Task<AdsReadCommandResponse> RunAsync(Ams ams)
         {
             return RunAsync<AdsReadCommandResponse>(ams);
         }
-#endif
     }
 }
