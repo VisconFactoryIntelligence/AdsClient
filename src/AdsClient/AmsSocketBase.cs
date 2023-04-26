@@ -28,8 +28,6 @@ namespace Ads.Client
 
         public event AmsSocketResponseDelegate OnReadCallBack;
 
-        public bool ConnectedAsync { get; set; }
-
         public abstract bool IsConnected { get; }
 
         public abstract void ListenForHeader(byte[] amsheader, Action<byte[], SynchronizationContext> lambda);

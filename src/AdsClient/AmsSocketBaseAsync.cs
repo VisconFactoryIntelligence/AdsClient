@@ -15,7 +15,6 @@ namespace Ads.Client
         {
             if (!amsSocket.IsConnected)
             {
-                amsSocket.ConnectedAsync = true;
                 await ConnectAsync();
                 amsSocket.Listen();
             }

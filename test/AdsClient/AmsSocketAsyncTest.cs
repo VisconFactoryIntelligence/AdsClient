@@ -12,7 +12,6 @@ namespace Ads.Client.Test
 		protected override System.Threading.Tasks.Task ConnectAsync ()
 		{
 			var amsSocket = (AmsSocketTest)this.amsSocket;
-			amsSocket.ConnectedAsync = true;
 			amsSocket.Connected = true;
 			return Task.FromResult(true);
 		}
