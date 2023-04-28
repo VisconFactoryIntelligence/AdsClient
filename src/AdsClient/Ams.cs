@@ -217,12 +217,12 @@ namespace Ads.Client
                 cancellationToken.ThrowIfCancellationRequested();
                 byte[] message = GetAmsMessage(adsCommand, invokeId);
 
-                _ = await sendSignal.WaitAsync(cancellationToken);
+                _ = await sendSignal.WaitAsync(cancellationToken).ConfigureAwait(false);
                 try
                 {
                     // Avoid request sending if already cancelled. Some time might have elapsed waiting for the signal.
                     cancellationToken.ThrowIfCancellationRequested();
-                    await amsSocket.Async.SendAsync(message);
+                    await amsSocket.Async.SendAsync(message).ConfigureAwait(false);
                 }
                 finally
                 {
