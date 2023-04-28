@@ -17,4 +17,8 @@
     <PackageProjectUrl>https://github.com/mycroes/adsclient</PackageProjectUrl>
     <RepositoryUrl>https://github.com/mycroes/adsclient.git</RepositoryUrl>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Threading.Channels" Version="7.0.0" />
+  </ItemGroup>
 </Project>
