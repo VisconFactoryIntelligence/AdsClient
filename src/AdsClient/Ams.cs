@@ -222,7 +222,7 @@ namespace Ads.Client
             Dispose(true);
         }
 
-        internal async Task<T> RunCommandAsync<T>(AdsCommand adsCommand) where T : AdsCommandResponse
+        internal async Task<T> RunCommandAsync<T>(AdsCommand adsCommand) where T : AdsCommandResponse, new()
         {
             await this.amsSocket.Async.ConnectAndListenAsync();
             var invokeId = invokeIdGenerator.Next();

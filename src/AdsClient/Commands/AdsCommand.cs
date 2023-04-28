@@ -27,7 +27,7 @@ namespace Ads.Client.Commands
         {
         }
 
-        protected async Task<T> RunAsync<T>(Ams ams) where T : AdsCommandResponse
+        protected async Task<T> RunAsync<T>(Ams ams) where T : AdsCommandResponse, new()
         {
             RunBefore(ams);
             var result = await ams.RunCommandAsync<T>(this);
