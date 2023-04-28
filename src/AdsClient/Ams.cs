@@ -15,6 +15,7 @@ namespace Ads.Client
     public class Ams : IDisposable
     {
         private readonly IdGenerator invokeIdGenerator = new();
+        private readonly Signal sendSignal;
 
 //        internal Ams(string ipTarget, int ipPortTarget = 48898)
 //        {
@@ -29,6 +30,12 @@ namespace Ads.Client
 			this.NotificationRequests = new List<AdsNotification>();
             this.amsSocket = amsSocket;
             this.amsSocket.OnReadCallBack += new AmsSocketResponseDelegate(ReadCallback);
+
+            this.sendSignal = new Signal();
+            if (!sendSignal.TryInit())
+            {
+                throw new Exception("Failed to initialize the send signal.");
+            }
         }
 
         /// <summary>
@@ -210,6 +217,7 @@ namespace Ads.Client
 
         public void Dispose()
         {
+            sendSignal.Dispose();
             Dispose(true);
         }
 
@@ -219,7 +227,20 @@ namespace Ads.Client
             var invokeId = invokeIdGenerator.Next();
             byte[] message = GetAmsMessage(adsCommand, invokeId);
             var responseTask = Task.Factory.FromAsync<T>(BeginGetResponse<T>, EndGetResponse<T>, invokeId);
-            await amsSocket.Async.SendAsync(message);
+
+            _ = await sendSignal.WaitAsync(CancellationToken.None);
+            try
+            {
+                await amsSocket.Async.SendAsync(message);
+            }
+            finally
+            {
+                if (!sendSignal.TryRelease())
+                {
+                    throw new Exception("Failed to release the send signal.");
+                }
+            }
+
             return await responseTask;
         }
     }
