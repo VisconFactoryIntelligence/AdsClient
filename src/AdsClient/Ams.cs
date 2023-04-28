@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Ads.Client.Commands;
 using Ads.Client.Common;
@@ -13,6 +14,7 @@ namespace Ads.Client
 
     public class Ams : IDisposable
     {
+        private readonly IdGenerator invokeIdGenerator = new();
 
 //        internal Ams(string ipTarget, int ipPortTarget = 48898)
 //        {
@@ -74,12 +76,11 @@ namespace Ads.Client
 
         private IAmsSocket amsSocket;
         public IAmsSocket AmsSocket { get { return amsSocket; } private set { amsSocket = value; } }
-        private uint invokeId = 0;
 
         private object pendingResultsLock = new object();
         private List<AdsCommandResponse> pendingResults = new List<AdsCommandResponse>();
 
-        private byte[] GetAmsMessage(AdsCommand adsCommand)
+        private byte[] GetAmsMessage(AdsCommand adsCommand, uint invokeId)
         {
             IEnumerable<byte> data = adsCommand.GetBytes();
             IEnumerable<byte> message = AmsNetIdTarget.Bytes;                       //AmsNetId Target
@@ -215,8 +216,8 @@ namespace Ads.Client
         internal async Task<T> RunCommandAsync<T>(AdsCommand adsCommand) where T : AdsCommandResponse
         {
             await this.amsSocket.Async.ConnectAndListenAsync();
-            invokeId++;
-            byte[] message = GetAmsMessage(adsCommand);
+            var invokeId = invokeIdGenerator.Next();
+            byte[] message = GetAmsMessage(adsCommand, invokeId);
             var responseTask = Task.Factory.FromAsync<T>(BeginGetResponse<T>, EndGetResponse<T>, invokeId);
             await amsSocket.Async.SendAsync(message);
             return await responseTask;
