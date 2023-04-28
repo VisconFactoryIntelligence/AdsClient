@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -16,6 +17,8 @@ namespace Ads.Client
     {
         private readonly IdGenerator invokeIdGenerator = new();
         private readonly Signal sendSignal;
+
+        private readonly ConcurrentDictionary<uint, AdsCommandResponse> pendingInvocations = new();
 
 //        internal Ams(string ipTarget, int ipPortTarget = 48898)
 //        {
@@ -84,9 +87,6 @@ namespace Ads.Client
         private IAmsSocket amsSocket;
         public IAmsSocket AmsSocket { get { return amsSocket; } private set { amsSocket = value; } }
 
-        private object pendingResultsLock = new object();
-        private List<AdsCommandResponse> pendingResults = new List<AdsCommandResponse>();
-
         private byte[] GetAmsMessage(AdsCommand adsCommand, uint invokeId)
         {
             IEnumerable<byte> data = adsCommand.GetBytes();
@@ -117,19 +117,16 @@ namespace Ads.Client
         {
             if (args.Error != null)
             {
-                // Lock the list.
-                lock (pendingResultsLock)
+                foreach (var id in pendingInvocations.Keys)
                 {
-                    if (pendingResults.Count > 0)
+                    if (pendingInvocations.TryRemove(id, out var adsCommandResult))
                     {
-                        foreach (var adsCommandResult in pendingResults.ToList())
-                        {
-                            adsCommandResult.UnknownException = args.Error;
-                            adsCommandResult.Callback.Invoke(adsCommandResult);
-                        }
+                        adsCommandResult.UnknownException = args.Error;
+                        adsCommandResult.Callback.Invoke(adsCommandResult);
                     }
-                    else throw args.Error;
                 }
+
+                throw args.Error;
             }
 
             if ((args.Response != null) && (args.Response.Length > 0) && (args.Error == null))
@@ -167,17 +164,10 @@ namespace Ads.Client
                 //If not a notification then find the original command and call async callback
                 if (!isNotification)
                 {
-                    AdsCommandResponse adsCommandResult = null;
-
-                    // Do some locking before fiddling with the list.
-                    lock (pendingResultsLock)
+                    if (!pendingInvocations.TryRemove(invokeId, out var adsCommandResult))
                     {
-                        adsCommandResult = pendingResults.FirstOrDefault(r => r.CommandInvokeId == invokeId);
-                        if (adsCommandResult == null)
-                            return;
-                            //throw new AdsException("I received a response from a request I didn't send?");
-
-                        pendingResults.Remove(adsCommandResult);
+                        // Unknown or timed-out request
+                        return;
                     }
 
                     if (amsErrorCode > 0)
@@ -200,11 +190,22 @@ namespace Ads.Client
             var result = Activator.CreateInstance<T>();
             result.CommandInvokeId = invokeId;
             result.Callback = callback;
-            // Do some locking before fiddling with the list.
-            lock (pendingResultsLock)
+
+            if (!pendingInvocations.TryAdd(invokeId, result))
             {
-                pendingResults.Add(result);
+                /*
+                 * todo: Handle properly
+                 *
+                 * This shouldn't normally happen, but theoretically could happen as long as
+                 * timeouts aren't implemented either. Even with timeouts this could happen
+                 * if the invocation ID loops within the timeout. Limiting the number of
+                 * concurrent requests would avoid this, as would skipping of in-use ID's.
+                 * Will probably get fixed with further refactoring.
+                 */
+                throw new Exception(
+                    $"Failed to add invocation {invokeId} to pending list, previous invocation exists.");
             }
+
             return result;
         }
 
