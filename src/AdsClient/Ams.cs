@@ -194,11 +194,13 @@ namespace Ads.Client
             Dispose(true);
         }
 
-        internal async Task<T> RunCommandAsync<T>(AdsCommand adsCommand) where T : AdsCommandResponse, new()
+        internal async Task<T> RunCommandAsync<T>(AdsCommand adsCommand, CancellationToken cancellationToken)
+            where T : AdsCommandResponse, new()
         {
             await this.amsSocket.Async.ConnectAndListenAsync();
 
             var tcs = new TaskCompletionSource<byte[]>();
+            using var cancelTcs = cancellationToken.Register(() => tcs.TrySetCanceled(cancellationToken));
 
             uint invokeId;
             do
@@ -206,13 +208,20 @@ namespace Ads.Client
                 invokeId = invokeIdGenerator.Next();
             } while (!pendingInvocations.TryAdd(invokeId, tcs));
 
+            using var cancelPendingInvocation =
+                cancellationToken.Register(() => pendingInvocations.TryRemove(invokeId, out _));
+
             try
             {
+                // Avoid message building if already cancelled.
+                cancellationToken.ThrowIfCancellationRequested();
                 byte[] message = GetAmsMessage(adsCommand, invokeId);
 
-                _ = await sendSignal.WaitAsync(CancellationToken.None);
+                _ = await sendSignal.WaitAsync(cancellationToken);
                 try
                 {
+                    // Avoid request sending if already cancelled. Some time might have elapsed waiting for the signal.
+                    cancellationToken.ThrowIfCancellationRequested();
                     await amsSocket.Async.SendAsync(message);
                 }
                 finally
@@ -231,6 +240,8 @@ namespace Ads.Client
 
             var responseBytes = await tcs.Task.ConfigureAwait(false);
             var response = new T();
+
+            cancellationToken.ThrowIfCancellationRequested();
             response.SetResponse(responseBytes);
 
             return response;
