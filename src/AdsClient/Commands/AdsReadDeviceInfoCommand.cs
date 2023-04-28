@@ -19,18 +19,9 @@ namespace Ads.Client.Commands
             return new List<byte>();
         }
 
-        #if !NO_ASYNC
         public Task<AdsReadDeviceInfoCommandResponse> RunAsync(Ams ams)
         {
             return RunAsync<AdsReadDeviceInfoCommandResponse>(ams);
         }
-        #endif
-
-        #if !SILVERLIGHT
-        public AdsReadDeviceInfoCommandResponse Run(Ams ams)
-        {
-            return Run<AdsReadDeviceInfoCommandResponse>(ams);
-        }
-        #endif
     }
 }

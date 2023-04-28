@@ -17,9 +17,8 @@ namespace Ads.Client
         protected override Task ConnectAsync()
         {
             var tcs = new TaskCompletionSource<bool>(amsSocket.Socket);
-            #if !SILVERLIGHT
             amsSocket.Socket.Bind(amsSocket.LocalEndPoint);
-            #endif
+
             var args = new SocketAsyncEventArgs();
             args.RemoteEndPoint = new DnsEndPoint(amsSocket.IpTarget, amsSocket.PortTarget);
             args.Completed += (_, e) => CompleteSocketCall(tcs, e);

@@ -27,7 +27,6 @@ namespace Ads.Client.Commands
         {
         }
 
-        #if !NO_ASYNC
         protected async Task<T> RunAsync<T>(Ams ams) where T : AdsCommandResponse
         {
             RunBefore(ams);
@@ -37,20 +36,6 @@ namespace Ads.Client.Commands
             RunAfter(ams);
             return result;
         }
-        #endif
-
-
-        #if !SILVERLIGHT
-        protected T Run<T>(Ams ams) where T : AdsCommandResponse
-        {
-            RunBefore(ams);
-            var result = ams.RunCommand<T>(this);
-            if (result.AdsErrorCode > 0)
-                throw new AdsException(result.AdsErrorCode);
-            RunAfter(ams);
-            return result;
-        }
-        #endif
 
         internal abstract IEnumerable<byte> GetBytes();
     }

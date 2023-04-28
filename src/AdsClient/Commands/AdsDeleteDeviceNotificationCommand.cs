@@ -31,18 +31,9 @@ namespace Ads.Client.Commands
                 ams.NotificationRequests.Remove(notification);
         }
 
-        #if !NO_ASYNC
         public Task<AdsDeleteDeviceNotificationCommandResponse> RunAsync(Ams ams)
         {
             return RunAsync<AdsDeleteDeviceNotificationCommandResponse>(ams);
         }
-        #endif
-
-        #if !SILVERLIGHT
-        public AdsDeleteDeviceNotificationCommandResponse Run(Ams ams)
-        {
-            return Run<AdsDeleteDeviceNotificationCommandResponse>(ams);
-        }
-        #endif
     }
 }

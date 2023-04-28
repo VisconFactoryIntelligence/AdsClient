@@ -71,7 +71,6 @@ namespace Ads.Client
         internal AmsNetId AmsNetIdTarget { get; set; }
         internal AmsNetId AmsNetIdSource { get; set; }
         internal List<AdsNotification> NotificationRequests;
-        internal bool? ConnectedAsync { get { return amsSocket.ConnectedAsync; } }
 
         private IAmsSocket amsSocket;
         public IAmsSocket AmsSocket { get { return amsSocket; } private set { amsSocket = value; } }
@@ -213,37 +212,14 @@ namespace Ads.Client
             Dispose(true);
         }
 
-        #if !NO_ASYNC
-
         internal async Task<T> RunCommandAsync<T>(AdsCommand adsCommand) where T : AdsCommandResponse
         {
             await this.amsSocket.Async.ConnectAndListenAsync();
-            if (ConnectedAsync == false) throw new AdsException("You are combining async and non-async methods!");
             invokeId++;
             byte[] message = GetAmsMessage(adsCommand);
             var responseTask = Task.Factory.FromAsync<T>(BeginGetResponse<T>, EndGetResponse<T>, invokeId);
             await amsSocket.Async.SendAsync(message);
             return await responseTask;
         }
-        #endif
-
-        #if !SILVERLIGHT
-
-        internal T RunCommand<T>(AdsCommand adsCommand) where T : AdsCommandResponse
-        {
-            this.amsSocket.Sync.ConnectAndListen();
-            if (ConnectedAsync == true) throw new AdsException("You are combining async and non-async methods!");
-            invokeId++;
-            byte[] message = GetAmsMessage(adsCommand);
-            var task = Task.Factory.FromAsync<T>(BeginGetResponse<T>, EndGetResponse<T>, invokeId);
-            amsSocket.Sync.Send(message);
-            if (!task.Wait(CommandTimeOut)) throw new AdsException(String.Format("Running the command timed out after {0} ms!", CommandTimeOut));
-            if (task.Result.UnknownException != null) throw task.Result.UnknownException;
-            return task.Result;
-        }
-        #endif
-
-
-
     }
 }

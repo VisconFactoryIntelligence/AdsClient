@@ -19,24 +19,22 @@ namespace Ads.Client.Special
             this.ams = ams;
         }
 
-        #if !SILVERLIGHT
-
         /// <summary>
         /// Get an xml description of the plc
         /// You can use XDocument.Parse(xml).ToString() to make the xml more readable
         /// </summary>
         /// <returns></returns>
-		public string GetTargetDesc()
+		public async Task<string> GetTargetDescAsync()
         {
 			var amsSpecial = new Ams(ams.AmsSocket);
             amsSpecial.AmsNetIdSource = ams.AmsNetIdSource;
             amsSpecial.AmsNetIdTarget = ams.AmsNetIdTarget;
             amsSpecial.AmsPortTarget = 10000;
             AdsReadCommand adsCommand = new AdsReadCommand(0x000002bc, 0x00000001, 4);
-            var result = adsCommand.Run(amsSpecial);
+            var result = await adsCommand.RunAsync(amsSpecial).ConfigureAwait(false);
             uint length = BitConverter.ToUInt32(result.Data, 0);
             adsCommand = new AdsReadCommand(0x000002bc, 0x00000001, length);
-            result = adsCommand.Run(amsSpecial);
+            result = await adsCommand.RunAsync(amsSpecial).ConfigureAwait(false);
             string xml = ByteArrayHelper.ByteArrayToString(result.Data);
             return xml;
         }
@@ -45,7 +43,7 @@ namespace Ads.Client.Special
         /// Get the current routes
         /// </summary>
         /// <returns></returns>
-        public IList<string> GetCurrentRoutes()
+        public async Task<IList<string>> GetCurrentRoutesAsync()
         {
 			var amsSpecial = new Ams(ams.AmsSocket);
             amsSpecial.AmsNetIdSource = ams.AmsNetIdSource;
@@ -60,7 +58,7 @@ namespace Ads.Client.Special
                 try
                 {
                     AdsReadCommand adsCommand = new AdsReadCommand(0x00000323, index++, 0x0800);
-                    var result = adsCommand.Run(amsSpecial);
+                    var result = await adsCommand.RunAsync(amsSpecial).ConfigureAwait(false);
                     int length = result.Data.Length - 44;
                     byte[] routeBytes = new byte[length];
                     Array.Copy(result.Data, 44, routeBytes, 0, length);
@@ -79,22 +77,6 @@ namespace Ads.Client.Special
             return routes;
         }
 
-        public IList<AdsSymbol> GetSymbols()
-        {
-            AdsReadCommand adsCommand = new AdsReadCommand(0x0000f00f, 0x000000, 0x30);
-            var result = adsCommand.Run(this.ams);
-
-            uint readLength = (uint)BitConverter.ToInt32(result.Data, 4);
-            adsCommand = new AdsReadCommand(0x0000f00b, 0x000000, readLength);
-            result = adsCommand.Run(this.ams);
-
-            return GetSymbolsFromBytes(result.Data);
-        }
-
-        #endif
-
-        #if !NO_ASYNC
-
         public async Task<IList<AdsSymbol>> GetSymbolsAsync()
         {
             AdsReadCommand adsCommand = new AdsReadCommand(0x0000f00f, 0x000000, 0x30);
@@ -108,8 +90,6 @@ namespace Ads.Client.Special
 
             return symbols;
         }
-
-        #endif
 
         private IList<AdsSymbol> GetSymbolsFromBytes(byte[] data)
         {

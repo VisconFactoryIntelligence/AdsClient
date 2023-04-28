@@ -70,19 +70,9 @@ namespace Ads.Client.Commands
             ams.NotificationRequests.Add(Notification);
         }
 
-        #if !NO_ASYNC
         public Task<AdsAddDeviceNotificationCommandResponse> RunAsync(Ams ams)
         {
             return RunAsync<AdsAddDeviceNotificationCommandResponse>(ams);
         }
-        #endif
-
-        #if !SILVERLIGHT
-        public AdsAddDeviceNotificationCommandResponse Run(Ams ams)
-        {
-            return Run<AdsAddDeviceNotificationCommandResponse>(ams);
-        }
-        #endif
-
     }
 }
