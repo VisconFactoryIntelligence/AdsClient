@@ -18,7 +18,7 @@ namespace Ads.Client
         private readonly IdGenerator invokeIdGenerator = new();
         private readonly Signal sendSignal;
 
-        private readonly ConcurrentDictionary<uint, AdsCommandResponse> pendingInvocations = new();
+        private readonly ConcurrentDictionary<uint, TaskCompletionSource<byte[]>> pendingInvocations = new();
 
 //        internal Ams(string ipTarget, int ipPortTarget = 48898)
 //        {
@@ -119,10 +119,9 @@ namespace Ads.Client
             {
                 foreach (var id in pendingInvocations.Keys)
                 {
-                    if (pendingInvocations.TryRemove(id, out var adsCommandResult))
+                    if (pendingInvocations.TryRemove(id, out var tcs))
                     {
-                        adsCommandResult.UnknownException = args.Error;
-                        adsCommandResult.Callback.Invoke(adsCommandResult);
+                        tcs.TrySetException(args.Error);
                     }
                 }
 
@@ -171,42 +170,15 @@ namespace Ads.Client
                     }
 
                     if (amsErrorCode > 0)
-                        adsCommandResult.AmsErrorCode = amsErrorCode;
+                    {
+                        adsCommandResult.TrySetException(new AdsException(amsErrorCode));
+                    }
                     else
-                        adsCommandResult.SetResponse(args.Response);
-                    adsCommandResult.Callback.Invoke(adsCommandResult);
+                    {
+                        adsCommandResult.TrySetResult(args.Response);
+                    }
                 }
             }
-        }
-
-        private T EndGetResponse<T>(IAsyncResult ar) where T : AdsCommandResponse
-        {
-            return (T)ar;
-        }
-
-        private IAsyncResult BeginGetResponse<T>(AsyncCallback callback, object state) where T : AdsCommandResponse
-        {
-            uint invokeId = (state as uint?).Value;
-            var result = Activator.CreateInstance<T>();
-            result.CommandInvokeId = invokeId;
-            result.Callback = callback;
-
-            if (!pendingInvocations.TryAdd(invokeId, result))
-            {
-                /*
-                 * todo: Handle properly
-                 *
-                 * This shouldn't normally happen, but theoretically could happen as long as
-                 * timeouts aren't implemented either. Even with timeouts this could happen
-                 * if the invocation ID loops within the timeout. Limiting the number of
-                 * concurrent requests would avoid this, as would skipping of in-use ID's.
-                 * Will probably get fixed with further refactoring.
-                 */
-                throw new Exception(
-                    $"Failed to add invocation {invokeId} to pending list, previous invocation exists.");
-            }
-
-            return result;
         }
 
         internal event AdsNotificationDelegate OnNotification;
@@ -225,24 +197,43 @@ namespace Ads.Client
         internal async Task<T> RunCommandAsync<T>(AdsCommand adsCommand) where T : AdsCommandResponse, new()
         {
             await this.amsSocket.Async.ConnectAndListenAsync();
-            var invokeId = invokeIdGenerator.Next();
-            byte[] message = GetAmsMessage(adsCommand, invokeId);
-            var responseTask = Task.Factory.FromAsync<T>(BeginGetResponse<T>, EndGetResponse<T>, invokeId);
 
-            _ = await sendSignal.WaitAsync(CancellationToken.None);
+            var tcs = new TaskCompletionSource<byte[]>();
+
+            uint invokeId;
+            do
+            {
+                invokeId = invokeIdGenerator.Next();
+            } while (!pendingInvocations.TryAdd(invokeId, tcs));
+
             try
             {
-                await amsSocket.Async.SendAsync(message);
-            }
-            finally
-            {
-                if (!sendSignal.TryRelease())
+                byte[] message = GetAmsMessage(adsCommand, invokeId);
+
+                _ = await sendSignal.WaitAsync(CancellationToken.None);
+                try
                 {
-                    throw new Exception("Failed to release the send signal.");
+                    await amsSocket.Async.SendAsync(message);
+                }
+                finally
+                {
+                    if (!sendSignal.TryRelease())
+                    {
+                        throw new Exception("Failed to release the send signal.");
+                    }
                 }
             }
+            catch
+            {
+                pendingInvocations.TryRemove(invokeId, out _);
+                throw;
+            }
 
-            return await responseTask;
+            var responseBytes = await tcs.Task.ConfigureAwait(false);
+            var response = new T();
+            response.SetResponse(responseBytes);
+
+            return response;
         }
     }
 }

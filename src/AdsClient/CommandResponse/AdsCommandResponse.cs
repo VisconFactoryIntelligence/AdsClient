@@ -2,11 +2,10 @@
 
 namespace Ads.Client.CommandResponse
 {
-    public class AdsCommandResponse : IAsyncResult
+    public class AdsCommandResponse
     {
         public AdsCommandResponse()
         {
-            isCompleted = false;
         }
 
         internal byte[] AdsResponse { get; set; }
@@ -24,8 +23,6 @@ namespace Ads.Client.CommandResponse
             errorCode = GetErrorCode();
 
             AdsResponseIsChanged();
-
-            isCompleted = true;
         }
 
         protected virtual void AdsResponseIsChanged()
@@ -44,34 +41,9 @@ namespace Ads.Client.CommandResponse
             set { errorCode = value; }
         }
 
-        public Exception UnknownException { get; set; }
-
         protected virtual uint GetErrorCode()
         {
             return BitConverter.ToUInt32(AdsResponse, 0);
-        }
-
-        public AsyncCallback Callback { get; set; }
-
-        public object AsyncState
-        {
-            get { return CommandInvokeId; }
-        }
-
-        public System.Threading.WaitHandle AsyncWaitHandle
-        {
-            get { return null; }
-        }
-
-        public bool CompletedSynchronously
-        {
-            get { return false; }
-        }
-
-        private bool isCompleted;
-        public bool IsCompleted
-        {
-            get { return isCompleted; }
         }
     }
 }
