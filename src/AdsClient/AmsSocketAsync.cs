@@ -5,16 +5,24 @@ using System.Threading.Tasks;
 
 namespace Ads.Client
 {
-    public class AmsSocketAsync : AmsSocketBaseAsync
+    public sealed class AmsSocketAsync : IAmsSocketAsync
     {
         protected new AmsSocket amsSocket;
-        public AmsSocketAsync(AmsSocket amsSocket) : base(amsSocket)
+        public AmsSocketAsync(AmsSocket amsSocket)
         {
             this.amsSocket = amsSocket;
         }
 
+        public async Task ConnectAndListenAsync()
+        {
+            if (!amsSocket.IsConnected)
+            {
+                await ConnectAsync();
+                amsSocket.Listen();
+            }
+        }
 
-        protected override Task ConnectAsync()
+        private Task ConnectAsync()
         {
             var tcs = new TaskCompletionSource<bool>(amsSocket.Socket);
             amsSocket.Socket.Bind(amsSocket.LocalEndPoint);
@@ -31,7 +39,7 @@ namespace Ads.Client
             return tcs.Task;
         }
 
-        public override Task SendAsync(byte[] message)
+        public Task SendAsync(byte[] message)
         {
             var tcs = new TaskCompletionSource<bool>(amsSocket.Socket);
             var args = new SocketAsyncEventArgs();
@@ -43,10 +51,11 @@ namespace Ads.Client
             {
                 CompleteSocketCall(tcs, args);
             }
+
             return tcs.Task;
         }
 
-        public override Task ReceiveAsync(byte[] message)
+        public  Task ReceiveAsync(byte[] message)
         {
             var tcs = new TaskCompletionSource<bool>(amsSocket.Socket);
             SocketAsyncEventArgs args = new SocketAsyncEventArgs();
