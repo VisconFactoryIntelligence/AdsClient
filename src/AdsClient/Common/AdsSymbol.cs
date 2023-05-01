@@ -13,7 +13,7 @@ namespace Ads.Client.Common
 
         public override string ToString()
         {
-            return String.Format("{0} {1} {2}", VarName, TypeName, Comment);
+            return $"{VarName} {TypeName} {Comment}";
         }
     }
 }
