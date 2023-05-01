@@ -11,6 +11,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{42A63E66-D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdsClient.Test", "test\AdsClient\AdsClient.Test.csproj", "{C686A0A5-2143-4447-B99F-D717CA1FC7D1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdsDumper", "src\AdsDumper\AdsDumper.csproj", "{DA8FC5FD-E7B9-49F4-9B5D-2C6E9EE5DA7F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -28,9 +30,14 @@ Global
 		{C686A0A5-2143-4447-B99F-D717CA1FC7D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C686A0A5-2143-4447-B99F-D717CA1FC7D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C686A0A5-2143-4447-B99F-D717CA1FC7D1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DA8FC5FD-E7B9-49F4-9B5D-2C6E9EE5DA7F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA8FC5FD-E7B9-49F4-9B5D-2C6E9EE5DA7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA8FC5FD-E7B9-49F4-9B5D-2C6E9EE5DA7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA8FC5FD-E7B9-49F4-9B5D-2C6E9EE5DA7F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{A0F5651E-012E-4ABA-A9E6-23D58AA39A3F} = {FAE628B5-BAFA-4F21-8174-7E47DCC63E29}
 		{C686A0A5-2143-4447-B99F-D717CA1FC7D1} = {42A63E66-DB8D-48F6-AA8A-5943080A0202}
+		{DA8FC5FD-E7B9-49F4-9B5D-2C6E9EE5DA7F} = {FAE628B5-BAFA-4F21-8174-7E47DCC63E29}
 	EndGlobalSection
 EndGlobal
