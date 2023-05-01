@@ -19,6 +19,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="$(AssemblyName).Test" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="System.Threading.Channels" Version="7.0.0" />
   </ItemGroup>
 </Project>
