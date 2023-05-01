@@ -28,7 +28,7 @@ namespace Ads.Client.Commands
         {
         }
 
-        protected async Task<T> RunAsync<T>(Ams ams, CancellationToken cancellationToken = default) where T : AdsCommandResponse, new()
+        protected async Task<T> RunAsync<T>(Ams ams, CancellationToken cancellationToken) where T : AdsCommandResponse, new()
         {
             RunBefore(ams);
             var result = await ams.RunCommandAsync<T>(this, cancellationToken);

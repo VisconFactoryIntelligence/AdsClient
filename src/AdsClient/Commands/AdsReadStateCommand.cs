@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Ads.Client.CommandResponse;
 using Ads.Client.Common;
@@ -18,9 +19,9 @@ namespace Ads.Client.Commands
             return new List<byte>();
         }
 
-        public Task<AdsReadStateCommandResponse> RunAsync(Ams ams)
+        public Task<AdsReadStateCommandResponse> RunAsync(Ams ams, CancellationToken cancellationToken)
         {
-            return RunAsync<AdsReadStateCommandResponse>(ams);
+            return RunAsync<AdsReadStateCommandResponse>(ams, cancellationToken);
         }
     }
 }

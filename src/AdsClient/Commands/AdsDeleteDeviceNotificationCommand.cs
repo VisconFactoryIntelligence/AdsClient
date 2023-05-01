@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Ads.Client.CommandResponse;
 using Ads.Client.Common;
@@ -31,9 +32,9 @@ namespace Ads.Client.Commands
                 ams.NotificationRequests.Remove(notification);
         }
 
-        public Task<AdsDeleteDeviceNotificationCommandResponse> RunAsync(Ams ams)
+        public Task<AdsDeleteDeviceNotificationCommandResponse> RunAsync(Ams ams, CancellationToken cancellationToken)
         {
-            return RunAsync<AdsDeleteDeviceNotificationCommandResponse>(ams);
+            return RunAsync<AdsDeleteDeviceNotificationCommandResponse>(ams, cancellationToken);
         }
     }
 }

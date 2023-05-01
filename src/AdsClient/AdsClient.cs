@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Ads.Client.Commands;
 using Ads.Client.Common;
@@ -130,8 +131,9 @@ namespace Ads.Client
         /// Get a handle from a variable name
         /// </summary>
         /// <param name="varName">A twincat variable like ".XXX"</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <returns>The handle</returns>
-        public async Task<uint> GetSymhandleByNameAsync(string varName)
+        public async Task<uint> GetSymhandleByNameAsync(string varName, CancellationToken cancellationToken = default)
         {
             // Check, if the handle is already present.
             lock (activeSymhandlesLock)
@@ -142,7 +144,7 @@ namespace Ads.Client
 
             // It was not retrieved before - get it from the control.
             var adsCommand = new AdsWriteReadCommand(0x0000F003, 0x00000000, varName.ToAdsBytes(), 4);
-            var result = await adsCommand.RunAsync(this.ams);
+            var result = await adsCommand.RunAsync(this.ams, cancellationToken);
             if (result == null || result.Data == null || result.Data.Length < 4)
                 return 0;
 
@@ -162,8 +164,9 @@ namespace Ads.Client
         /// Release symhandle
         /// </summary>
         /// <param name="symhandle">The handle returned by GetSymhandleByName</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <returns>An awaitable task.</returns>
-        public Task ReleaseSymhandleAsync(uint symhandle)
+        public Task ReleaseSymhandleAsync(uint symhandle, CancellationToken cancellationToken = default)
         {
             // Perform a reverse-lookup at the dictionary.
             lock (activeSymhandlesLock)
@@ -181,39 +184,41 @@ namespace Ads.Client
                 activeSymhandles.Remove(key);
             }
 
-            return ReleaseSymhandleAsyncInternal(symhandle);
+            return ReleaseSymhandleAsyncInternal(symhandle, cancellationToken);
         }
 
-        private Task ReleaseSymhandleAsyncInternal(uint symhandle)
+        private Task ReleaseSymhandleAsyncInternal(uint symhandle, CancellationToken cancellationToken)
         {
             // Run the release command.
             var adsCommand = new AdsWriteCommand(0x0000F006, 0x00000000, BitConverter.GetBytes(symhandle));
-            return adsCommand.RunAsync(this.ams);
+            return adsCommand.RunAsync(this.ams, cancellationToken);
         }
 
         /// <summary>
         /// Read the value from the handle returned by GetSymhandleByNameAsync
         /// </summary>
         /// <param name="varHandle">The handle returned by GetSymhandleByNameAsync</param>
+        /// <param name="readLength"></param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <returns>A byte[] with the value of the twincat variable</returns>
-        public async Task<byte[]> ReadBytesAsync(uint varHandle, uint readLength)
+        public async Task<byte[]> ReadBytesAsync(uint varHandle, uint readLength, CancellationToken cancellationToken = default)
         {
             AdsReadCommand adsCommand = new AdsReadCommand(0x0000F005, varHandle, readLength);
-            var result = await adsCommand.RunAsync(this.ams);
+            var result = await adsCommand.RunAsync(this.ams, cancellationToken);
             return result.Data;
         }
 
-        public async Task<byte[]> ReadBytesI_Async(uint offset, uint readLength)
+        public async Task<byte[]> ReadBytesI_Async(uint offset, uint readLength, CancellationToken cancellationToken = default)
         {
             AdsReadCommand adsCommand = new AdsReadCommand(0x0000F020, offset, readLength);
-            var result = await adsCommand.RunAsync(this.ams);
+            var result = await adsCommand.RunAsync(this.ams, cancellationToken);
             return result.Data;
         }
 
-        public async Task<byte[]> ReadBytesQ_Async(uint offset, uint readLength)
+        public async Task<byte[]> ReadBytesQ_Async(uint offset, uint readLength, CancellationToken cancellationToken = default)
         {
             AdsReadCommand adsCommand = new AdsReadCommand(0x0000F030, offset, readLength);
-            var result = await adsCommand.RunAsync(this.ams);
+            var result = await adsCommand.RunAsync(this.ams, cancellationToken);
             return result.Data;
         }
 
@@ -224,11 +229,13 @@ namespace Ads.Client
         /// <param name="varHandle">The handle returned by GetSymhandleByNameAsync</param>
         /// <param name="arrayLength">An optional array length.</param>
         /// <param name="adsObj">An optional existing object.</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <returns>The value of the twincat variable</returns>
-        public async Task<T> ReadAsync<T>(uint varHandle, uint arrayLength = 1, object adsObj = null)
+        public async Task<T> ReadAsync<T>(uint varHandle, uint arrayLength = 1,
+            object adsObj = null, CancellationToken cancellationToken = default)
         {
             var length = GenericHelper.GetByteLengthFromType<T>(DefaultStringLength, arrayLength);
-            var value = await ReadBytesAsync(varHandle, length);
+            var value = await ReadBytesAsync(varHandle, length, cancellationToken);
 
             if (value != null)
                 return GenericHelper.GetResultFromBytes<T>(value, DefaultStringLength, arrayLength, adsObj);
@@ -244,10 +251,12 @@ namespace Ads.Client
         /// <param name="transmissionMode">On change or cyclic</param>
         /// <param name="cycleTime">The cyclic time in ms. If used with OnChange, then the value is send once after this time in ms</param>
         /// <param name="userData">A custom object that can be used in the callback</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <returns>The notification handle</returns>
-        public Task<uint> AddNotificationAsync(uint varHandle, uint length, AdsTransmissionMode transmissionMode, uint cycleTime, object userData)
+        public Task<uint> AddNotificationAsync(uint varHandle, uint length, AdsTransmissionMode transmissionMode,
+            uint cycleTime, object userData, CancellationToken cancellationToken = default)
         {
-            return AddNotificationAsync(varHandle, length, transmissionMode, cycleTime, userData, typeof(byte[]));
+            return AddNotificationAsync(varHandle, length, transmissionMode, cycleTime, userData, typeof(byte[]), cancellationToken);
         }
 
         /// <summary>
@@ -259,14 +268,16 @@ namespace Ads.Client
         /// <param name="cycleTime">The cyclic time in ms. If used with OnChange, then the value is send once after this time in ms</param>
         /// <param name="userData">A custom object that can be used in the callback</param>
         /// <param name="typeOfValue">The type of the returned notification value</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <returns>The notification handle</returns>
-        public async Task<uint> AddNotificationAsync(uint varHandle, uint length, AdsTransmissionMode transmissionMode, uint cycleTime, object userData, Type typeOfValue)
+        public async Task<uint> AddNotificationAsync(uint varHandle, uint length, AdsTransmissionMode transmissionMode,
+            uint cycleTime, object userData, Type typeOfValue, CancellationToken cancellationToken = default)
         {
             var adsCommand = new AdsAddDeviceNotificationCommand(0x0000F005, varHandle, length, transmissionMode);
             adsCommand.CycleTime = cycleTime;
             adsCommand.UserData = userData;
             adsCommand.TypeOfValue = typeOfValue;
-            var result = await adsCommand.RunAsync(this.ams);
+            var result = await adsCommand.RunAsync(this.ams, cancellationToken);
             adsCommand.Notification.NotificationHandle = result.NotificationHandle;
             return result.NotificationHandle; ;
         }
@@ -279,22 +290,25 @@ namespace Ads.Client
         /// <param name="transmissionMode">On change or cyclic</param>
         /// <param name="cycleTime">The cyclic time in ms. If used with OnChange, then the value is send once after this time in ms</param>
         /// <param name="userData">A custom object that can be used in the callback</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <returns></returns>
-        public Task<uint> AddNotificationAsync<T>(uint varHandle, AdsTransmissionMode transmissionMode, uint cycleTime, object userData)
+        public Task<uint> AddNotificationAsync<T>(uint varHandle, AdsTransmissionMode transmissionMode, uint cycleTime,
+            object userData, CancellationToken cancellationToken = default)
         {
             uint length = GenericHelper.GetByteLengthFromType<T>(DefaultStringLength);
-            return AddNotificationAsync(varHandle, length, transmissionMode, cycleTime, userData, typeof(T));
+            return AddNotificationAsync(varHandle, length, transmissionMode, cycleTime, userData, typeof(T), cancellationToken);
         }
 
         /// <summary>
         /// Delete a previously registerd notification
         /// </summary>
         /// <param name="notificationHandle">The handle returned by AddNotification(Async)</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <returns></returns>
-        public Task DeleteNotificationAsync(uint notificationHandle)
+        public Task DeleteNotificationAsync(uint notificationHandle, CancellationToken cancellationToken = default)
         {
             var adsCommand = new AdsDeleteDeviceNotificationCommand(notificationHandle);
-            return adsCommand.RunAsync(this.ams);
+            return adsCommand.RunAsync(this.ams, cancellationToken);
         }
 
         /// <summary>
@@ -302,10 +316,11 @@ namespace Ads.Client
         /// </summary>
         /// <param name="varHandle">The handle returned by GetSymhandleByNameAsync</param>
         /// <param name="varValue">The byte[] value to be sent</param>
-        public Task WriteBytesAsync(uint varHandle, IEnumerable<byte> varValue)
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+        public Task WriteBytesAsync(uint varHandle, IEnumerable<byte> varValue, CancellationToken cancellationToken = default)
         {
             AdsWriteCommand adsCommand = new AdsWriteCommand(0x0000F005, varHandle, varValue);
-            return adsCommand.RunAsync(this.ams);
+            return adsCommand.RunAsync(this.ams, cancellationToken);
         }
 
         /// <summary>
@@ -314,44 +329,47 @@ namespace Ads.Client
         /// <typeparam name="T">A type like byte, ushort, uint depending on the length of the twincat variable</typeparam>
         /// <param name="varHandle">The handle returned by GetSymhandleByNameAsync</param>
         /// <param name="varValue">The value to be sent</param>
-        public Task WriteAsync<T>(uint varHandle, T varValue)
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+        public Task WriteAsync<T>(uint varHandle, T varValue, CancellationToken cancellationToken = default)
         {
             IEnumerable<byte> varValueBytes = GenericHelper.GetBytesFromType<T>(varValue, defaultStringLenght);
-            return this.WriteBytesAsync(varHandle, varValueBytes);
+            return this.WriteBytesAsync(varHandle, varValueBytes, cancellationToken);
         }
 
         /// <summary>
         /// Get some information of the ADS device (version, name)
         /// </summary>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <returns></returns>
-        public async Task<AdsDeviceInfo> ReadDeviceInfoAsync()
+        public async Task<AdsDeviceInfo> ReadDeviceInfoAsync(CancellationToken cancellationToken = default)
         {
             AdsReadDeviceInfoCommand adsCommand = new AdsReadDeviceInfoCommand();
-            var result = await adsCommand.RunAsync(this.ams);
+            var result = await adsCommand.RunAsync(this.ams, cancellationToken);
             return result.AdsDeviceInfo;
         }
 
         /// <summary>
         /// Read the ads state
         /// </summary>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <returns></returns>
-        public async Task<AdsState> ReadStateAsync()
+        public async Task<AdsState> ReadStateAsync(CancellationToken cancellationToken = default)
         {
             var adsCommand = new AdsReadStateCommand();
-            var result = await adsCommand.RunAsync(this.ams);
+            var result = await adsCommand.RunAsync(this.ams, cancellationToken);
             return result.AdsState;
         }
 
-        public async Task DeleteActiveNotificationsAsync()
+        public async Task DeleteActiveNotificationsAsync(CancellationToken cancellationToken = default)
         {
 
             while (ams.NotificationRequests.Count > 0)
             {
-                await DeleteNotificationAsync(ams.NotificationRequests[0].NotificationHandle);
+                await DeleteNotificationAsync(ams.NotificationRequests[0].NotificationHandle, cancellationToken);
             }
         }
 
-        public async Task ReleaseActiveSymhandlesAsync()
+        public async Task ReleaseActiveSymhandlesAsync(CancellationToken cancellationToken = default)
         {
             var handles = new List<uint>();
 
@@ -362,7 +380,7 @@ namespace Ads.Client
             }
 
             foreach (var handle in handles)
-                await ReleaseSymhandleAsyncInternal(handle);
+                await ReleaseSymhandleAsyncInternal(handle, cancellationToken);
         }
         #endregion
     }
