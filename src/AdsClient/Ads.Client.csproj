@@ -2,7 +2,6 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>latest</LangVersion>
-    <Company>webding</Company>
     <Copyright>Inando</Copyright>
     <AssemblyName>AdsClient</AssemblyName>
     <Version>0.7</Version>
@@ -11,7 +10,7 @@
       A client implementation of the Beckhoff Twincat ADS protocol, targeting
       NetStandard2.0 compatible platforms.
     </Description>
-    <Authors>Inando</Authors>
+    <Authors>inando;mycroes</Authors>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageTags>Ads;AdsClient;Twincat;Beckhoff</PackageTags>
     <PackageProjectUrl>https://github.com/mycroes/adsclient</PackageProjectUrl>
