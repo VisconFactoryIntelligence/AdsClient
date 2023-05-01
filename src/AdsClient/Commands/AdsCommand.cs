@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Ads.Client.CommandResponse;
 using Ads.Client.Common;
@@ -19,6 +20,8 @@ namespace Ads.Client.Commands
             get { return commandId; }
         }
 
+        public ushort? AmsPortTargetOverride { get; set; }
+
         protected virtual void RunBefore(Ams ams)
         {
         }
@@ -27,10 +30,10 @@ namespace Ads.Client.Commands
         {
         }
 
-        protected async Task<T> RunAsync<T>(Ams ams) where T : AdsCommandResponse
+        protected async Task<T> RunAsync<T>(Ams ams, CancellationToken cancellationToken) where T : AdsCommandResponse, new()
         {
             RunBefore(ams);
-            var result = await ams.RunCommandAsync<T>(this);
+            var result = await ams.RunCommandAsync<T>(this, cancellationToken);
             if (result.AdsErrorCode > 0)
                 throw new AdsException(result.AdsErrorCode);
             RunAfter(ams);

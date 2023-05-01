@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Ads.Client.Commands;
 using Ads.Client.Common;
@@ -23,18 +24,15 @@ namespace Ads.Client.Special
         /// Get an xml description of the plc
         /// You can use XDocument.Parse(xml).ToString() to make the xml more readable
         /// </summary>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <returns></returns>
-		public async Task<string> GetTargetDescAsync()
+        public async Task<string> GetTargetDescAsync(CancellationToken cancellationToken = default)
         {
-			var amsSpecial = new Ams(ams.AmsSocket);
-            amsSpecial.AmsNetIdSource = ams.AmsNetIdSource;
-            amsSpecial.AmsNetIdTarget = ams.AmsNetIdTarget;
-            amsSpecial.AmsPortTarget = 10000;
-            AdsReadCommand adsCommand = new AdsReadCommand(0x000002bc, 0x00000001, 4);
-            var result = await adsCommand.RunAsync(amsSpecial).ConfigureAwait(false);
+            AdsReadCommand adsCommand = new AdsReadCommand(0x000002bc, 0x00000001, 4) { AmsPortTargetOverride = 10000 };
+            var result = await adsCommand.RunAsync(ams, cancellationToken).ConfigureAwait(false);
             uint length = BitConverter.ToUInt32(result.Data, 0);
             adsCommand = new AdsReadCommand(0x000002bc, 0x00000001, length);
-            result = await adsCommand.RunAsync(amsSpecial).ConfigureAwait(false);
+            result = await adsCommand.RunAsync(ams, cancellationToken).ConfigureAwait(false);
             string xml = ByteArrayHelper.ByteArrayToString(result.Data);
             return xml;
         }
@@ -42,13 +40,10 @@ namespace Ads.Client.Special
         /// <summary>
         /// Get the current routes
         /// </summary>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <returns></returns>
-        public async Task<IList<string>> GetCurrentRoutesAsync()
+        public async Task<IList<string>> GetCurrentRoutesAsync(CancellationToken cancellationToken = default)
         {
-			var amsSpecial = new Ams(ams.AmsSocket);
-            amsSpecial.AmsNetIdSource = ams.AmsNetIdSource;
-            amsSpecial.AmsNetIdTarget = ams.AmsNetIdTarget;
-            amsSpecial.AmsPortTarget = 10000;
             bool ok = true;
             uint index = 0;
             var routes = new List<string>();
@@ -57,8 +52,9 @@ namespace Ads.Client.Special
             {
                 try
                 {
-                    AdsReadCommand adsCommand = new AdsReadCommand(0x00000323, index++, 0x0800);
-                    var result = await adsCommand.RunAsync(amsSpecial).ConfigureAwait(false);
+                    AdsReadCommand adsCommand =
+                        new AdsReadCommand(0x00000323, index++, 0x0800) { AmsPortTargetOverride = 10000 };
+                    var result = await adsCommand.RunAsync(ams, cancellationToken).ConfigureAwait(false);
                     int length = result.Data.Length - 44;
                     byte[] routeBytes = new byte[length];
                     Array.Copy(result.Data, 44, routeBytes, 0, length);
@@ -77,14 +73,14 @@ namespace Ads.Client.Special
             return routes;
         }
 
-        public async Task<IList<AdsSymbol>> GetSymbolsAsync()
+        public async Task<IList<AdsSymbol>> GetSymbolsAsync(CancellationToken cancellationToken = default)
         {
             AdsReadCommand adsCommand = new AdsReadCommand(0x0000f00f, 0x000000, 0x30);
-            var result = await adsCommand.RunAsync(ams);
+            var result = await adsCommand.RunAsync(ams, cancellationToken);
 
             uint readLength = (uint)BitConverter.ToInt32(result.Data, 4);
             adsCommand = new AdsReadCommand(0x0000f00b, 0x000000, readLength);
-            result = await adsCommand.RunAsync(ams);
+            result = await adsCommand.RunAsync(ams, cancellationToken);
 
             var symbols = GetSymbolsFromBytes(result.Data);
 

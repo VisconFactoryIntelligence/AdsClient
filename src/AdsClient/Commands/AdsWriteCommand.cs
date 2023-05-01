@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Ads.Client.CommandResponse;
 using Ads.Client.Common;
@@ -32,9 +33,9 @@ namespace Ads.Client.Commands
             return data;
         }
 
-        public Task<AdsWriteCommandResponse> RunAsync(Ams ams)
+        public Task<AdsWriteCommandResponse> RunAsync(Ams ams, CancellationToken cancellationToken)
         {
-            return RunAsync<AdsWriteCommandResponse>(ams);
+            return RunAsync<AdsWriteCommandResponse>(ams, cancellationToken);
         }
     }
 }

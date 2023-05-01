@@ -1,68 +1,55 @@
-﻿using System;
-using System.Net;
+﻿using Ads.Client.Internal;
+using System;
 using System.Net.Sockets;
-using System.Threading;
+using System.Threading.Tasks;
 
 namespace Ads.Client
 {
-    public class AmsSocket : AmsSocketBase
+    internal class AmsSocket : IAmsSocket, IDisposable
     {
-		public AmsSocket (string ipTarget, int portTarget = 48898) : base(ipTarget, portTarget)
-	    {
-			this.Async = new AmsSocketAsync(this);
-        }
-
-        public Socket Socket { get; set; }
-		public IPEndPoint LocalEndPoint { get; set; }
-
-        public override void CreateSocket()
+        public AmsSocket(string host, int port = 48898)
         {
-			LocalEndPoint = new IPEndPoint(IPAddress.Any, 0);
-            this.Socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            Host = host;
+            Port = port;
+
+            TcpClient = new TcpClient();
         }
 
-        public override bool IsConnected
+        public TcpClient TcpClient { get; }
+        public Socket Socket => TcpClient.Client;
+
+        public string Host { get; }
+        public int Port { get; }
+
+        /// <inheritdoc cref="System.Net.Sockets.TcpClient.Connected"/>
+        public bool Connected => TcpClient.Connected;
+
+        private AmsSocketConnection connection;
+
+        public void Close()
         {
-            get { return ((Socket != null) && (Socket.Connected)); }
+            connection?.Close();
         }
 
-        public override void ListenForHeader(byte[] amsheader, Action<byte[], SynchronizationContext> lambda)
+        public async Task ConnectAsync(IIncomingMessageHandler messageHandler)
         {
-            using (SocketAsyncEventArgs args = new SocketAsyncEventArgs())
-            {
-                args.SetBuffer(amsheader, 0, amsheader.Length);
-                args.UserToken = synchronizationContext;
-                args.Completed += (sender, e) =>
-                {
-                    if (args.BytesTransferred == 0)
-                    {
-                        throw new Exception($"Remote host closed the connection.");
-                    }
+            if (connection is not null) throw new InvalidOperationException("Connection was already established.");
 
-                    lambda(e.Buffer, e.UserToken as SynchronizationContext);
-                };
-                bool receivedAsync = Socket.ReceiveAsync(args);
-                if (!receivedAsync)
-                {
-                    if (args.BytesTransferred == 0)
-                    {
-                        throw new Exception($"Remote host closed the connection.");
-                    }
-                    lambda(amsheader, null);
-                }
-            }
+            await TcpClient.ConnectAsync(Host, Port).ConfigureAwait(false);
+            connection = new AmsSocketConnection(TcpClient.Client, messageHandler);
         }
 
-        protected override void CloseConnection()
+        public async Task SendAsync(byte[] message)
         {
-            if (Socket.Connected)
-            {
-                Socket.Shutdown(SocketShutdown.Both);
-                Socket.Close();
-            }
+            using var args = new SocketAsyncEventArgs();
+            args.SetBuffer(message, 0, message.Length);
 
-            if (Socket != null) Socket.Dispose();
+            await Socket.SendAsync(new SocketAwaitable(args));
         }
 
+        void IDisposable.Dispose()
+        {
+            TcpClient?.Dispose();
+        }
     }
 }

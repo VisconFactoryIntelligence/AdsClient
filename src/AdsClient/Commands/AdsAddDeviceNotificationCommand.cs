@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Ads.Client.CommandResponse;
 using Ads.Client.Common;
@@ -70,9 +71,9 @@ namespace Ads.Client.Commands
             ams.NotificationRequests.Add(Notification);
         }
 
-        public Task<AdsAddDeviceNotificationCommandResponse> RunAsync(Ams ams)
+        public Task<AdsAddDeviceNotificationCommandResponse> RunAsync(Ams ams, CancellationToken cancellationToken)
         {
-            return RunAsync<AdsAddDeviceNotificationCommandResponse>(ams);
+            return RunAsync<AdsAddDeviceNotificationCommandResponse>(ams, cancellationToken);
         }
     }
 }
