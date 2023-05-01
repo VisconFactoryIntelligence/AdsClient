@@ -222,6 +222,11 @@ namespace Ads.Client
             return result.Data;
         }
 
+        public async Task<AdsReadMultipleCommand.ReadMultiResult[]> ReadMultipleAsync(AdsSymbol[] symbols, CancellationToken cancellationToken = default)
+        {
+            return await new AdsReadMultipleCommand(symbols).RunAsync(ams, cancellationToken);
+        }
+
         /// <summary>
         /// Read the value from the handle returned by GetSymhandleByNameAsync.
         /// </summary>
