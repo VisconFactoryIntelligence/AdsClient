@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using NUnit.Framework;
 using Ads.Client.Common;
 using Ads.Client.Helpers;
 using FakeItEasy;
+using Shouldly;
+using Xunit;
 
 namespace Ads.Client.Test
 {
-    [TestFixture()]
     public class AdsCommandsAsyncTest : IDisposable
     {
         private readonly IAmsSocketAsync amsSocketAsync = A.Fake<IAmsSocketAsync>();
@@ -29,7 +29,7 @@ namespace Ads.Client.Test
             client.Dispose();
         }
 
-        [Test()]
+        [Fact]
         public void ReadDeviceInfoAsync()
         {
             // Arrange
@@ -52,12 +52,12 @@ namespace Ads.Client.Test
             var task = client.ReadDeviceInfoAsync();
 
             // Assert
-            Assert.IsTrue(task.IsCompleted, "Call should have completed synchronously.");
+            task.IsCompleted.ShouldBeTrue("Call should have completed synchronously.");
             AdsDeviceInfo deviceInfo = task.Result;
-            Assert.AreEqual(deviceInfo.ToString(), "Version: 2.11.1514 Devicename: TCatPlcCtrl");
+            deviceInfo.ToString().ShouldBe("Version: 2.11.1514 Devicename: TCatPlcCtrl");
         }
 
-        [Test()]
+        [Fact]
         public void ReadStateAsync()
         {
             // Arrange
@@ -79,12 +79,12 @@ namespace Ads.Client.Test
             var task = client.ReadStateAsync();
 
             // Assert
-            Assert.IsTrue(task.IsCompleted, "Call should have completed synchronously.");
+            task.IsCompleted.ShouldBeTrue("Call should have completed synchronously.");
             var state = task.Result;
-            Assert.AreEqual(state.ToString(), "Ads state: 5 (Run) Device state: 0");
+            state.ToString().ShouldBe("Ads state: 5 (Run) Device state: 0");
         }
 
-        [Test()]
+        [Fact]
         public void GetSymhandleByNameAsync()
         {
             // Arrange
@@ -107,9 +107,9 @@ namespace Ads.Client.Test
             var task = client.GetSymhandleByNameAsync(".TESTTIME");
 
             // Assert
-            Assert.IsTrue(task.IsCompleted, "Call should have completed synchronously.");
+            task.IsCompleted.ShouldBeTrue("Call should have completed synchronously.");
             var handle = task.Result;
-            Assert.AreEqual(handle, 2751464077);
+            handle.ShouldBe(2751464077);
         }
 
         private void SetupRequestResponse(byte[] tx, byte[] rx)
