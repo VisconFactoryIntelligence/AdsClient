@@ -9,6 +9,7 @@ namespace Ads.Client.Common
         public UInt32 IndexOffset { get; set; }
         public string TypeName { get; set; }
         public string Comment { get; set; }
+        public uint Size { get; set; }
 
         public override string ToString()
         {

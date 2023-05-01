@@ -102,7 +102,7 @@ namespace Ads.Client.Special
 
                 symbol.IndexGroup = BitConverter.ToUInt32(data, pos + 4);
                 symbol.IndexOffset = BitConverter.ToUInt32(data, pos + 8);
-                //symbol.Size = BitConverter.ToUInt32(result.Data, pos + 12);
+                symbol.Size = BitConverter.ToUInt32(data, pos + 12);
                 //symbol.Type = BitConverter.ToUInt32(result.Data, pos + 16);  ADST_... type constants
 
                 //BitConverter.ToUInt32(result.Data, pos + 20); ???
