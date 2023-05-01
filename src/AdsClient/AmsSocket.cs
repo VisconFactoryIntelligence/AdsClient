@@ -1,144 +1,55 @@
-﻿using System;
-using Ads.Client.Helpers;
-using Ads.Client.Common;
-using System.Diagnostics;
-using System.Net;
+﻿using Ads.Client.Internal;
+using System;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 
 namespace Ads.Client
 {
-    public sealed class AmsSocket : IAmsSocket
+    internal class AmsSocket : IAmsSocket, IDisposable
     {
-		public AmsSocket(string ipTarget, int portTarget = 48898)
+        public AmsSocket(string host, int port = 48898)
         {
-            Subscribers = 0;
-			IpTarget = ipTarget;
-			PortTarget = portTarget;
+            Host = host;
+            Port = port;
 
-            Async = new AmsSocketAsync(this);
-
-            LocalEndPoint = new IPEndPoint(IPAddress.Any, 0);
-            Socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            TcpClient = new TcpClient();
         }
 
-        public Socket Socket { get; }
-        public IPEndPoint LocalEndPoint { get; }
+        public TcpClient TcpClient { get; }
+        public Socket Socket => TcpClient.Client;
 
-        public string IpTarget { get; }
-        public int PortTarget { get; }
+        public string Host { get; }
+        public int Port { get; }
 
-        public int Subscribers { get; set; }
+        /// <inheritdoc cref="System.Net.Sockets.TcpClient.Connected"/>
+        public bool Connected => TcpClient.Connected;
 
-        public event EventHandler<AmsSocketResponseArgs> OnReadCallBack;
+        private AmsSocketConnection connection;
 
-        /// <inheritdoc cref="System.Net.Sockets.Socket.Connected"/>
-        public bool IsConnected
+        public void Close()
         {
-            get { return ((Socket != null) && (Socket.Connected)); }
+            connection?.Close();
         }
 
-        public void ListenForHeader(byte[] amsheader, Action<byte[]> lambda)
+        public async Task ConnectAsync(IIncomingMessageHandler messageHandler)
         {
-            using (SocketAsyncEventArgs args = new SocketAsyncEventArgs())
-            {
-                args.SetBuffer(amsheader, 0, amsheader.Length);
-                args.Completed += (sender, e) =>
-                {
-                    if (args.BytesTransferred == 0)
-                    {
-                        throw new Exception($"Remote host closed the connection.");
-                    }
+            if (connection is not null) throw new InvalidOperationException("Connection was already established.");
 
-                    lambda(e.Buffer);
-                };
-                bool receivedAsync = Socket.ReceiveAsync(args);
-                if (!receivedAsync)
-                {
-                    if (args.BytesTransferred == 0)
-                    {
-                        throw new Exception($"Remote host closed the connection.");
-                    }
-
-                    lambda(amsheader);
-                }
-            }
+            await TcpClient.ConnectAsync(Host, Port).ConfigureAwait(false);
+            connection = new AmsSocketConnection(TcpClient.Client, messageHandler);
         }
 
-        public void Listen()
+        public async Task SendAsync(byte[] message)
         {
-            if (IsConnected)
-            {
-                try
-                {
-                    //First wait for the Ams header (starts new thread)
-                    byte[] amsheader = new byte[AmsHeaderHelper.AmsTcpHeaderSize];
+            using var args = new SocketAsyncEventArgs();
+            args.SetBuffer(message, 0, message.Length);
 
-                    ListenForHeader(amsheader, buffer =>
-                    {
-                        //If a ams header is received, then read the rest (this is the new thread)
-                        try
-                        {
-                            byte[] response = GetAmsMessage(buffer);
-
-#if DEBUG_AMS
-                            Debug.WriteLine("Received bytes: " +
-                                    ByteArrayHelper.ByteArrayToTestString(buffer) + ',' +
-                                    ByteArrayHelper.ByteArrayToTestString(response));
-#endif
-
-                            var callbackArgs = new AmsSocketResponseArgs { Response = response };
-                            OnReadCallBack(this, callbackArgs);
-                            Listen();
-                        }
-                        catch (Exception ex)
-                        {
-                            var callbackArgs = new AmsSocketResponseArgs { Error = ex };
-                            OnReadCallBack(this, callbackArgs);
-                        }
-                    });
-                }
-                catch (Exception ex)
-                {
-                    if (!ReferenceEquals(ex.GetType(), typeof(ObjectDisposedException))) throw;
-                }
-            }
+            await Socket.SendAsync(new SocketAwaitable(args));
         }
 
-        private byte[] GetAmsMessage(byte[] tcpHeader)
+        void IDisposable.Dispose()
         {
-            uint responseLength = AmsHeaderHelper.GetResponseLength(tcpHeader);
-            byte[] response = new byte[responseLength];
-            GetMessage(response);
-            return response;
+            TcpClient?.Dispose();
         }
-
-        private void GetMessage(byte[] response)
-        {
-            // Todo: properly handle async receiving
-            Async.ReceiveAsync(response).Wait();
-        }
-
-        private void CloseConnection()
-        {
-            if (Socket.Connected)
-            {
-                Socket.Shutdown(SocketShutdown.Both);
-                Socket.Close();
-            }
-
-            if (Socket != null) Socket.Dispose();
-        }
-
-        private void Dispose(bool managed)
-        {
-            CloseConnection();
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-        }
-
-        public IAmsSocketAsync Async { get; }
     }
 }

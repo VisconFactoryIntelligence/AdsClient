@@ -1,17 +1,15 @@
-﻿using Ads.Client.Common;
-using System;
+﻿using System.Threading.Tasks;
 
 namespace Ads.Client
 {
-    public interface IAmsSocket : IDisposable
+    public interface IAmsSocket
     {
-        bool IsConnected { get;}
-		string IpTarget { get; }
-		int PortTarget { get; }
-        int Subscribers { get; set; }
+        bool Connected { get;}
 
-        event EventHandler<AmsSocketResponseArgs> OnReadCallBack;
+        void Close();
 
-        IAmsSocketAsync Async { get; }
+        Task ConnectAsync(IIncomingMessageHandler messageHandler);
+
+        Task SendAsync(byte[] message);
     }
 }

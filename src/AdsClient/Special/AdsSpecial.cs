@@ -28,15 +28,11 @@ namespace Ads.Client.Special
         /// <returns></returns>
         public async Task<string> GetTargetDescAsync(CancellationToken cancellationToken = default)
         {
-			var amsSpecial = new Ams(ams.AmsSocket);
-            amsSpecial.AmsNetIdSource = ams.AmsNetIdSource;
-            amsSpecial.AmsNetIdTarget = ams.AmsNetIdTarget;
-            amsSpecial.AmsPortTarget = 10000;
-            AdsReadCommand adsCommand = new AdsReadCommand(0x000002bc, 0x00000001, 4);
-            var result = await adsCommand.RunAsync(amsSpecial, cancellationToken).ConfigureAwait(false);
+            AdsReadCommand adsCommand = new AdsReadCommand(0x000002bc, 0x00000001, 4) { AmsPortTargetOverride = 10000 };
+            var result = await adsCommand.RunAsync(ams, cancellationToken).ConfigureAwait(false);
             uint length = BitConverter.ToUInt32(result.Data, 0);
             adsCommand = new AdsReadCommand(0x000002bc, 0x00000001, length);
-            result = await adsCommand.RunAsync(amsSpecial, cancellationToken).ConfigureAwait(false);
+            result = await adsCommand.RunAsync(ams, cancellationToken).ConfigureAwait(false);
             string xml = ByteArrayHelper.ByteArrayToString(result.Data);
             return xml;
         }
@@ -48,10 +44,6 @@ namespace Ads.Client.Special
         /// <returns></returns>
         public async Task<IList<string>> GetCurrentRoutesAsync(CancellationToken cancellationToken = default)
         {
-			var amsSpecial = new Ams(ams.AmsSocket);
-            amsSpecial.AmsNetIdSource = ams.AmsNetIdSource;
-            amsSpecial.AmsNetIdTarget = ams.AmsNetIdTarget;
-            amsSpecial.AmsPortTarget = 10000;
             bool ok = true;
             uint index = 0;
             var routes = new List<string>();
@@ -60,8 +52,9 @@ namespace Ads.Client.Special
             {
                 try
                 {
-                    AdsReadCommand adsCommand = new AdsReadCommand(0x00000323, index++, 0x0800);
-                    var result = await adsCommand.RunAsync(amsSpecial, cancellationToken).ConfigureAwait(false);
+                    AdsReadCommand adsCommand =
+                        new AdsReadCommand(0x00000323, index++, 0x0800) { AmsPortTargetOverride = 10000 };
+                    var result = await adsCommand.RunAsync(ams, cancellationToken).ConfigureAwait(false);
                     int length = result.Data.Length - 44;
                     byte[] routeBytes = new byte[length];
                     Array.Copy(result.Data, 44, routeBytes, 0, length);

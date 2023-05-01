@@ -11,17 +11,28 @@ namespace Ads.Client.Test
 {
     public class AdsCommandsAsyncTest : IDisposable
     {
-        private readonly IAmsSocketAsync amsSocketAsync = A.Fake<IAmsSocketAsync>();
         private readonly IAmsSocket amsSocket = A.Fake<IAmsSocket>();
         private readonly AdsClient client;
+        private IIncomingMessageHandler messageHandler;
+        private bool connected;
 
         public AdsCommandsAsyncTest()
         {
-            A.CallTo(() => amsSocket.Async).Returns(amsSocketAsync);
-            A.CallTo(() => amsSocketAsync.ConnectAndListenAsync()).Returns(Task.CompletedTask);
+            A.CallTo(() => amsSocket.ConnectAsync(A<IIncomingMessageHandler>.Ignored)).ReturnsLazily(call =>
+            {
+                messageHandler = call.GetArgument<IIncomingMessageHandler>(0);
+                connected = true;
+                return Task.CompletedTask;
+            });
+            A.CallTo(() => amsSocket.Connected).ReturnsLazily(() => connected);
 
             client = new AdsClient(amsNetIdSource: "10.0.0.120.1.1", amsSocket: amsSocket,
                 amsNetIdTarget: "5.1.204.123.1.1");
+
+            if (!client.Ams.ConnectAsync().IsCompletedSuccessfully)
+            {
+                throw new Exception("Connect call should have completed synchronously.");
+            }
         }
 
         public void Dispose()
@@ -125,7 +136,7 @@ namespace Ads.Client.Test
                     tx[afterInvocationId].SequenceEqual(sendData[afterInvocationId]);
             };
 
-            A.CallTo(() => amsSocketAsync.SendAsync(A<byte[]>.That.Matches(buffer => isMatch(buffer))))
+            A.CallTo(() => amsSocket.SendAsync(A<byte[]>.That.Matches(buffer => isMatch(buffer))))
                 .ReturnsLazily(call =>
                 {
                     // The receive header is consumed by the AmsSocket, so strip it from the data passed to Ams
@@ -136,7 +147,8 @@ namespace Ads.Client.Test
                     buffer.AsSpan().Slice(invocationIdOffset, sizeof(uint))
                         .CopyTo(res.AsSpan()[(invocationIdOffset - AmsHeaderHelper.AmsTcpHeaderSize)..]);
 
-                    amsSocket.OnReadCallBack += Raise.With(new AmsSocketResponseArgs { Response = res });
+                    messageHandler.HandleMessage(res);
+
                     return Task.CompletedTask;
                 });
         }

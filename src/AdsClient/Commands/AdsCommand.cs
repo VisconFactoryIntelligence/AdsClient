@@ -20,6 +20,8 @@ namespace Ads.Client.Commands
             get { return commandId; }
         }
 
+        public ushort? AmsPortTargetOverride { get; set; }
+
         protected virtual void RunBefore(Ams ams)
         {
         }
