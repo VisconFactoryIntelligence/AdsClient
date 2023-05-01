@@ -14,12 +14,9 @@ namespace Ads.Client
             CreateSocket();
 			this.IpTarget = ipTarget;
 			this.PortTarget = portTarget;
-            this.synchronizationContext = SynchronizationContext.Current;
         }
 
         public abstract void CreateSocket();
-
-        protected SynchronizationContext synchronizationContext;
 
 		public string IpTarget { get; set;}
 		public int PortTarget { get; set;}
@@ -30,7 +27,7 @@ namespace Ads.Client
 
         public abstract bool IsConnected { get; }
 
-        public abstract void ListenForHeader(byte[] amsheader, Action<byte[], SynchronizationContext> lambda);
+        public abstract void ListenForHeader(byte[] amsheader, Action<byte[]> lambda);
 
         public void Listen()
         {
@@ -41,7 +38,7 @@ namespace Ads.Client
                     //First wait for the Ams header (starts new thread)
                     byte[] amsheader = new byte[AmsHeaderHelper.AmsTcpHeaderSize];
 
-                    ListenForHeader(amsheader, (buffer, usertoken) =>
+                    ListenForHeader(amsheader, buffer =>
                     {
                         //If a ams header is received, then read the rest (this is the new thread)
                         try
@@ -54,18 +51,13 @@ namespace Ads.Client
                                     ByteArrayHelper.ByteArrayToTestString(response));
 #endif
 
-                            var syncContext = synchronizationContext;
-                            if (usertoken != null) syncContext = usertoken as SynchronizationContext;
-
-                            var callbackArgs = new AmsSocketResponseArgs() {
-                                Response = response,
-                                Context = syncContext };
+                            var callbackArgs = new AmsSocketResponseArgs { Response = response };
                             OnReadCallBack(this, callbackArgs);
                             Listen();
                         }
                         catch (Exception ex)
                         {
-                            var callbackArgs = new AmsSocketResponseArgs() { Error = ex };
+                            var callbackArgs = new AmsSocketResponseArgs { Error = ex };
                             OnReadCallBack(this, callbackArgs);
                         }
                     });

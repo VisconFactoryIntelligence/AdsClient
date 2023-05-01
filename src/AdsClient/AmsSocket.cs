@@ -26,12 +26,11 @@ namespace Ads.Client
             get { return ((Socket != null) && (Socket.Connected)); }
         }
 
-        public override void ListenForHeader(byte[] amsheader, Action<byte[], SynchronizationContext> lambda)
+        public override void ListenForHeader(byte[] amsheader, Action<byte[]> lambda)
         {
             using (SocketAsyncEventArgs args = new SocketAsyncEventArgs())
             {
                 args.SetBuffer(amsheader, 0, amsheader.Length);
-                args.UserToken = synchronizationContext;
                 args.Completed += (sender, e) =>
                 {
                     if (args.BytesTransferred == 0)
@@ -39,7 +38,7 @@ namespace Ads.Client
                         throw new Exception($"Remote host closed the connection.");
                     }
 
-                    lambda(e.Buffer, e.UserToken as SynchronizationContext);
+                    lambda(e.Buffer);
                 };
                 bool receivedAsync = Socket.ReceiveAsync(args);
                 if (!receivedAsync)
@@ -48,7 +47,7 @@ namespace Ads.Client
                     {
                         throw new Exception($"Remote host closed the connection.");
                     }
-                    lambda(amsheader, null);
+                    lambda(amsheader);
                 }
             }
         }

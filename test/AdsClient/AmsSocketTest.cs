@@ -8,7 +8,7 @@ namespace Ads.Client.Test
 
 		public byte[] SendMessage { get; set; }
 		public byte[] ReceiveMessage { get; set; }
-        public Action<byte[], SynchronizationContext> callback;
+        public Action<byte[]> callback;
 
 		public AmsSocketTest() : base("")
 		{
@@ -23,7 +23,7 @@ namespace Ads.Client.Test
 
 		}
 
-        public override void ListenForHeader(byte[] amsheader, Action<byte[], SynchronizationContext> lambda)
+        public override void ListenForHeader(byte[] amsheader, Action<byte[]> lambda)
 		{
 			this.callback = lambda;
 		}

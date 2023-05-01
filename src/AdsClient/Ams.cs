@@ -72,12 +72,6 @@ namespace Ads.Client
             set { commandTimeOut = value; }
         }
 
-        /// <summary>
-        /// Run the notifications in the main thread.
-        /// This only works when there is a SynchronizationContext available
-        /// </summary>
-        public bool RunNotificationsOnMainThread { get; set; }
-
 		internal string IpTarget { get {return amsSocket.IpTarget; } }
         internal ushort AmsPortTarget { get; set; }
         internal AmsNetId AmsNetIdTarget { get; set; }
@@ -148,14 +142,7 @@ namespace Ads.Client
                         {
                             notificationRequest.ByteValue = notification.ByteValue;
 
-                            if ((args.Context != null) && (RunNotificationsOnMainThread))
-                                args.Context.Post(
-                                    new SendOrPostCallback(delegate
-                                    {
-                                        OnNotification(null, new AdsNotificationArgs(notificationRequest));
-                                    }), null);
-                            else
-                                OnNotification(null, new AdsNotificationArgs(notificationRequest));
+                            OnNotification(null, new AdsNotificationArgs(notificationRequest));
                         }
                     }
                 }

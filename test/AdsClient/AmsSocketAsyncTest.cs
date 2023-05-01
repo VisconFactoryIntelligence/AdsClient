@@ -20,7 +20,7 @@ namespace Ads.Client.Test
 		{
 			var amsSocket = (AmsSocketTest)this.amsSocket;
 			Assert.That(message.SequenceEqual(amsSocket.SendMessage));
-			amsSocket.callback(amsSocket.ReceiveMessage, null);
+			amsSocket.callback(amsSocket.ReceiveMessage);
 			return Task.FromResult(true);
 		}
 
