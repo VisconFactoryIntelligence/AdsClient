@@ -1,32 +1,47 @@
 ﻿using System;
+using Ads.Client.Helpers;
+using Ads.Client.Common;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading;
 
 namespace Ads.Client
 {
-    public class AmsSocket : AmsSocketBase
+    public sealed class AmsSocket : IAmsSocket
     {
-		public AmsSocket (string ipTarget, int portTarget = 48898) : base(ipTarget, portTarget)
-	    {
-			this.Async = new AmsSocketAsync(this);
+		public AmsSocket(string ipTarget, int portTarget = 48898)
+        {
+            Subscribers = 0;
+            CreateSocket();
+			this.IpTarget = ipTarget;
+			this.PortTarget = portTarget;
+
+            this.Async = new AmsSocketAsync(this);
         }
 
         public Socket Socket { get; set; }
-		public IPEndPoint LocalEndPoint { get; set; }
+        public IPEndPoint LocalEndPoint { get; set; }
 
-        public override void CreateSocket()
+        public void CreateSocket()
         {
-			LocalEndPoint = new IPEndPoint(IPAddress.Any, 0);
+            LocalEndPoint = new IPEndPoint(IPAddress.Any, 0);
             this.Socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         }
 
-        public override bool IsConnected
+		public string IpTarget { get; set;}
+		public int PortTarget { get; set;}
+
+        public int Subscribers { get; set; }
+
+        public event EventHandler<AmsSocketResponseArgs> OnReadCallBack;
+
+        /// <inheritdoc cref="System.Net.Sockets.Socket.Connected"/>
+        public bool IsConnected
         {
             get { return ((Socket != null) && (Socket.Connected)); }
         }
 
-        public override void ListenForHeader(byte[] amsheader, Action<byte[]> lambda)
+        public void ListenForHeader(byte[] amsheader, Action<byte[]> lambda)
         {
             using (SocketAsyncEventArgs args = new SocketAsyncEventArgs())
             {
@@ -47,12 +62,67 @@ namespace Ads.Client
                     {
                         throw new Exception($"Remote host closed the connection.");
                     }
+
                     lambda(amsheader);
                 }
             }
         }
 
-        protected override void CloseConnection()
+        public void Listen()
+        {
+            if (IsConnected)
+            {
+                try
+                {
+                    //First wait for the Ams header (starts new thread)
+                    byte[] amsheader = new byte[AmsHeaderHelper.AmsTcpHeaderSize];
+
+                    ListenForHeader(amsheader, buffer =>
+                    {
+                        //If a ams header is received, then read the rest (this is the new thread)
+                        try
+                        {
+                            byte[] response = GetAmsMessage(buffer);
+
+#if DEBUG_AMS
+                            Debug.WriteLine("Received bytes: " +
+                                    ByteArrayHelper.ByteArrayToTestString(buffer) + ',' +
+                                    ByteArrayHelper.ByteArrayToTestString(response));
+#endif
+
+                            var callbackArgs = new AmsSocketResponseArgs { Response = response };
+                            OnReadCallBack(this, callbackArgs);
+                            Listen();
+                        }
+                        catch (Exception ex)
+                        {
+                            var callbackArgs = new AmsSocketResponseArgs { Error = ex };
+                            OnReadCallBack(this, callbackArgs);
+                        }
+                    });
+                }
+                catch (Exception ex)
+                {
+                    if (!Object.ReferenceEquals(ex.GetType(), typeof(ObjectDisposedException))) throw;
+                }
+            }
+        }
+
+        private byte[] GetAmsMessage(byte[] tcpHeader)
+        {
+            uint responseLength = AmsHeaderHelper.GetResponseLength(tcpHeader);
+            byte[] response = new byte[responseLength];
+            GetMessage(response);
+            return response;
+        }
+
+        private void GetMessage(byte[] response)
+        {
+            // Todo: properly handle async receiving
+            Async.ReceiveAsync(response).Wait();
+        }
+
+        private void CloseConnection()
         {
             if (Socket.Connected)
             {
@@ -63,5 +133,16 @@ namespace Ads.Client
             if (Socket != null) Socket.Dispose();
         }
 
+        private void Dispose(bool managed)
+        {
+            CloseConnection();
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        public IAmsSocketAsync Async { get; }
     }
 }

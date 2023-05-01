@@ -12,6 +12,6 @@ namespace Ads.Client
 
         event EventHandler<AmsSocketResponseArgs> OnReadCallBack;
 
-        IAmsSocketAsync Async { get; set; }
+        IAmsSocketAsync Async { get; }
     }
 }
