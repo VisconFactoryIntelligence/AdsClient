@@ -23,7 +23,7 @@ namespace Ads.Client
 
         public int Subscribers { get; set; }
 
-        public event AmsSocketResponseDelegate OnReadCallBack;
+        public event EventHandler<AmsSocketResponseArgs> OnReadCallBack;
 
         public abstract bool IsConnected { get; }
 

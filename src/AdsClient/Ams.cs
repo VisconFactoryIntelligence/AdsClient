@@ -32,7 +32,7 @@ namespace Ads.Client
         {
 			this.NotificationRequests = new List<AdsNotification>();
             this.amsSocket = amsSocket;
-            this.amsSocket.OnReadCallBack += new AmsSocketResponseDelegate(ReadCallback);
+            this.amsSocket.OnReadCallBack += ReadCallback;
 
             this.sendSignal = new Signal();
             if (!sendSignal.TryInit())

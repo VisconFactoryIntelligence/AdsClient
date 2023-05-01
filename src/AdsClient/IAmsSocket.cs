@@ -3,8 +3,6 @@ using System;
 
 namespace Ads.Client
 {
-    public delegate void AmsSocketResponseDelegate(object sender, AmsSocketResponseArgs e);
-
     public interface IAmsSocket : IDisposable
     {
         bool IsConnected { get;}
@@ -12,7 +10,7 @@ namespace Ads.Client
 		int PortTarget { get; set; }
         int Subscribers { get; set; }
 
-        event AmsSocketResponseDelegate OnReadCallBack;
+        event EventHandler<AmsSocketResponseArgs> OnReadCallBack;
 
         IAmsSocketAsync Async { get; set; }
     }
