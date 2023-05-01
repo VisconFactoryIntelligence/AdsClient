@@ -12,24 +12,20 @@ namespace Ads.Client
 		public AmsSocket(string ipTarget, int portTarget = 48898)
         {
             Subscribers = 0;
-            CreateSocket();
-			this.IpTarget = ipTarget;
-			this.PortTarget = portTarget;
+			IpTarget = ipTarget;
+			PortTarget = portTarget;
 
-            this.Async = new AmsSocketAsync(this);
-        }
+            Async = new AmsSocketAsync(this);
 
-        public Socket Socket { get; set; }
-        public IPEndPoint LocalEndPoint { get; set; }
-
-        public void CreateSocket()
-        {
             LocalEndPoint = new IPEndPoint(IPAddress.Any, 0);
-            this.Socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            Socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         }
 
-		public string IpTarget { get; set;}
-		public int PortTarget { get; set;}
+        public Socket Socket { get; }
+        public IPEndPoint LocalEndPoint { get; }
+
+        public string IpTarget { get; }
+        public int PortTarget { get; }
 
         public int Subscribers { get; set; }
 
@@ -103,7 +99,7 @@ namespace Ads.Client
                 }
                 catch (Exception ex)
                 {
-                    if (!Object.ReferenceEquals(ex.GetType(), typeof(ObjectDisposedException))) throw;
+                    if (!ReferenceEquals(ex.GetType(), typeof(ObjectDisposedException))) throw;
                 }
             }
         }
