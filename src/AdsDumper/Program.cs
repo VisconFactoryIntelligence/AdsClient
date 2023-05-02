@@ -20,11 +20,21 @@ try
     Console.WriteLine("Reading symbols...");
     var symbols = await client.Special.GetSymbolsAsync();
 
-    Console.WriteLine($"VarName\tTypeName (len)\tComment\tIndexGroup\tIndexOffset");
+    Console.WriteLine($"VarName\tTypeName (size)\tComment\tIndexGroup\tIndexOffset");
     foreach (var symbol in symbols)
     {
         Console.WriteLine(
-            $"{symbol.VarName}\t{symbol.TypeName} ({0})\t{symbol.Comment}\t{symbol.IndexGroup}\t{symbol.IndexOffset}");
+            $"{symbol.VarName}\t{symbol.TypeName} ({symbol.Size})\t{symbol.Comment}\t{symbol.IndexGroup}\t{symbol.IndexOffset}");
+    }
+
+    Console.WriteLine();
+    Console.WriteLine("Reading types...");
+    var types = await client.GetDataTypesAsync();
+
+    Console.WriteLine("Name\tType (size)\tComment\tDataType\tVersion");
+    foreach (var type in types)
+    {
+        Console.WriteLine($"{type.Name}\t{type.Type} ({type.Size})\t{type.Comment}\t{type.DataType}\t{type.Version}");
     }
 }
 catch (Exception e)

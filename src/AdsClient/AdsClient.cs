@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Ads.Client.Commands;
 using Ads.Client.Common;
+using Ads.Client.Conversation;
 using Ads.Client.Helpers;
 using Ads.Client.Special;
 
@@ -386,6 +387,17 @@ namespace Ads.Client
 
             foreach (var handle in handles)
                 await ReleaseSymhandleAsyncInternal(handle, cancellationToken);
+        }
+
+        public async Task<List<AdsDataTypeDto>> GetDataTypesAsync(CancellationToken cancellationToken = default)
+        {
+            var uploadInfo = await ams.PerformRequestAsync(new AdsUploadInfoConversation(), cancellationToken)
+                .ConfigureAwait(false);
+
+            var types = await ams.PerformRequestAsync(new AdsDataTypesConversation(uploadInfo), cancellationToken)
+                .ConfigureAwait(false);
+
+            return types;
         }
         #endregion
     }
