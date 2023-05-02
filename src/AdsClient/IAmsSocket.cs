@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 namespace Ads.Client
 {
@@ -11,5 +12,7 @@ namespace Ads.Client
         Task ConnectAsync(IIncomingMessageHandler messageHandler);
 
         Task SendAsync(byte[] message);
+
+        Task SendAsync(ArraySegment<byte> buffer);
     }
 }

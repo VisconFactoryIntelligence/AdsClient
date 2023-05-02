@@ -47,6 +47,14 @@ namespace Ads.Client
             await Socket.SendAsync(new SocketAwaitable(args));
         }
 
+        public async Task SendAsync(ArraySegment<byte> buffer)
+        {
+            using var args = new SocketAsyncEventArgs();
+            args.SetBuffer(buffer.Array, buffer.Offset, buffer.Count);
+
+            await Socket.SendAsync(new SocketAwaitable(args));
+        }
+
         void IDisposable.Dispose()
         {
             TcpClient?.Dispose();
