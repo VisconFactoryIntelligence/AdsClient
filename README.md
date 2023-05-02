@@ -274,3 +274,8 @@ using (AdsClient client = new AdsClient(
 }
 ```
 
+Credits, sources and inspiration
+================================
+* [ads-client NodeJS library by Jussi Isotalo](https://github.com/jisotalo/ads-client)
+* [RabbitMQ .NET Client](https://github.com/rabbitmq/rabbitmq-dotnet-client)
+* [Sally7](https://github.com/mycroes/Sally7)
