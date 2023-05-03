@@ -18,13 +18,13 @@ try
 
     Console.WriteLine();
     Console.WriteLine("Reading symbols...");
-    var symbols = await client.Special.GetSymbolsAsync();
+    var symbols = await client.GetSymbolsAsync();
 
-    Console.WriteLine($"VarName\tTypeName (size)\tComment\tIndexGroup\tIndexOffset");
+    Console.WriteLine($"Name\tTypeName (size)\tComment\tIndexGroup\tIndexOffset");
     foreach (var symbol in symbols)
     {
         Console.WriteLine(
-            $"{symbol.VarName}\t{symbol.TypeName} ({symbol.Size})\t{symbol.Comment}\t{symbol.IndexGroup}\t{symbol.IndexOffset}");
+            $"{symbol.Name}\t{symbol.TypeName} ({symbol.Size})\t{symbol.Comment}\t{symbol.IndexGroup}\t{symbol.IndexOffset}");
     }
 
     Console.WriteLine();
