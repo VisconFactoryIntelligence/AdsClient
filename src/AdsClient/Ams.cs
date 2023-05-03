@@ -120,21 +120,27 @@ namespace Ads.Client
             return response;
         }
 
+        internal Task<TResult> PerformRequestAsync<TRequest, TResult>(IAdsConversation<TRequest, TResult> conversation,
+            CancellationToken cancellationToken) where TRequest : struct, IAdsRequest =>
+            PerformRequestAsync(conversation, AmsPortTarget, cancellationToken);
+
         internal async Task<TResult> PerformRequestAsync<TRequest, TResult>(
-            IAdsConversation<TRequest, TResult> conversation, CancellationToken cancellationToken) where TRequest : struct, IAdsRequest
+            IAdsConversation<TRequest, TResult> conversation, ushort amsPortTarget, CancellationToken cancellationToken) where TRequest : struct, IAdsRequest
         {
-            static void WriteRequest(Span<byte> span, ref TRequest request, int requestedLength, Ams ams, uint invokeId)
+            static void WriteRequest(Span<byte> span, ref TRequest request, int requestedLength, Ams ams, ushort amsPortTarget, uint invokeId)
             {
                 var len = request.BuildRequest(span.Slice(AmsHeaderHelper.AmsTcpHeaderSize + AmsHeaderHelper.AmsHeaderSize));
                 Debug.Assert(len == requestedLength, $"Serialized to wrong size, expect {requestedLength}, actual {len}");
 
-                AmsMessageBuilder.WriteHeader(span, ams, request.Command, invokeId, len);
+                AmsMessageBuilder.WriteHeader(span, ams, request.Command, amsPortTarget, invokeId, len);
             }
 
             static TResult HandleResponse(IAdsConversation<TRequest, TResult> conversation, ReadOnlySpan<byte> span)
             {
                 var offset = AmsHeaderHelper.AmsHeaderSize;
                 offset += WireFormatting.ReadUInt32(span.Slice(offset), out var errorCode);
+
+                // Needs some work on returning the buffer in case of exception.
 
                 if (errorCode != 0) throw new AdsException(errorCode);
 
@@ -168,7 +174,7 @@ namespace Ads.Client
                     AmsHeaderHelper.AmsHeaderSize + requestedLength);
                 try
                 {
-                    WriteRequest(buffer, ref request, requestedLength, this, invokeId);
+                    WriteRequest(buffer, ref request, requestedLength, this, amsPortTarget, invokeId);
 
                     _ = await sendSignal.WaitAsync(cancellationToken).ConfigureAwait(false);
                     try

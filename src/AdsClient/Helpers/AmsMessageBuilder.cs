@@ -32,7 +32,7 @@ namespace Ads.Client.Helpers
             return message.ToArray<byte>();
         }
 
-        public static void WriteHeader(Span<byte> buffer, Ams ams, AdsCommandEnum command, uint invokeId, int messageLength)
+        public static void WriteHeader(Span<byte> buffer, Ams ams, AdsCommandEnum command, ushort amsPortTarget, uint invokeId, int messageLength)
         {
             var offset = WireFormatting.WriteUInt16(ref buffer.GetStart(), default);
             offset += WireFormatting.WriteUInt32(ref buffer.GetOffset(offset),
@@ -41,7 +41,7 @@ namespace Ads.Client.Helpers
             ams.AmsNetIdTarget.Bytes.ToArray().CopyTo(buffer.Slice(offset));
             offset += 6;
 
-            offset += WireFormatting.WriteUInt16(ref buffer.GetOffset(offset), ams.AmsPortTarget);
+            offset += WireFormatting.WriteUInt16(ref buffer.GetOffset(offset), amsPortTarget);
 
             ams.AmsNetIdSource.Bytes.ToArray().CopyTo(buffer.Slice(offset));
             offset += 6;
