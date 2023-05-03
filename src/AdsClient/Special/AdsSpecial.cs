@@ -31,7 +31,7 @@ namespace Ads.Client.Special
             AdsReadCommand adsCommand = new AdsReadCommand(0x000002bc, 0x00000001, 4) { AmsPortTargetOverride = 10000 };
             var result = await adsCommand.RunAsync(ams, cancellationToken).ConfigureAwait(false);
             uint length = BitConverter.ToUInt32(result.Data, 0);
-            adsCommand = new AdsReadCommand(0x000002bc, 0x00000001, length);
+            adsCommand = new AdsReadCommand(0x000002bc, 0x00000001, length) { AmsPortTargetOverride = 10000 };
             result = await adsCommand.RunAsync(ams, cancellationToken).ConfigureAwait(false);
             string xml = ByteArrayHelper.ByteArrayToString(result.Data);
             return xml;
