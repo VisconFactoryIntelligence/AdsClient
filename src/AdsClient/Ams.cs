@@ -123,7 +123,7 @@ namespace Ads.Client
         internal async Task<TResult> PerformRequestAsync<TRequest, TResult>(
             IAdsConversation<TRequest, TResult> conversation, CancellationToken cancellationToken) where TRequest : struct, IAdsRequest
         {
-            static void WriteRequest(Span<byte> span, IAdsRequest request, int requestedLength, Ams ams, uint invokeId)
+            static void WriteRequest(Span<byte> span, ref TRequest request, int requestedLength, Ams ams, uint invokeId)
             {
                 var len = request.BuildRequest(span.Slice(AmsHeaderHelper.AmsTcpHeaderSize + AmsHeaderHelper.AmsHeaderSize));
                 Debug.Assert(len == requestedLength, $"Serialized to wrong size, expect {requestedLength}, actual {len}");
@@ -168,7 +168,7 @@ namespace Ads.Client
                     AmsHeaderHelper.AmsHeaderSize + requestedLength);
                 try
                 {
-                    WriteRequest(buffer, request, requestedLength, this, invokeId);
+                    WriteRequest(buffer, ref request, requestedLength, this, invokeId);
 
                     _ = await sendSignal.WaitAsync(cancellationToken).ConfigureAwait(false);
                     try
