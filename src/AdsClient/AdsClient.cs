@@ -408,6 +408,14 @@ namespace Ads.Client
             return symbols;
         }
 
+        /// <summary>
+        /// Read data type definitions from the PLC.
+        /// </summary>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation.
+        /// The task result contains a <see cref="List{T}"/> that contains the data types returned by the PLC.
+        /// </returns>
         public async Task<List<AdsDataTypeDto>> GetDataTypesAsync(CancellationToken cancellationToken = default)
         {
             var uploadInfo = await ams.PerformRequestAsync(new AdsUploadInfoConversation(), cancellationToken)
