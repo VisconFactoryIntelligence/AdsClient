@@ -21,9 +21,9 @@ internal class AdsDataTypesConversation : IAdsConversation<AdsReadRequest, List<
         while (buffer.Length > 0)
         {
             var len = LittleEndianDeserializer.ReadInt32(buffer);
-            results.Add(AdsDataTypeParser.ParseDataType(buffer.Slice(4, len)));
+            results.Add(AdsDataTypeParser.ParseDataType(buffer.Slice(4, len - 4)));
 
-            buffer = buffer.Slice(4 + len);
+            buffer = buffer.Slice(len);
         }
 
         return results;
