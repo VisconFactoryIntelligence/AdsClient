@@ -29,9 +29,9 @@ namespace Ads.Client.Conversation
             while (buffer.Length > 0)
             {
                 var offset = WireFormatting.ReadInt32(buffer, out var len);
-                results.Add(AdsSymbolParser.ParseSymbol(buffer.Slice(offset, len)));
+                results.Add(AdsSymbolParser.ParseSymbol(buffer.Slice(offset, len - offset)));
 
-                buffer = buffer.Slice(offset + len);
+                buffer = buffer.Slice(len);
             }
 
             return results;
