@@ -35,6 +35,11 @@ try
     foreach (var type in types)
     {
         Console.WriteLine($"{type.Name}\t{type.Type} ({type.Size})\t{type.Comment}\t{type.DataType}\t{type.Version}");
+        foreach (var subItem in type.SubItems)
+        {
+            Console.WriteLine(
+                $"- {subItem.Name}\t{type.Type} ({subItem.Size})\t{subItem.Comment}\t{subItem.DataType}\t{subItem.Version}");
+        }
     }
 }
 catch (Exception e)
