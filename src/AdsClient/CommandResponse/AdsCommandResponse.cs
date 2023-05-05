@@ -29,6 +29,8 @@ namespace Ads.Client.CommandResponse
         {
         }
 
+        public void ProcessResponse() => AdsResponseIsChanged();
+
         private uint errorCode;
         public uint AdsErrorCode
         {

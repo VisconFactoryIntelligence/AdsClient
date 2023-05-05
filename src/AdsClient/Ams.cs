@@ -6,9 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Ads.Client.Commands;
 using Ads.Client.Common;
-using Ads.Client.CommandResponse;
 using Ads.Client.Helpers;
 using Ads.Client.Conversation;
 using Ads.Client.Internal;
@@ -66,59 +64,6 @@ namespace Ads.Client
         }
 
         internal event AdsNotificationDelegate OnNotification;
-
-        internal async Task<T> RunCommandAsync<T>(AdsCommand adsCommand, CancellationToken cancellationToken)
-            where T : AdsCommandResponse, new()
-        {
-            if (!AmsSocket.Connected) throw new InvalidOperationException("Not connected to PLC.");
-
-            var tcs = new TaskCompletionSource<byte[]>();
-            using var cancelTcs = cancellationToken.Register(() => tcs.TrySetCanceled(cancellationToken));
-
-            uint invokeId;
-            do
-            {
-                invokeId = invokeIdGenerator.Next();
-            } while (!pendingInvocations.TryAdd(invokeId, tcs));
-
-            using var cancelPendingInvocation =
-                cancellationToken.Register(() => pendingInvocations.TryRemove(invokeId, out _));
-
-            try
-            {
-                // Avoid message building if already cancelled.
-                cancellationToken.ThrowIfCancellationRequested();
-                var message = AmsMessageBuilder.BuildAmsMessage(this, adsCommand, invokeId);
-
-                _ = await sendSignal.WaitAsync(cancellationToken).ConfigureAwait(false);
-                try
-                {
-                    // Avoid request sending if already cancelled. Some time might have elapsed waiting for the signal.
-                    cancellationToken.ThrowIfCancellationRequested();
-                    await AmsSocket.SendAsync(message).ConfigureAwait(false);
-                }
-                finally
-                {
-                    if (!sendSignal.TryRelease())
-                    {
-                        throw new Exception("Failed to release the send signal.");
-                    }
-                }
-            }
-            catch
-            {
-                pendingInvocations.TryRemove(invokeId, out _);
-                throw;
-            }
-
-            var responseBytes = await tcs.Task.ConfigureAwait(false);
-            var response = new T();
-
-            cancellationToken.ThrowIfCancellationRequested();
-            response.SetResponse(responseBytes);
-
-            return response;
-        }
 
         internal Task<TResult> PerformRequestAsync<TRequest, TResult>(IAdsConversation<TRequest, TResult> conversation,
             CancellationToken cancellationToken) where TRequest : struct, IAdsRequest =>
