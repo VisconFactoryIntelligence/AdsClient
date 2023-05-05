@@ -17,6 +17,15 @@ internal class AdsDataTypesConversation : IAdsConversation<AdsReadRequest, List<
 
     public List<AdsDataTypeDto> ParseResponse(ReadOnlySpan<byte> buffer)
     {
+        var length = LittleEndianDeserializer.ReadInt32(buffer);
+        if (length != buffer.Length - 4)
+        {
+            throw new Exception(
+                $"Received {buffer.Length} bytes of data while length indicates length should be {length} bytes.");
+        }
+
+        buffer = buffer.Slice(sizeof(uint));
+
         var results = new List<AdsDataTypeDto>();
         while (buffer.Length > 0)
         {

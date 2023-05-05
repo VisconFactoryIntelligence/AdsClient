@@ -137,16 +137,17 @@ namespace Ads.Client
 
             static TResult HandleResponse(IAdsConversation<TRequest, TResult> conversation, ReadOnlySpan<byte> span)
             {
-                var offset = AmsHeaderHelper.AmsHeaderSize;
-                offset += WireFormatting.ReadUInt32(span.Slice(offset), out var errorCode);
+                var offset = WireFormatting.ReadUInt32(span.Slice(AmsHeaderHelper.AmsHeaderSize), out var errorCode);
 
                 // Needs some work on returning the buffer in case of exception.
 
                 if (errorCode != 0) throw new AdsException(errorCode);
 
-                offset += WireFormatting.ReadInt32(span.Slice(offset), out var dataLength);
+                WireFormatting.ReadInt32(span.Slice(AmsHeaderHelper.AmsDataLengthOffset), out var dataLength);
 
-                return conversation.ParseResponse(span.Slice(offset, dataLength));
+                // Error is already processed, so omit it from returned data.
+                return conversation.ParseResponse(span.Slice(AmsHeaderHelper.AmsHeaderSize + offset,
+                    dataLength - offset));
             }
 
             if (!AmsSocket.Connected) throw new InvalidOperationException("Not connected to PLC.");

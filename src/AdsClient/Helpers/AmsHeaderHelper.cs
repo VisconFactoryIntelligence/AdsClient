@@ -6,6 +6,7 @@ namespace Ads.Client.Helpers
     {
         public const int AmsTcpHeaderSize = 6;
         public const int AmsHeaderSize = 32;
+        public const int AmsDataLengthOffset = 20;
 
         public static uint GetResponseLength(byte[] tcpHeader)
         {

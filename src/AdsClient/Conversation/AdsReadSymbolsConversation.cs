@@ -25,6 +25,15 @@ namespace Ads.Client.Conversation
 
         public List<AdsSymbol> ParseResponse(ReadOnlySpan<byte> buffer)
         {
+            var length = LittleEndianDeserializer.ReadInt32(buffer);
+            if (length != buffer.Length - 4)
+            {
+                throw new Exception(
+                    $"Received {buffer.Length} bytes of data while length indicates length should be {length} bytes.");
+            }
+
+            buffer = buffer.Slice(sizeof(uint));
+
             var results = new List<AdsSymbol>();
             while (buffer.Length > 0)
             {
