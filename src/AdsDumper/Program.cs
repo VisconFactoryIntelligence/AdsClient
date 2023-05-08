@@ -38,7 +38,7 @@ try
         foreach (var subItem in type.SubItems)
         {
             Console.WriteLine(
-                $"- {subItem.Name}\t{type.Type} ({subItem.Size})\t{subItem.Comment}\t{subItem.DataType}\t{subItem.Version}");
+                $"- {subItem.Name}\t{subItem.Type} ({subItem.Size})\t{subItem.Comment}\t{subItem.DataType}\t{subItem.Version}");
         }
     }
 }
