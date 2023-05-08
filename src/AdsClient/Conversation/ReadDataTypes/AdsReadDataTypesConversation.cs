@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using Ads.Client.Common;
+using Ads.Client.Conversation.ReadUploadInfo;
 using Ads.Client.Internal;
 
-namespace Ads.Client.Conversation;
+namespace Ads.Client.Conversation.ReadDataTypes;
 
-internal class AdsDataTypesConversation : IAdsConversation<AdsReadRequest, List<AdsDataTypeDto>>
+internal class AdsReadDataTypesConversation : IAdsConversation<AdsReadRequest, List<AdsDataTypeDto>>
 {
     public uint DataTypeLength { get; }
 
-    public AdsDataTypesConversation(uint dataTypeLength) => DataTypeLength = dataTypeLength;
+    public AdsReadDataTypesConversation(uint dataTypeLength) => DataTypeLength = dataTypeLength;
 
-    public AdsDataTypesConversation(AdsUploadInfoDto uploadInfo) : this(uploadInfo.DataTypeLength) { }
+    public AdsReadDataTypesConversation(AdsUploadInfoDto uploadInfo) : this(uploadInfo.DataTypeLength) { }
 
     public AdsReadRequest BuildRequest() => new(AdsReservedIndexGroup.SymbolDataTypeUpload.ToUInt32(), 0, DataTypeLength);
 

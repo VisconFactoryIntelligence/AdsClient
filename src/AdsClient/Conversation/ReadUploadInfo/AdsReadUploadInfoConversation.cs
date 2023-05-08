@@ -2,9 +2,9 @@
 using Ads.Client.Common;
 using Ads.Client.Internal;
 
-namespace Ads.Client.Conversation;
+namespace Ads.Client.Conversation.ReadUploadInfo;
 
-internal class AdsUploadInfoConversation : IAdsConversation<AdsReadRequest, AdsUploadInfoDto>
+internal class AdsReadUploadInfoConversation : IAdsConversation<AdsReadRequest, AdsUploadInfoDto>
 {
     public AdsReadRequest BuildRequest() => new(AdsReservedIndexGroup.SymbolUploadInfo2.ToUInt32(), 0, 24);
 

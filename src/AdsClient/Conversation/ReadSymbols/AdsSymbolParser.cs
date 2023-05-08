@@ -2,7 +2,7 @@
 using Ads.Client.Common;
 using Ads.Client.Internal;
 
-namespace Ads.Client.Conversation;
+namespace Ads.Client.Conversation.ReadSymbols;
 
 internal class AdsSymbolParser
 {

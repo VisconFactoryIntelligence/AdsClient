@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 using Ads.Client.Commands;
 using Ads.Client.Common;
 using Ads.Client.Conversation;
+using Ads.Client.Conversation.ReadDataTypes;
+using Ads.Client.Conversation.ReadSymbols;
+using Ads.Client.Conversation.ReadUploadInfo;
 using Ads.Client.Helpers;
 using Ads.Client.Special;
 
@@ -399,7 +402,7 @@ namespace Ads.Client
         /// </returns>
         public async Task<List<AdsSymbol>> GetSymbolsAsync(CancellationToken cancellationToken = default)
         {
-            var uploadInfo = await ams.PerformRequestAsync(new AdsUploadInfoConversation(), cancellationToken)
+            var uploadInfo = await ams.PerformRequestAsync(new AdsReadUploadInfoConversation(), cancellationToken)
                 .ConfigureAwait(false);
 
             var symbols = await ams.PerformRequestAsync(new AdsReadSymbolsConversation(uploadInfo), cancellationToken)
@@ -418,10 +421,10 @@ namespace Ads.Client
         /// </returns>
         public async Task<List<AdsDataTypeDto>> GetDataTypesAsync(CancellationToken cancellationToken = default)
         {
-            var uploadInfo = await ams.PerformRequestAsync(new AdsUploadInfoConversation(), cancellationToken)
+            var uploadInfo = await ams.PerformRequestAsync(new AdsReadUploadInfoConversation(), cancellationToken)
                 .ConfigureAwait(false);
 
-            var types = await ams.PerformRequestAsync(new AdsDataTypesConversation(uploadInfo), cancellationToken)
+            var types = await ams.PerformRequestAsync(new AdsReadDataTypesConversation(uploadInfo), cancellationToken)
                 .ConfigureAwait(false);
 
             return types;

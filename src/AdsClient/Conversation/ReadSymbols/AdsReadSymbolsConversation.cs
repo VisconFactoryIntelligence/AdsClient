@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using Ads.Client.Common;
+using Ads.Client.Conversation.ReadUploadInfo;
 using Ads.Client.Internal;
 
-namespace Ads.Client.Conversation
+namespace Ads.Client.Conversation.ReadSymbols
 {
     internal class AdsReadSymbolsConversation : IAdsConversation<AdsReadRequest, List<AdsSymbol>>
     {
