@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Ads.Client.CommandResponse;
 using Ads.Client.Common;
+using Ads.Client.Internal;
 
 namespace Ads.Client.Commands;
 
@@ -54,6 +55,17 @@ public class AdsReadMultipleCommand : AdsCommand
 
     private ReadMultiResult[] ProcessAdsResponse(Span<byte> data)
     {
+        var offset = sizeof(uint); // ErrorCode is first, but has already been validated.
+        offset += WireFormatting.ReadUInt32(data.Slice(offset), out var length);
+
+        if (length + offset != data.Length)
+        {
+            throw new Exception(
+                $"Length field indicates response should have {length} bytes of data, but actual length is {data.Length - offset}");
+        }
+
+        data = data.Slice(offset);
+
         var items = new ReadMultiResult[symbols.Length];
         var returnCodeSpan = data.Slice(0, symbols.Length * 4);
         var dataSpan = data.Slice(returnCodeSpan.Length);
