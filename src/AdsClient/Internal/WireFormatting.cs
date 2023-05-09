@@ -34,6 +34,11 @@ public static class WireFormatting
         return sizeof(uint);
     }
 
+    public static int WriteString(Span<byte> destination, string value)
+    {
+        return StringHelper.Encode(value.AsSpan(), destination);
+    }
+
     public static int WriteUInt16(ref byte destination, ushort value)
     {
         LittleEndianSerializer.WriteUInt16(ref destination, value);

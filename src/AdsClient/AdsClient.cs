@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Ads.Client.Commands;
 using Ads.Client.Common;
 using Ads.Client.Conversation;
+using Ads.Client.Conversation.CreateVariableHandles;
 using Ads.Client.Conversation.ReadDataTypes;
 using Ads.Client.Conversation.ReadSymbols;
 using Ads.Client.Conversation.ReadUploadInfo;
@@ -428,6 +429,23 @@ namespace Ads.Client
                 .ConfigureAwait(false);
 
             return types;
+        }
+
+        /// <summary>
+        /// Create variable handles for the specified variable names.
+        /// </summary>
+        /// <param name="variableNames">The names to create handles for.</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+        /// <returns>
+        /// A task the represents the asynchronous operation.
+        /// The task result contains an array of the variable handles as <see cref="uint"/>.
+        /// </returns>
+        public async Task<uint[]> CreateVariableHandlesAsync(string[] variableNames,
+            CancellationToken cancellationToken = default)
+        {
+            return await ams
+                .PerformRequestAsync(new AdsCreateVariableHandlesConversation(variableNames), cancellationToken)
+                .ConfigureAwait(false);
         }
         #endregion
     }
