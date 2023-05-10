@@ -12,7 +12,7 @@ namespace Ads.Client
             Host = host;
             Port = port;
 
-            TcpClient = new TcpClient();
+            TcpClient = new TcpClient { NoDelay = true };
         }
 
         public TcpClient TcpClient { get; }
