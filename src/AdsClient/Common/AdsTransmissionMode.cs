@@ -1,8 +1,21 @@
 ﻿namespace Ads.Client.Common
 {
-    public enum AdsTransmissionMode
+    public enum AdsTransmissionMode : uint
     {
-        Cyclic   = 3,    //The AdsSyncNotification-Event is fired cyclically
-        OnChange = 4     //The AdsSyncNotification-Event is fired when the data changes
+        None = 0,
+        ClientCycle = 1,
+        ClientOnChange = 2,
+
+        /// <summary>
+        /// Cyclic transmission.
+        /// </summary>
+        Cyclic = 3,
+
+        /// <summary>
+        /// Transmission on value change.
+        /// </summary>
+        OnChange = 4,
+        CyclicInContext = 5,
+        OnChangeInContext = 6,
     }
 }
