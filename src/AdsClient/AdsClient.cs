@@ -10,8 +10,10 @@ using Ads.Client.Conversation.CreateVariableHandles;
 using Ads.Client.Conversation.ReadDataTypes;
 using Ads.Client.Conversation.ReadSymbols;
 using Ads.Client.Conversation.ReadUploadInfo;
+using Ads.Client.Conversation.WriteMultiple;
 using Ads.Client.Helpers;
 using Ads.Client.Special;
+using Ads.Client.Variables;
 
 namespace Ads.Client
 {
@@ -445,6 +447,20 @@ namespace Ads.Client
         {
             return await ams
                 .PerformRequestAsync(new AdsCreateVariableHandlesConversation(variableNames), cancellationToken)
+                .ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Write multiple variable values.
+        /// </summary>
+        /// <param name="variables">The variables and their data to write.</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+        /// <returns>
+        /// A task the represents the asynchronous operation.
+        /// </returns>
+        public async Task WriteVariablesAsync(IVariableData[] variables, CancellationToken cancellationToken = default)
+        {
+            await ams.PerformRequestAsync(new AdsWriteMultipleConversation(variables), cancellationToken)
                 .ConfigureAwait(false);
         }
         #endregion
