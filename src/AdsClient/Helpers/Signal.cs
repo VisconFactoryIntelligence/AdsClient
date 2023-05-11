@@ -10,11 +10,17 @@ namespace Ads.Client.Helpers
     [DebuggerDisplay(nameof(NeedToWait) + ": {" + nameof(NeedToWait) + ",nq}")]
     internal class Signal : IDisposable
     {
+        public Signal()
+        {
+            if (!channel.Writer.TryWrite(0))
+            {
+                throw new Exception("Failed to initialize the send signal.");
+            }
+        }
+
         private readonly Channel<int> channel = Channel.CreateBounded<int>(1);
 
         public void Dispose() => channel.Writer.Complete();
-
-        public bool TryInit() => channel.Writer.TryWrite(0);
 
         public ValueTask<int> WaitAsync(CancellationToken cancellationToken) =>
             channel.Reader.ReadAsync(cancellationToken);

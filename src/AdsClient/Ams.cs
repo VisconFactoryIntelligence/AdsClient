@@ -17,7 +17,7 @@ namespace Ads.Client
     public class Ams : IDisposable
     {
         private readonly IdGenerator invokeIdGenerator = new();
-        private readonly Signal sendSignal;
+        private readonly Signal sendSignal = new();
 
         private readonly ConcurrentDictionary<uint, TaskCompletionSource<byte[]>> pendingInvocations = new();
 
@@ -25,12 +25,6 @@ namespace Ads.Client
         {
             AmsSocket = amsSocket;
             NotificationRequests = new List<AdsNotification>();
-
-            this.sendSignal = new Signal();
-            if (!sendSignal.TryInit())
-            {
-                throw new Exception("Failed to initialize the send signal.");
-            }
         }
 
         public IAmsSocket AmsSocket { get; }
