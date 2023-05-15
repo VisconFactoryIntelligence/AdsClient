@@ -18,8 +18,8 @@
     <PackageIcon>icon.png</PackageIcon>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageTags>Ads;AdsClient;Twincat;Beckhoff</PackageTags>
-    <PackageProjectUrl>https://github.com/mycroes/adsclient</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/mycroes/adsclient.git</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/VisconFactoryIntelligence/AdsClient</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/VisconFactoryIntelligence/AdsClient.git</RepositoryUrl>
 
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <EnablePackageValidation>true</EnablePackageValidation>
