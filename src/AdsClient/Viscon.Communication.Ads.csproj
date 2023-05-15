@@ -15,6 +15,7 @@
     </Description>
     <Authors>inando;mycroes</Authors>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>icon.png</PackageIcon>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageTags>Ads;AdsClient;Twincat;Beckhoff</PackageTags>
     <PackageProjectUrl>https://github.com/mycroes/adsclient</PackageProjectUrl>
@@ -41,5 +42,6 @@
 
   <ItemGroup>
     <None Include="../../README.md" Pack="true" PackagePath="" />
+    <None Include="../../icon.png" Pack="true" PackagePath="" />
   </ItemGroup>
 </Project>
