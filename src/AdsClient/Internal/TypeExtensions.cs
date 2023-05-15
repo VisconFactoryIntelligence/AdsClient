@@ -2,7 +2,7 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace Ads.Client.Internal;
+namespace Viscon.Communication.Ads.Internal;
 
 /// <summary>
 /// Serializer to write little endian values to the output stream.

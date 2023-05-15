@@ -1,8 +1,8 @@
 ﻿using System;
-using Ads.Client.Common;
-using Ads.Client.Internal;
+using Viscon.Communication.Ads.Common;
+using Viscon.Communication.Ads.Internal;
 
-namespace Ads.Client.Conversation;
+namespace Viscon.Communication.Ads.Conversation;
 
 public readonly struct AdsReadRequest : IAdsRequest
 {

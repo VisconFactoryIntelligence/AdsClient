@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Linq;
-using Ads.Client.Common;
-using Ads.Client.Internal;
-using Ads.Client.Variables;
+using Viscon.Communication.Ads.Common;
+using Viscon.Communication.Ads.Internal;
+using Viscon.Communication.Ads.Variables;
 
-namespace Ads.Client.Conversation.ReadMultiple;
+namespace Viscon.Communication.Ads.Conversation.ReadMultiple;
 
 public readonly struct AdsReadMultipleRequest : IAdsRequest
 {

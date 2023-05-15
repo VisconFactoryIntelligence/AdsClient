@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Threading;
 
-namespace Ads.Client.Common
+namespace Viscon.Communication.Ads.Common
 {
     public class AmsSocketResponseArgs : EventArgs
     {

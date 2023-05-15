@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 
-namespace Ads.Client.Helpers
+namespace Viscon.Communication.Ads.Helpers
 {
     [DebuggerNonUserCode]
     [DebuggerDisplay(nameof(NeedToWait) + ": {" + nameof(NeedToWait) + ",nq}")]

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Ads.Client.Common
+namespace Viscon.Communication.Ads.Common
 {
     public class AdsState
     {

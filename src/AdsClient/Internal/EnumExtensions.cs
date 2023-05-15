@@ -1,7 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
-using Ads.Client.Common;
+using Viscon.Communication.Ads.Common;
 
-namespace Ads.Client.Internal;
+namespace Viscon.Communication.Ads.Internal;
 
 internal static class EnumExtensions
 {

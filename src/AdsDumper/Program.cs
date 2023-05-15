@@ -1,4 +1,4 @@
-﻿using Ads.Client;
+﻿using Viscon.Communication.Ads;
 
 using var client = new AdsClient("172.31.20.201.1.1", "172.31.20.20", "172.31.20.20.1.1");
 try

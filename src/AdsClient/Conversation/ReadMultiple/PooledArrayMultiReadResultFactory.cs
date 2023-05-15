@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Buffers;
 using System.Linq;
-using Ads.Client.Variables;
+using Viscon.Communication.Ads.Variables;
 
-namespace Ads.Client.Conversation.ReadMultiple;
+namespace Viscon.Communication.Ads.Conversation.ReadMultiple;
 
 public class PooledArrayMultiReadResultFactory : IReadResultFactory<PooledArrayMultiReadResult>
 {

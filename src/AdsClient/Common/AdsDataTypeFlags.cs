@@ -2,7 +2,7 @@
 // ReSharper disable IdentifierTypo
 // ReSharper disable UnusedMember.Global
 // ReSharper disable CommentTypo
-namespace Ads.Client.Common;
+namespace Viscon.Communication.Ads.Common;
 
 /// <summary>
 /// Specifies the ADS data type flags.

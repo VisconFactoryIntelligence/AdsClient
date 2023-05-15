@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Ads.Client.Common;
-using Ads.Client.Helpers;
 using FakeItEasy;
 using Shouldly;
+using Viscon.Communication.Ads.Common;
+using Viscon.Communication.Ads.Helpers;
 using Xunit;
 
-namespace Ads.Client.Test
+namespace Viscon.Communication.Ads.Test
 {
     public class AdsCommandsAsyncTest : IDisposable
     {

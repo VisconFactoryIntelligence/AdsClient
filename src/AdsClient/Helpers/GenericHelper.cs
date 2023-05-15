@@ -18,12 +18,13 @@
     TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
     OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
  */
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Ads.Client.Common;
+using Viscon.Communication.Ads.Common;
 
-namespace Ads.Client.Helpers
+namespace Viscon.Communication.Ads.Helpers
 {
     /// <summary>
     /// An enumeration of types known to ADS.

@@ -2,7 +2,7 @@
 using System.Buffers;
 using System.Text;
 
-namespace Ads.Client.Helpers
+namespace Viscon.Communication.Ads.Helpers
 {
     public static class StringHelper
     {

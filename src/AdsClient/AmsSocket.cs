@@ -1,9 +1,9 @@
-﻿using Ads.Client.Internal;
-using System;
+﻿using System;
 using System.Net.Sockets;
 using System.Threading.Tasks;
+using Viscon.Communication.Ads.Internal;
 
-namespace Ads.Client
+namespace Viscon.Communication.Ads
 {
     internal class AmsSocket : IAmsSocket, IDisposable
     {

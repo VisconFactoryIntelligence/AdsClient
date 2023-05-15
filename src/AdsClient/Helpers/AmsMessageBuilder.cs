@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Ads.Client.CommandResponse;
-using Ads.Client.Commands;
-using Ads.Client.Common;
-using Ads.Client.Internal;
+using Viscon.Communication.Ads.CommandResponse;
+using Viscon.Communication.Ads.Commands;
+using Viscon.Communication.Ads.Common;
+using Viscon.Communication.Ads.Internal;
 
-namespace Ads.Client.Helpers
+namespace Viscon.Communication.Ads.Helpers
 {
     internal static class AmsMessageBuilder
     {

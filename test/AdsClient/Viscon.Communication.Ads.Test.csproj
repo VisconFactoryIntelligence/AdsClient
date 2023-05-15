@@ -3,7 +3,6 @@
     <TargetFrameworks>net6</TargetFrameworks>
     <Company>webding</Company>
     <Copyright>Inando</Copyright>
-    <AssemblyName>AdsClient.Test</AssemblyName>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
@@ -13,6 +12,6 @@
     <PackageReference Include="xunit" Version="2.4.2" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\AdsClient\Ads.Client.csproj" />
+    <ProjectReference Include="..\..\src\AdsClient\Viscon.Communication.Ads.csproj" />
   </ItemGroup>
 </Project>

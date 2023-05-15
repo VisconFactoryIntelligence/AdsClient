@@ -1,7 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Threading;
 
-namespace Ads.Client.Helpers
+namespace Viscon.Communication.Ads.Helpers
 {
     internal class IdGenerator
     {

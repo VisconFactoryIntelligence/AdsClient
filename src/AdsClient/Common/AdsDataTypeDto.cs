@@ -1,4 +1,4 @@
-﻿namespace Ads.Client.Common;
+﻿namespace Viscon.Communication.Ads.Common;
 
 public record AdsDataTypeDto(uint Version, uint HashValue, uint BaseTypeHashValue, uint Size, uint Offset,
     AdsDataType DataType, AdsDataTypeFlags Flags, string Name, string Type, string Comment, AdsArrayRange[] ArrayRanges,

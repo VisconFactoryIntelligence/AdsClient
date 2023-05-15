@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using Ads.Client.Helpers;
+using Viscon.Communication.Ads.Helpers;
 
-namespace Ads.Client.Internal;
+namespace Viscon.Communication.Ads.Internal;
 
 /// <summary>
 /// Helpers for reading and writing data in the expect wire format for the ADS protocol.

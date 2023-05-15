@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using Ads.Client.Common;
-using Ads.Client.Conversation.ReadUploadInfo;
-using Ads.Client.Internal;
+using Viscon.Communication.Ads.Common;
+using Viscon.Communication.Ads.Conversation.ReadUploadInfo;
+using Viscon.Communication.Ads.Internal;
 
-namespace Ads.Client.Conversation.ReadSymbols
+namespace Viscon.Communication.Ads.Conversation.ReadSymbols
 {
     internal class AdsReadSymbolsConversation : IAdsConversation<AdsReadRequest, List<AdsSymbol>>
     {

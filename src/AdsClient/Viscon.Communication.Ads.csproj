@@ -1,0 +1,47 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.1;netstandard2.0;net462</TargetFrameworks>
+    <LangVersion>latest</LangVersion>
+    <DebugType>portable</DebugType>
+
+    <Copyright>
+      Copyright (c) 2011 Inando
+      Copyright (c) 2023 Viscon Factory Intelligence B.V.
+    </Copyright>
+    <Title>AdsClient PCL library</Title>
+    <Description>
+      A client implementation of the Beckhoff Twincat ADS protocol, targeting
+      NetStandard2.0 compatible platforms.
+    </Description>
+    <Authors>inando;mycroes</Authors>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageTags>Ads;AdsClient;Twincat;Beckhoff</PackageTags>
+    <PackageProjectUrl>https://github.com/VisconFactoryIntelligence/AdsClient</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/VisconFactoryIntelligence/AdsClient.git</RepositoryUrl>
+
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <EnablePackageValidation>true</EnablePackageValidation>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <IncludeSymbols>true</IncludeSymbols>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="$(AssemblyName).Test" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DotNet.ReproducibleBuilds" Version="1.1.1">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="7.0.0" />
+    <PackageReference Include="System.Threading.Channels" Version="7.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="../../README.md" Pack="true" PackagePath="" />
+    <None Include="../../icon.png" Pack="true" PackagePath="" />
+  </ItemGroup>
+</Project>

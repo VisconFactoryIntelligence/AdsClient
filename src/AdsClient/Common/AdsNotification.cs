@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using Ads.Client.Helpers;
+using Viscon.Communication.Ads.Helpers;
 
-namespace Ads.Client.Common
+namespace Viscon.Communication.Ads.Common
 {
     public delegate void AdsNotificationDelegate(object sender, AdsNotificationArgs e);
 

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Ads.Client.Helpers
+namespace Viscon.Communication.Ads.Helpers
 {
     internal class AmsHeaderHelper
     {

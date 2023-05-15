@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Ads.Client.CommandResponse;
-using Ads.Client.Common;
-using Ads.Client.Conversation;
+using Viscon.Communication.Ads.CommandResponse;
+using Viscon.Communication.Ads.Common;
+using Viscon.Communication.Ads.Conversation;
 
-namespace Ads.Client.Commands
+namespace Viscon.Communication.Ads.Commands
 {
     public abstract class AdsCommand<TResponse> where TResponse : AdsCommandResponse, new()
     {

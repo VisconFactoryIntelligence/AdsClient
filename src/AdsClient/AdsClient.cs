@@ -3,22 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Ads.Client.CommandResponse;
-using Ads.Client.Commands;
-using Ads.Client.Common;
-using Ads.Client.Conversation;
-using Ads.Client.Conversation.CreateVariableHandles;
-using Ads.Client.Conversation.ReadDataTypes;
-using Ads.Client.Conversation.ReadMultiple;
-using Ads.Client.Conversation.ReadSymbols;
-using Ads.Client.Conversation.ReadUploadInfo;
-using Ads.Client.Conversation.WriteMultiple;
-using Ads.Client.Helpers;
-using Ads.Client.Internal;
-using Ads.Client.Special;
-using Ads.Client.Variables;
+using Viscon.Communication.Ads.CommandResponse;
+using Viscon.Communication.Ads.Commands;
+using Viscon.Communication.Ads.Common;
+using Viscon.Communication.Ads.Conversation;
+using Viscon.Communication.Ads.Conversation.CreateVariableHandles;
+using Viscon.Communication.Ads.Conversation.ReadDataTypes;
+using Viscon.Communication.Ads.Conversation.ReadMultiple;
+using Viscon.Communication.Ads.Conversation.ReadSymbols;
+using Viscon.Communication.Ads.Conversation.ReadUploadInfo;
+using Viscon.Communication.Ads.Conversation.WriteMultiple;
+using Viscon.Communication.Ads.Helpers;
+using Viscon.Communication.Ads.Internal;
+using Viscon.Communication.Ads.Special;
+using Viscon.Communication.Ads.Variables;
 
-namespace Ads.Client
+namespace Viscon.Communication.Ads
 {
     public class AdsClient : IDisposable
     {

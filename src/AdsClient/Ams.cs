@@ -6,12 +6,12 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Ads.Client.Common;
-using Ads.Client.Helpers;
-using Ads.Client.Conversation;
-using Ads.Client.Internal;
+using Viscon.Communication.Ads.Common;
+using Viscon.Communication.Ads.Conversation;
+using Viscon.Communication.Ads.Helpers;
+using Viscon.Communication.Ads.Internal;
 
-namespace Ads.Client
+namespace Viscon.Communication.Ads
 {
 
     public class Ams : IDisposable

@@ -1,4 +1,4 @@
-﻿namespace Ads.Client.Common
+﻿namespace Viscon.Communication.Ads.Common
 {
     public static class AdsCommandId
     {
