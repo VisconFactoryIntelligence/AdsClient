@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Ads.Client.Conversation.WriteMultiple;
 
-internal class WriteMultipleException
+internal static class WriteMultipleException
 {
     public static void Throw(IEnumerable<Exception> itemExceptions)
     {
