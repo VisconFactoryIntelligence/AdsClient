@@ -2,7 +2,12 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.1;netstandard2.0;net462</TargetFrameworks>
     <LangVersion>latest</LangVersion>
-    <Copyright>Inando</Copyright>
+    <DebugType>portable</DebugType>
+
+    <Copyright>
+      Copyright (c) 2011 Inando
+      Copyright (c) 2023 Michael Croes
+    </Copyright>
     <AssemblyName>AdsClient</AssemblyName>
     <Version>0.7</Version>
     <Title>AdsClient PCL library</Title>
@@ -11,11 +16,16 @@
       NetStandard2.0 compatible platforms.
     </Description>
     <Authors>inando;mycroes</Authors>
-    <EnablePackageValidation>true</EnablePackageValidation>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageTags>Ads;AdsClient;Twincat;Beckhoff</PackageTags>
     <PackageProjectUrl>https://github.com/mycroes/adsclient</PackageProjectUrl>
     <RepositoryUrl>https://github.com/mycroes/adsclient.git</RepositoryUrl>
+
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <EnablePackageValidation>true</EnablePackageValidation>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <IncludeSymbols>true</IncludeSymbols>
   </PropertyGroup>
 
   <ItemGroup>
@@ -29,5 +39,9 @@
     </PackageReference>
     <PackageReference Include="System.Text.Encoding.CodePages" Version="7.0.0" />
     <PackageReference Include="System.Threading.Channels" Version="7.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="../../README.md" Pack="true" PackagePath="" />
   </ItemGroup>
 </Project>
