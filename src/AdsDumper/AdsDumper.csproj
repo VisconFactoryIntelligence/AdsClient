@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AdsClient\Ads.Client.csproj" />
+    <ProjectReference Include="..\AdsClient\Viscon.Communication.Ads.csproj" />
   </ItemGroup>
 
 </Project>
