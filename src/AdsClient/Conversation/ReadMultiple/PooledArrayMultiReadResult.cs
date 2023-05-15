@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Buffers;
-using Ads.Client.Variables;
+using Viscon.Communication.Ads.Variables;
 
-namespace Ads.Client.Conversation.ReadMultiple;
+namespace Viscon.Communication.Ads.Conversation.ReadMultiple;
 
 public class PooledArrayMultiReadResult : IMultiReadResult, IDisposable
 {

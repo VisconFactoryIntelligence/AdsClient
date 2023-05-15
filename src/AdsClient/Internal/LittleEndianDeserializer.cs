@@ -3,7 +3,7 @@ using System.Buffers;
 using System.Buffers.Binary;
 using System.Runtime.CompilerServices;
 
-namespace Ads.Client.Internal;
+namespace Viscon.Communication.Ads.Internal;
 
 /// <summary>
 /// Serializer to read little endian values from the input stream.

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Ads.Client.Variables;
+namespace Viscon.Communication.Ads.Variables;
 
 public record ArrayVariableData(IVariableAddress Address, byte[] Data) : IVariableData
 {

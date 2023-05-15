@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
-using Ads.Client.Common;
-using Ads.Client.Internal;
+using Viscon.Communication.Ads.Common;
+using Viscon.Communication.Ads.Internal;
 
-namespace Ads.Client.Conversation.CreateVariableHandles;
+namespace Viscon.Communication.Ads.Conversation.CreateVariableHandles;
 
 internal readonly struct AdsCreateVariableHandlesRequest : IAdsRequest
 {

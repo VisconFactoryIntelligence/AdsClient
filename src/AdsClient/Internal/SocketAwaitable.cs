@@ -3,7 +3,7 @@ using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Threading;
 
-namespace Ads.Client.Internal;
+namespace Viscon.Communication.Ads.Internal;
 
 /// <summary>
 /// Reusable awaitable for socket operations.

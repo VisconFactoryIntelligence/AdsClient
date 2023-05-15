@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Ads.Client.Commands;
-using Ads.Client.Common;
-using Ads.Client.Helpers;
+using Viscon.Communication.Ads.Commands;
+using Viscon.Communication.Ads.Common;
+using Viscon.Communication.Ads.Helpers;
 
-namespace Ads.Client.Special
+namespace Viscon.Communication.Ads.Special
 {
     /// <summary>
     /// Special functions. (functionality not documented by Beckhoff)

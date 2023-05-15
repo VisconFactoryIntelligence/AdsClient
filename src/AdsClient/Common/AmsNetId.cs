@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Ads.Client.Common
+namespace Viscon.Communication.Ads.Common
 {
     public class AmsNetId
     {

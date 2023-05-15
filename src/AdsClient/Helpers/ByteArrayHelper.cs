@@ -1,9 +1,9 @@
-﻿using Ads.Client.Common;
-using System;
+﻿using System;
 using System.Linq;
 using System.Text;
+using Viscon.Communication.Ads.Common;
 
-namespace Ads.Client.Helpers
+namespace Viscon.Communication.Ads.Helpers
 {
     public class ByteArrayHelper
     {

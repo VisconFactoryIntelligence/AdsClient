@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Ads.Client.Conversation.WriteMultiple;
+namespace Viscon.Communication.Ads.Conversation.WriteMultiple;
 
 internal static class WriteMultipleException
 {

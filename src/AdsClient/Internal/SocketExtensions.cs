@@ -1,6 +1,6 @@
 ﻿using System.Net.Sockets;
 
-namespace Ads.Client.Internal;
+namespace Viscon.Communication.Ads.Internal;
 
 /// <summary>
 /// Socket extensions to send and receive using <see cref="SocketAwaitable" />.

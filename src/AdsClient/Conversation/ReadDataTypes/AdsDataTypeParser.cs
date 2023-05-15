@@ -1,8 +1,8 @@
 ﻿using System;
-using Ads.Client.Common;
-using Ads.Client.Internal;
+using Viscon.Communication.Ads.Common;
+using Viscon.Communication.Ads.Internal;
 
-namespace Ads.Client.Conversation.ReadDataTypes;
+namespace Viscon.Communication.Ads.Conversation.ReadDataTypes;
 
 internal static class AdsDataTypeParser
 {

@@ -1,7 +1,7 @@
-﻿using Ads.Client.Common;
-using Ads.Client.Variables;
+﻿using Viscon.Communication.Ads.Common;
+using Viscon.Communication.Ads.Variables;
 
-namespace Ads.Client.Conversation.WriteMultiple
+namespace Viscon.Communication.Ads.Conversation.WriteMultiple
 {
     public class AdsWriteVariableException : AdsException
     {

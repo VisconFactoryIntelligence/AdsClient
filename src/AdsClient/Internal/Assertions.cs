@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Ads.Client.Internal;
+namespace Viscon.Communication.Ads.Internal;
 
 internal class Assertions
 {

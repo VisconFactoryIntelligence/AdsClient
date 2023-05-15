@@ -1,10 +1,10 @@
-﻿namespace Ads.Client.Helpers
-{
-    using System.Linq;
-    using System;
-    using System.Collections.Generic;
-    using System.Reflection;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 
+namespace Viscon.Communication.Ads.Helpers
+{
     /// <summary>
     /// Extension classes for MemberInfo
     /// </summary>

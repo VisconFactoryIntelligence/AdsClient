@@ -1,4 +1,4 @@
-﻿namespace Ads.Client.Variables;
+﻿namespace Viscon.Communication.Ads.Variables;
 
 public interface IVariableAddress
 {

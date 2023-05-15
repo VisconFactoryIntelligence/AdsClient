@@ -1,8 +1,8 @@
 ﻿using System;
-using Ads.Client.Common;
-using Ads.Client.Helpers;
+using Viscon.Communication.Ads.Common;
+using Viscon.Communication.Ads.Helpers;
 
-namespace Ads.Client.CommandResponse
+namespace Viscon.Communication.Ads.CommandResponse
 {
     public class AdsReadDeviceInfoCommandResponse : AdsCommandResponse
     {

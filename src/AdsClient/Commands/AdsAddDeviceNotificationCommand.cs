@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Ads.Client.CommandResponse;
-using Ads.Client.Common;
+using Viscon.Communication.Ads.CommandResponse;
+using Viscon.Communication.Ads.Common;
 
-namespace Ads.Client.Commands
+namespace Viscon.Communication.Ads.Commands
 {
     public class AdsAddDeviceNotificationCommand : AdsCommand<AdsAddDeviceNotificationCommandResponse>
     {

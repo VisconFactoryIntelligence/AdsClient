@@ -1,7 +1,7 @@
 ﻿using System;
-using Ads.Client.Common;
+using Viscon.Communication.Ads.Common;
 
-namespace Ads.Client.CommandResponse
+namespace Viscon.Communication.Ads.CommandResponse
 {
     public class AdsReadStateCommandResponse : AdsCommandResponse
     {

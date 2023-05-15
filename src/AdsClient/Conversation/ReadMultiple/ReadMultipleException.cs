@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Ads.Client.Conversation.ReadMultiple;
+namespace Viscon.Communication.Ads.Conversation.ReadMultiple;
 
 internal class ReadMultipleException
 {

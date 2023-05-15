@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Ads.Client;
+namespace Viscon.Communication.Ads;
 
 public interface IIncomingMessageHandler
 {

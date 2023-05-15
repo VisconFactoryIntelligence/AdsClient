@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 
-namespace Ads.Client
+namespace Viscon.Communication.Ads.Helpers
 {
     /// <summary>
     /// An attribute class for members of serializable classes.

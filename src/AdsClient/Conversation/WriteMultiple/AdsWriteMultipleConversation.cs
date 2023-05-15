@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using Ads.Client.Internal;
-using Ads.Client.Variables;
+using Viscon.Communication.Ads.Internal;
+using Viscon.Communication.Ads.Variables;
 
-namespace Ads.Client.Conversation.WriteMultiple
+namespace Viscon.Communication.Ads.Conversation.WriteMultiple
 {
     internal class AdsWriteMultipleConversation : IAdsConversation<AdsWriteMultipleRequest, object>
     {

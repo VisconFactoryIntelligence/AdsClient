@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Ads.Client
+namespace Viscon.Communication.Ads.Helpers
 {
     [System.AttributeUsage(System.AttributeTargets.Class)]
     public class AdsSerializableAttribute : Attribute

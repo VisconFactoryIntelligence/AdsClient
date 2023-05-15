@@ -1,7 +1,7 @@
 ﻿using System;
-using Ads.Client.Common;
+using Viscon.Communication.Ads.Common;
 
-namespace Ads.Client
+namespace Viscon.Communication.Ads.Helpers
 {
     public static class Extensions
     {
