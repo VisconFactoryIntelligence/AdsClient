@@ -1,4 +1,4 @@
-[![Build Status](https://github.com/mycroes/adsclient/actions/workflows/dotnet.yml/badge.svg)](https://github.com/mycroes/adsclient/actions/workflows/dotnet.yml)
+[![.NET](https://github.com/VisconFactoryIntelligence/AdsClient/actions/workflows/dotnet.yml/badge.svg)](https://github.com/VisconFactoryIntelligence/AdsClient/actions/workflows/dotnet.yml)
 
 This is the client implementation of the [Twincat](http://www.beckhoff.com/english.asp?twincat/default.htm) Ads protocol from [Beckhoff](http://http://www.beckhoff.com/).   
 (I'm not affiliated with Beckhoff)
