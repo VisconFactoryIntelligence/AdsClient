@@ -446,7 +446,7 @@ namespace Ads.Client
         /// <param name="variableNames">The names to create handles for.</param>
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <returns>
-        /// A task the represents the asynchronous operation.
+        /// A task that represents the asynchronous operation.
         /// The task result contains an array of the variable handles as <see cref="uint"/>.
         /// </returns>
         public async Task<uint[]> CreateVariableHandlesAsync(string[] variableNames,
