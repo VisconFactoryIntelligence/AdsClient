@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Ads.Client.CommandResponse;
 using Ads.Client.Commands;
 using Ads.Client.Common;
 using Ads.Client.Conversation;
@@ -192,7 +193,7 @@ namespace Ads.Client
 
             // It was not retrieved before - get it from the control.
             var adsCommand = new AdsWriteReadCommand(0x0000F003, 0x00000000, varName.ToAdsBytes(), 4);
-            var result = await adsCommand.RunAsync(this.ams, cancellationToken);
+            var result = await RunCommandAsync(adsCommand, cancellationToken);
             if (result == null || result.Data == null || result.Data.Length < 4)
                 return 0;
 
@@ -239,7 +240,7 @@ namespace Ads.Client
         {
             // Run the release command.
             var adsCommand = new AdsWriteCommand(0x0000F006, 0x00000000, BitConverter.GetBytes(symhandle));
-            return adsCommand.RunAsync(this.ams, cancellationToken);
+            return RunCommandAsync(adsCommand, cancellationToken);
         }
 
         /// <summary>
@@ -252,21 +253,21 @@ namespace Ads.Client
         public async Task<byte[]> ReadBytesAsync(uint varHandle, uint readLength, CancellationToken cancellationToken = default)
         {
             AdsReadCommand adsCommand = new AdsReadCommand(0x0000F005, varHandle, readLength);
-            var result = await adsCommand.RunAsync(this.ams, cancellationToken);
+            var result = await RunCommandAsync(adsCommand, cancellationToken);
             return result.Data;
         }
 
         public async Task<byte[]> ReadBytesI_Async(uint offset, uint readLength, CancellationToken cancellationToken = default)
         {
             AdsReadCommand adsCommand = new AdsReadCommand(0x0000F020, offset, readLength);
-            var result = await adsCommand.RunAsync(this.ams, cancellationToken);
+            var result = await RunCommandAsync(adsCommand, cancellationToken);
             return result.Data;
         }
 
         public async Task<byte[]> ReadBytesQ_Async(uint offset, uint readLength, CancellationToken cancellationToken = default)
         {
             AdsReadCommand adsCommand = new AdsReadCommand(0x0000F030, offset, readLength);
-            var result = await adsCommand.RunAsync(this.ams, cancellationToken);
+            var result = await RunCommandAsync(adsCommand, cancellationToken);
             return result.Data;
         }
 
@@ -325,7 +326,7 @@ namespace Ads.Client
             adsCommand.CycleTime = cycleTime;
             adsCommand.UserData = userData;
             adsCommand.TypeOfValue = typeOfValue;
-            var result = await adsCommand.RunAsync(this.ams, cancellationToken);
+            var result = await RunCommandAsync(adsCommand, cancellationToken);
             adsCommand.Notification.NotificationHandle = result.NotificationHandle;
             return result.NotificationHandle; ;
         }
@@ -356,7 +357,7 @@ namespace Ads.Client
         public Task DeleteNotificationAsync(uint notificationHandle, CancellationToken cancellationToken = default)
         {
             var adsCommand = new AdsDeleteDeviceNotificationCommand(notificationHandle);
-            return adsCommand.RunAsync(this.ams, cancellationToken);
+            return RunCommandAsync(adsCommand, cancellationToken);
         }
 
         /// <summary>
@@ -368,7 +369,7 @@ namespace Ads.Client
         public Task WriteBytesAsync(uint varHandle, IEnumerable<byte> varValue, CancellationToken cancellationToken = default)
         {
             AdsWriteCommand adsCommand = new AdsWriteCommand(0x0000F005, varHandle, varValue);
-            return adsCommand.RunAsync(this.ams, cancellationToken);
+            return RunCommandAsync(adsCommand, cancellationToken);
         }
 
         /// <summary>
@@ -392,7 +393,7 @@ namespace Ads.Client
         public async Task<AdsDeviceInfo> ReadDeviceInfoAsync(CancellationToken cancellationToken = default)
         {
             AdsReadDeviceInfoCommand adsCommand = new AdsReadDeviceInfoCommand();
-            var result = await adsCommand.RunAsync(this.ams, cancellationToken);
+            var result = await RunCommandAsync(adsCommand, cancellationToken);
             return result.AdsDeviceInfo;
         }
 
@@ -404,7 +405,7 @@ namespace Ads.Client
         public async Task<AdsState> ReadStateAsync(CancellationToken cancellationToken = default)
         {
             var adsCommand = new AdsReadStateCommand();
-            var result = await adsCommand.RunAsync(this.ams, cancellationToken);
+            var result = await RunCommandAsync(adsCommand, cancellationToken);
             return result.AdsState;
         }
 
@@ -550,6 +551,14 @@ namespace Ads.Client
             using var linkedCts = CreateRequestTimeoutCancellationTokenSource(cancellationToken);
 
             return await ams.PerformRequestAsync(conversation, linkedCts.Token).ConfigureAwait(false);
+        }
+
+        private async Task<TResponse> RunCommandAsync<TResponse>(AdsCommand<TResponse> command,
+            CancellationToken cancellationToken) where TResponse : AdsCommandResponse, new()
+        {
+            using var linkedCts = CreateRequestTimeoutCancellationTokenSource(cancellationToken);
+
+            return await command.RunAsync(ams, linkedCts.Token).ConfigureAwait(false);
         }
 
     }
