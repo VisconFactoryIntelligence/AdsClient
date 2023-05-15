@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Ads.Client.CommandResponse;
 using Ads.Client.Common;
 
 namespace Ads.Client.Commands
 {
-    internal class AdsReadCommand : AdsCommand
+    internal class AdsReadCommand : AdsCommand<AdsReadCommandResponse>
     {
         public AdsReadCommand(uint indexGroup, uint indexOffset, uint readLength)
             : base(AdsCommandId.Read)
@@ -29,11 +27,6 @@ namespace Ads.Client.Commands
             data = data.Concat(BitConverter.GetBytes(readLength));
 
             return data;
-        }
-
-        public Task<AdsReadCommandResponse> RunAsync(Ams ams, CancellationToken cancellationToken)
-        {
-            return RunAsync<AdsReadCommandResponse>(ams, cancellationToken);
         }
     }
 }

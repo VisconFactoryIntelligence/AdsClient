@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Ads.Client.CommandResponse;
 using Ads.Client.Commands;
 using Ads.Client.Common;
 using Ads.Client.Conversation;
@@ -13,6 +14,7 @@ using Ads.Client.Conversation.ReadSymbols;
 using Ads.Client.Conversation.ReadUploadInfo;
 using Ads.Client.Conversation.WriteMultiple;
 using Ads.Client.Helpers;
+using Ads.Client.Internal;
 using Ads.Client.Special;
 using Ads.Client.Variables;
 
@@ -66,6 +68,34 @@ namespace Ads.Client
             ams.AmsNetIdTarget = new AmsNetId(settings.AmsNetIdTarget);
             ams.AmsPortTarget = settings.AmsPortTarget;
             this.Name = settings.Name;
+        }
+
+        /// <summary>
+        /// The default timeout (5 seconds) for performing requests.
+        /// Set the actual value using <see cref="RequestTimeout"/>.
+        /// </summary>
+        public static TimeSpan DefaultRequestTimeout => TimeSpan.FromSeconds(5);
+
+        private TimeSpan requestTimeout = DefaultRequestTimeout;
+
+        /// <summary>
+        /// Gets or sets the timeout for performing requests.
+        /// </summary>
+        /// <remarks>
+        /// The default value is <see cref="DefaultRequestTimeout"/>.
+        /// </remarks>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// <paramref name="value"/>.TotalMilliseconds is less than -1 or greater than maximum allowed timer duration.
+        /// </exception>
+        public TimeSpan RequestTimeout
+        {
+            get => requestTimeout;
+            set
+            {
+                Assertions.AssertTimeoutIsValid(value);
+
+                requestTimeout = value;
+            }
         }
 
         /// <summary>
@@ -163,7 +193,7 @@ namespace Ads.Client
 
             // It was not retrieved before - get it from the control.
             var adsCommand = new AdsWriteReadCommand(0x0000F003, 0x00000000, varName.ToAdsBytes(), 4);
-            var result = await adsCommand.RunAsync(this.ams, cancellationToken);
+            var result = await RunCommandAsync(adsCommand, cancellationToken);
             if (result == null || result.Data == null || result.Data.Length < 4)
                 return 0;
 
@@ -210,7 +240,7 @@ namespace Ads.Client
         {
             // Run the release command.
             var adsCommand = new AdsWriteCommand(0x0000F006, 0x00000000, BitConverter.GetBytes(symhandle));
-            return adsCommand.RunAsync(this.ams, cancellationToken);
+            return RunCommandAsync(adsCommand, cancellationToken);
         }
 
         /// <summary>
@@ -223,21 +253,21 @@ namespace Ads.Client
         public async Task<byte[]> ReadBytesAsync(uint varHandle, uint readLength, CancellationToken cancellationToken = default)
         {
             AdsReadCommand adsCommand = new AdsReadCommand(0x0000F005, varHandle, readLength);
-            var result = await adsCommand.RunAsync(this.ams, cancellationToken);
+            var result = await RunCommandAsync(adsCommand, cancellationToken);
             return result.Data;
         }
 
         public async Task<byte[]> ReadBytesI_Async(uint offset, uint readLength, CancellationToken cancellationToken = default)
         {
             AdsReadCommand adsCommand = new AdsReadCommand(0x0000F020, offset, readLength);
-            var result = await adsCommand.RunAsync(this.ams, cancellationToken);
+            var result = await RunCommandAsync(adsCommand, cancellationToken);
             return result.Data;
         }
 
         public async Task<byte[]> ReadBytesQ_Async(uint offset, uint readLength, CancellationToken cancellationToken = default)
         {
             AdsReadCommand adsCommand = new AdsReadCommand(0x0000F030, offset, readLength);
-            var result = await adsCommand.RunAsync(this.ams, cancellationToken);
+            var result = await RunCommandAsync(adsCommand, cancellationToken);
             return result.Data;
         }
 
@@ -296,7 +326,7 @@ namespace Ads.Client
             adsCommand.CycleTime = cycleTime;
             adsCommand.UserData = userData;
             adsCommand.TypeOfValue = typeOfValue;
-            var result = await adsCommand.RunAsync(this.ams, cancellationToken);
+            var result = await RunCommandAsync(adsCommand, cancellationToken);
             adsCommand.Notification.NotificationHandle = result.NotificationHandle;
             return result.NotificationHandle; ;
         }
@@ -327,7 +357,7 @@ namespace Ads.Client
         public Task DeleteNotificationAsync(uint notificationHandle, CancellationToken cancellationToken = default)
         {
             var adsCommand = new AdsDeleteDeviceNotificationCommand(notificationHandle);
-            return adsCommand.RunAsync(this.ams, cancellationToken);
+            return RunCommandAsync(adsCommand, cancellationToken);
         }
 
         /// <summary>
@@ -339,7 +369,7 @@ namespace Ads.Client
         public Task WriteBytesAsync(uint varHandle, IEnumerable<byte> varValue, CancellationToken cancellationToken = default)
         {
             AdsWriteCommand adsCommand = new AdsWriteCommand(0x0000F005, varHandle, varValue);
-            return adsCommand.RunAsync(this.ams, cancellationToken);
+            return RunCommandAsync(adsCommand, cancellationToken);
         }
 
         /// <summary>
@@ -363,7 +393,7 @@ namespace Ads.Client
         public async Task<AdsDeviceInfo> ReadDeviceInfoAsync(CancellationToken cancellationToken = default)
         {
             AdsReadDeviceInfoCommand adsCommand = new AdsReadDeviceInfoCommand();
-            var result = await adsCommand.RunAsync(this.ams, cancellationToken);
+            var result = await RunCommandAsync(adsCommand, cancellationToken);
             return result.AdsDeviceInfo;
         }
 
@@ -375,7 +405,7 @@ namespace Ads.Client
         public async Task<AdsState> ReadStateAsync(CancellationToken cancellationToken = default)
         {
             var adsCommand = new AdsReadStateCommand();
-            var result = await adsCommand.RunAsync(this.ams, cancellationToken);
+            var result = await RunCommandAsync(adsCommand, cancellationToken);
             return result.AdsState;
         }
 
@@ -412,10 +442,10 @@ namespace Ads.Client
         /// </returns>
         public async Task<List<AdsSymbol>> GetSymbolsAsync(CancellationToken cancellationToken = default)
         {
-            var uploadInfo = await ams.PerformRequestAsync(new AdsReadUploadInfoConversation(), cancellationToken)
+            var uploadInfo = await PerformRequestAsync(new AdsReadUploadInfoConversation(), cancellationToken)
                 .ConfigureAwait(false);
 
-            var symbols = await ams.PerformRequestAsync(new AdsReadSymbolsConversation(uploadInfo), cancellationToken)
+            var symbols = await PerformRequestAsync(new AdsReadSymbolsConversation(uploadInfo), cancellationToken)
                 .ConfigureAwait(false);
 
             return symbols;
@@ -431,10 +461,10 @@ namespace Ads.Client
         /// </returns>
         public async Task<List<AdsDataTypeDto>> GetDataTypesAsync(CancellationToken cancellationToken = default)
         {
-            var uploadInfo = await ams.PerformRequestAsync(new AdsReadUploadInfoConversation(), cancellationToken)
+            var uploadInfo = await PerformRequestAsync(new AdsReadUploadInfoConversation(), cancellationToken)
                 .ConfigureAwait(false);
 
-            var types = await ams.PerformRequestAsync(new AdsReadDataTypesConversation(uploadInfo), cancellationToken)
+            var types = await PerformRequestAsync(new AdsReadDataTypesConversation(uploadInfo), cancellationToken)
                 .ConfigureAwait(false);
 
             return types;
@@ -449,12 +479,10 @@ namespace Ads.Client
         /// A task that represents the asynchronous operation.
         /// The task result contains an array of the variable handles as <see cref="uint"/>.
         /// </returns>
-        public async Task<uint[]> CreateVariableHandlesAsync(string[] variableNames,
+        public Task<uint[]> CreateVariableHandlesAsync(string[] variableNames,
             CancellationToken cancellationToken = default)
         {
-            return await ams
-                .PerformRequestAsync(new AdsCreateVariableHandlesConversation(variableNames), cancellationToken)
-                .ConfigureAwait(false);
+            return PerformRequestAsync(new AdsCreateVariableHandlesConversation(variableNames), cancellationToken);
         }
 
         /// <summary>
@@ -487,11 +515,11 @@ namespace Ads.Client
         /// A task that represents the asynchronous operation.
         /// The task result contains the result generated by the <paramref name="resultFactory"/>.
         /// </returns>
-        public async Task<TResult> ReadVariablesAsync<TResult>(IVariableAddressAndSize[] variables,
+        public Task<TResult> ReadVariablesAsync<TResult>(IVariableAddressAndSize[] variables,
             IReadResultFactory<TResult> resultFactory, CancellationToken cancellationToken = default)
         {
-            return await ams.PerformRequestAsync(new AdsReadMultipleConversation<TResult>(variables, resultFactory),
-                cancellationToken).ConfigureAwait(false);
+            return PerformRequestAsync(new AdsReadMultipleConversation<TResult>(variables, resultFactory),
+                cancellationToken);
         }
 
         /// <summary>
@@ -504,9 +532,34 @@ namespace Ads.Client
         /// </returns>
         public async Task WriteVariablesAsync(IVariableData[] variables, CancellationToken cancellationToken = default)
         {
-            await ams.PerformRequestAsync(new AdsWriteMultipleConversation(variables), cancellationToken)
+            await PerformRequestAsync(new AdsWriteMultipleConversation(variables), cancellationToken)
                 .ConfigureAwait(false);
         }
         #endregion
+
+        private CancellationTokenSource CreateRequestTimeoutCancellationTokenSource(CancellationToken userToken)
+        {
+            var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(userToken);
+            linkedCts.CancelAfter(RequestTimeout);
+
+            return linkedCts;
+        }
+
+        private async Task<TResult> PerformRequestAsync<TRequest, TResult>(
+            IAdsConversation<TRequest, TResult> conversation, CancellationToken cancellationToken) where TRequest : struct, IAdsRequest
+        {
+            using var linkedCts = CreateRequestTimeoutCancellationTokenSource(cancellationToken);
+
+            return await ams.PerformRequestAsync(conversation, linkedCts.Token).ConfigureAwait(false);
+        }
+
+        private async Task<TResponse> RunCommandAsync<TResponse>(AdsCommand<TResponse> command,
+            CancellationToken cancellationToken) where TResponse : AdsCommandResponse, new()
+        {
+            using var linkedCts = CreateRequestTimeoutCancellationTokenSource(cancellationToken);
+
+            return await command.RunAsync(ams, linkedCts.Token).ConfigureAwait(false);
+        }
+
     }
 }

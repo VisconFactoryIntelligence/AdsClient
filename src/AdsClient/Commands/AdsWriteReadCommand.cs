@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Ads.Client.CommandResponse;
 using Ads.Client.Common;
 
 namespace Ads.Client.Commands
 {
-    public class AdsWriteReadCommand : AdsCommand
+    public class AdsWriteReadCommand : AdsCommand<AdsWriteReadCommandResponse>
     {
         private uint readLength;
         private byte[] value;
@@ -33,11 +31,6 @@ namespace Ads.Client.Commands
             data = data.Concat(BitConverter.GetBytes((uint)value.Length));
             data = data.Concat(value);
             return data;
-        }
-
-        public Task<AdsWriteReadCommandResponse> RunAsync(Ams ams, CancellationToken cancellationToken)
-        {
-            return RunAsync<AdsWriteReadCommandResponse>(ams, cancellationToken);
         }
     }
 }

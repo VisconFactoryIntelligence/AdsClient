@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Ads.Client.CommandResponse;
 using Ads.Client.Common;
 
 namespace Ads.Client.Commands
 {
-    public class AdsDeleteDeviceNotificationCommand : AdsCommand
+    public class AdsDeleteDeviceNotificationCommand : AdsCommand<AdsDeleteDeviceNotificationCommandResponse>
     {
         public AdsDeleteDeviceNotificationCommand(uint notificationHandle)
             : base(AdsCommandId.DeleteDeviceNotification)
@@ -30,11 +28,6 @@ namespace Ads.Client.Commands
             var notification = ams.NotificationRequests.FirstOrDefault(n => n.NotificationHandle == notificationHandle);
             if (notification != null)
                 ams.NotificationRequests.Remove(notification);
-        }
-
-        public Task<AdsDeleteDeviceNotificationCommandResponse> RunAsync(Ams ams, CancellationToken cancellationToken)
-        {
-            return RunAsync<AdsDeleteDeviceNotificationCommandResponse>(ams, cancellationToken);
         }
     }
 }

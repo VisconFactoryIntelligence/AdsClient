@@ -1,12 +1,10 @@
 ﻿using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using Ads.Client.CommandResponse;
 using Ads.Client.Common;
 
 namespace Ads.Client.Commands
 {
-    public class AdsReadDeviceInfoCommand : AdsCommand
+    public class AdsReadDeviceInfoCommand : AdsCommand<AdsReadDeviceInfoCommandResponse>
     {
 
         public AdsReadDeviceInfoCommand()
@@ -18,11 +16,6 @@ namespace Ads.Client.Commands
         internal override IEnumerable<byte> GetBytes()
         {
             return new List<byte>();
-        }
-
-        public Task<AdsReadDeviceInfoCommandResponse> RunAsync(Ams ams, CancellationToken cancellationToken)
-        {
-            return RunAsync<AdsReadDeviceInfoCommandResponse>(ams, cancellationToken);
         }
     }
 }
