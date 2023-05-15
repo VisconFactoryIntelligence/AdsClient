@@ -1,13 +1,15 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Ads.Client.Commands;
 using Ads.Client.Common;
-using Ads.Client.CommandResponse;
 using Ads.Client.Helpers;
+using Ads.Client.Conversation;
+using Ads.Client.Internal;
 
 namespace Ads.Client
 {
@@ -15,7 +17,7 @@ namespace Ads.Client
     public class Ams : IDisposable
     {
         private readonly IdGenerator invokeIdGenerator = new();
-        private readonly Signal sendSignal;
+        private readonly Signal sendSignal = new();
 
         private readonly ConcurrentDictionary<uint, TaskCompletionSource<byte[]>> pendingInvocations = new();
 
@@ -23,12 +25,6 @@ namespace Ads.Client
         {
             AmsSocket = amsSocket;
             NotificationRequests = new List<AdsNotification>();
-
-            this.sendSignal = new Signal();
-            if (!sendSignal.TryInit())
-            {
-                throw new Exception("Failed to initialize the send signal.");
-            }
         }
 
         public IAmsSocket AmsSocket { get; }
@@ -63,9 +59,36 @@ namespace Ads.Client
 
         internal event AdsNotificationDelegate OnNotification;
 
-        internal async Task<T> RunCommandAsync<T>(AdsCommand adsCommand, CancellationToken cancellationToken)
-            where T : AdsCommandResponse, new()
+        internal Task<TResult> PerformRequestAsync<TRequest, TResult>(IAdsConversation<TRequest, TResult> conversation,
+            CancellationToken cancellationToken) where TRequest : struct, IAdsRequest =>
+            PerformRequestAsync(conversation, AmsPortTarget, cancellationToken);
+
+        internal async Task<TResult> PerformRequestAsync<TRequest, TResult>(
+            IAdsConversation<TRequest, TResult> conversation, ushort amsPortTarget, CancellationToken cancellationToken) where TRequest : struct, IAdsRequest
         {
+            static void WriteRequest(Span<byte> span, ref TRequest request, int requestedLength, Ams ams, ushort amsPortTarget, uint invokeId)
+            {
+                var len = request.BuildRequest(span.Slice(AmsHeaderHelper.AmsTcpHeaderSize + AmsHeaderHelper.AmsHeaderSize));
+                Debug.Assert(len == requestedLength, $"Serialized to wrong size, expect {requestedLength}, actual {len}");
+
+                AmsMessageBuilder.WriteHeader(span, ams, request.Command, amsPortTarget, invokeId, len);
+            }
+
+            static TResult HandleResponse(IAdsConversation<TRequest, TResult> conversation, ReadOnlySpan<byte> span)
+            {
+                var offset = WireFormatting.ReadUInt32(span.Slice(AmsHeaderHelper.AmsHeaderSize), out var errorCode);
+
+                // Needs some work on returning the buffer in case of exception.
+
+                if (errorCode != 0) throw new AdsException(errorCode);
+
+                WireFormatting.ReadInt32(span.Slice(AmsHeaderHelper.AmsDataLengthOffset), out var dataLength);
+
+                // Error is already processed, so omit it from returned data.
+                return conversation.ParseResponse(span.Slice(AmsHeaderHelper.AmsHeaderSize + offset,
+                    dataLength - offset));
+            }
+
             if (!AmsSocket.Connected) throw new InvalidOperationException("Not connected to PLC.");
 
             var tcs = new TaskCompletionSource<byte[]>();
@@ -84,21 +107,35 @@ namespace Ads.Client
             {
                 // Avoid message building if already cancelled.
                 cancellationToken.ThrowIfCancellationRequested();
-                var message = AmsMessageBuilder.BuildAmsMessage(this, adsCommand, invokeId);
 
-                _ = await sendSignal.WaitAsync(cancellationToken).ConfigureAwait(false);
+                var request = conversation.BuildRequest();
+                var requestedLength = request.GetRequestLength();
+                var buffer = ArrayPool<byte>.Shared.Rent(AmsHeaderHelper.AmsTcpHeaderSize +
+                    AmsHeaderHelper.AmsHeaderSize + requestedLength);
                 try
                 {
-                    // Avoid request sending if already cancelled. Some time might have elapsed waiting for the signal.
-                    cancellationToken.ThrowIfCancellationRequested();
-                    await AmsSocket.SendAsync(message).ConfigureAwait(false);
+                    WriteRequest(buffer, ref request, requestedLength, this, amsPortTarget, invokeId);
+
+                    _ = await sendSignal.WaitAsync(cancellationToken).ConfigureAwait(false);
+                    try
+                    {
+                        // Avoid request sending if already cancelled. Some time might have elapsed waiting for the signal.
+                        cancellationToken.ThrowIfCancellationRequested();
+                        await AmsSocket.SendAsync(new ArraySegment<byte>(buffer, 0,
+                                AmsHeaderHelper.AmsTcpHeaderSize + AmsHeaderHelper.AmsHeaderSize + requestedLength))
+                            .ConfigureAwait(false);
+                    }
+                    finally
+                    {
+                        if (!sendSignal.TryRelease())
+                        {
+                            throw new Exception("Failed to release the send signal.");
+                        }
+                    }
                 }
                 finally
                 {
-                    if (!sendSignal.TryRelease())
-                    {
-                        throw new Exception("Failed to release the send signal.");
-                    }
+                    ArrayPool<byte>.Shared.Return(buffer);
                 }
             }
             catch
@@ -108,12 +145,9 @@ namespace Ads.Client
             }
 
             var responseBytes = await tcs.Task.ConfigureAwait(false);
-            var response = new T();
-
             cancellationToken.ThrowIfCancellationRequested();
-            response.SetResponse(responseBytes);
 
-            return response;
+            return HandleResponse(conversation, responseBytes);
         }
 
         private void HandleException(Exception exception)

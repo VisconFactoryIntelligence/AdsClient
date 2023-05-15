@@ -1,18 +1,5 @@
-﻿using System;
+﻿using Ads.Client.Variables;
 
-namespace Ads.Client.Common
-{
-    public class AdsSymbol
-    {
-        public string VarName { get; set; }
-        public UInt32 IndexGroup { get; set; }
-        public UInt32 IndexOffset { get; set; }
-        public string TypeName { get; set; }
-        public string Comment { get; set; }
+namespace Ads.Client.Common;
 
-        public override string ToString()
-        {
-            return String.Format("{0} {1} {2}", VarName, TypeName, Comment);
-        }
-    }
-}
+public record AdsSymbol(uint IndexGroup, uint IndexOffset, uint Size, string Name, string TypeName, string Comment) : IVariableAddressAndSize;

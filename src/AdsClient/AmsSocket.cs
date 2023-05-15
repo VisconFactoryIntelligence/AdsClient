@@ -12,7 +12,7 @@ namespace Ads.Client
             Host = host;
             Port = port;
 
-            TcpClient = new TcpClient();
+            TcpClient = new TcpClient { NoDelay = true };
         }
 
         public TcpClient TcpClient { get; }
@@ -43,6 +43,14 @@ namespace Ads.Client
         {
             using var args = new SocketAsyncEventArgs();
             args.SetBuffer(message, 0, message.Length);
+
+            await Socket.SendAsync(new SocketAwaitable(args));
+        }
+
+        public async Task SendAsync(ArraySegment<byte> buffer)
+        {
+            using var args = new SocketAsyncEventArgs();
+            args.SetBuffer(buffer.Array, buffer.Offset, buffer.Count);
 
             await Socket.SendAsync(new SocketAwaitable(args));
         }

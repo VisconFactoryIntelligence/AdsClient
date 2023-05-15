@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using Ads.Client.Commands;
+using Ads.Client.Common;
+using Ads.Client.Internal;
 
 namespace Ads.Client.Helpers
 {
-    public static class AmsMessageBuilder
+    internal static class AmsMessageBuilder
     {
         public static byte[] BuildAmsMessage(Ams ams, AdsCommand adsCommand, uint invokeId)
         {
@@ -28,6 +30,28 @@ namespace Ads.Client.Helpers
                 .Concat(message);
 
             return message.ToArray<byte>();
+        }
+
+        public static void WriteHeader(Span<byte> buffer, Ams ams, AdsCommandEnum command, ushort amsPortTarget, uint invokeId, int messageLength)
+        {
+            var offset = WireFormatting.WriteUInt16(ref buffer.GetStart(), default);
+            offset += WireFormatting.WriteUInt32(ref buffer.GetOffset(offset),
+                AmsHeaderHelper.AmsHeaderSize + messageLength);
+
+            ams.AmsNetIdTarget.Bytes.ToArray().CopyTo(buffer.Slice(offset));
+            offset += 6;
+
+            offset += WireFormatting.WriteUInt16(ref buffer.GetOffset(offset), amsPortTarget);
+
+            ams.AmsNetIdSource.Bytes.ToArray().CopyTo(buffer.Slice(offset));
+            offset += 6;
+
+            offset += WireFormatting.WriteUInt16(ref buffer.GetOffset(offset), ams.AmsPortSource);
+            offset += WireFormatting.WriteUInt16(ref buffer.GetOffset(offset), command);
+            offset += WireFormatting.WriteUInt16(ref buffer.GetOffset(offset), (ushort) 0x0004);
+            offset += WireFormatting.WriteUInt32(ref buffer.GetOffset(offset), (uint) messageLength);
+            offset += WireFormatting.WriteUInt32(ref buffer.GetOffset(offset), (uint) 0);
+            offset += WireFormatting.WriteUInt32(ref buffer.GetOffset(offset), invokeId);
         }
     }
 }
