@@ -1,3 +1,5 @@
-﻿namespace Ads.Client.Common;
+﻿using Ads.Client.Variables;
 
-public record AdsSymbol(uint IndexGroup, uint IndexOffset, uint Size, string Name, string TypeName, string Comment);
+namespace Ads.Client.Common;
+
+public record AdsSymbol(uint IndexGroup, uint IndexOffset, uint Size, string Name, string TypeName, string Comment) : IVariableAddressAndSize;
