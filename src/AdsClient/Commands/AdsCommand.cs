@@ -9,7 +9,7 @@ using Ads.Client.Conversation;
 
 namespace Ads.Client.Commands
 {
-    public abstract class AdsCommand
+    public abstract class AdsCommand<TResponse> where TResponse : AdsCommandResponse, new()
     {
         public AdsCommand(ushort commandId)
         {
@@ -33,10 +33,10 @@ namespace Ads.Client.Commands
         {
         }
 
-        protected async Task<T> RunAsync<T>(Ams ams, CancellationToken cancellationToken) where T : AdsCommandResponse, new()
+        public async Task<TResponse> RunAsync(Ams ams, CancellationToken cancellationToken)
         {
             RunBefore(ams);
-            var result = await ams.PerformRequestAsync(new AdsCommandConversation<T>(this),
+            var result = await ams.PerformRequestAsync(new AdsCommandConversation(this),
                 AmsPortTargetOverride ?? ams.AmsPortTarget, cancellationToken).ConfigureAwait(false);
             RunAfter(ams);
 
@@ -47,10 +47,10 @@ namespace Ads.Client.Commands
 
         private readonly struct AdsCommandRequest : IAdsRequest
         {
-            private readonly AdsCommand command;
+            private readonly AdsCommand<TResponse> command;
             private readonly Lazy<IEnumerable<byte>> data;
 
-            public AdsCommandRequest(AdsCommand command)
+            public AdsCommandRequest(AdsCommand<TResponse> command)
             {
                 this.command = command;
                 data = new Lazy<IEnumerable<byte>>(command.GetBytes);
@@ -77,12 +77,11 @@ namespace Ads.Client.Commands
             }
         }
 
-        private class AdsCommandConversation<TResponse> : IAdsConversation<AdsCommandRequest, TResponse>
-            where TResponse : AdsCommandResponse, new()
+        private class AdsCommandConversation : IAdsConversation<AdsCommandRequest, TResponse>
         {
-            public AdsCommand Command { get; }
+            public AdsCommand<TResponse> Command { get; }
 
-            public AdsCommandConversation(AdsCommand command)
+            public AdsCommandConversation(AdsCommand<TResponse> command)
             {
                 Command = command;
             }

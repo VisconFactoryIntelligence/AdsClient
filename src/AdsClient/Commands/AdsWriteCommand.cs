@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Ads.Client.CommandResponse;
 using Ads.Client.Common;
 
 namespace Ads.Client.Commands
 {
-    public class AdsWriteCommand : AdsCommand
+    public class AdsWriteCommand : AdsCommand<AdsWriteCommandResponse>
     {
         private IEnumerable<byte> varValue;
 
@@ -31,11 +29,6 @@ namespace Ads.Client.Commands
             data = data.Concat(varValue);
 
             return data;
-        }
-
-        public Task<AdsWriteCommandResponse> RunAsync(Ams ams, CancellationToken cancellationToken)
-        {
-            return RunAsync<AdsWriteCommandResponse>(ams, cancellationToken);
         }
     }
 }

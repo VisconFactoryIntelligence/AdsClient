@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Ads.Client.CommandResponse;
 using Ads.Client.Commands;
 using Ads.Client.Common;
 using Ads.Client.Internal;
@@ -9,7 +10,7 @@ namespace Ads.Client.Helpers
 {
     internal static class AmsMessageBuilder
     {
-        public static byte[] BuildAmsMessage(Ams ams, AdsCommand adsCommand, uint invokeId)
+        public static byte[] BuildAmsMessage<TResponse>(Ams ams, AdsCommand<TResponse> adsCommand, uint invokeId) where TResponse : AdsCommandResponse, new()
         {
 
             IEnumerable<byte> data = adsCommand.GetBytes();
