@@ -1,22 +1,19 @@
-[![Build Status](https://github.com/mycroes/adsclient/actions/workflows/dotnet.yml/badge.svg)](https://github.com/mycroes/adsclient/actions/workflows/dotnet.yml)
+[![license](https://img.shields.io/github/license/VisconFactoryIntelligence/AdsClient.svg)](https://github.com/VisconFactoryIntelligence/AdsClient/blob/main/LICENSE)
+[![.NET](https://github.com/VisconFactoryIntelligence/AdsClient/actions/workflows/dotnet.yml/badge.svg)](https://github.com/VisconFactoryIntelligence/AdsClient/actions/workflows/dotnet.yml)
+[![NuGet](https://img.shields.io/nuget/v/Viscon.Communication.Ads.svg)](https://www.nuget.org/packages/Viscon.Communication.Ads)
 
 This is the client implementation of the [Twincat](http://www.beckhoff.com/english.asp?twincat/default.htm) Ads protocol from [Beckhoff](http://http://www.beckhoff.com/).   
-(I'm not affiliated with Beckhoff)
 
-The implementation is in C# and can be used in .Net >= 4.5, Mono >= 3.2.8, Windows 8.1 WinRT/Phone.  
-Because of mono you can use it on unix/linux systems and even on Android/iPhone if you have xamarin.
+The implementation is in C# and targets .NET Framework 4.6.2, .NET Standard 2.0 and .NET Standard 2.1.
 
-This library contains sync and async methods.
-You can't combine them.
-
-AdsClient is the Portable Class Library.  
-AdsClient.WinSock can be used in normal .Net programs and Mono/Xamarin.  
-AdsClient.WinRT can be use in Widows 8.1 WinRT/Phone.  
+All communication methods are async.
 
 Contributors
 ============
-[MrCircuit](https://github.com/MrCircuit)
-[mycroes](https://github.com/mycroes)
+- [Inando](https://github.com/inando)
+- [MrCircuit](https://github.com/MrCircuit)
+- [mycroes](https://github.com/mycroes)
+- [Viscon Factory Intelligence](https://github.com/VisconFactoryIntelligence)
 
 Getting started
 ===============
@@ -40,191 +37,155 @@ You only need this library.
 Twincat is _not_ needed. 
 It will not work if you have programs like system manager or PLC control running.
 
-Here is the NuGet package: https://nuget.org/packages?q=AdsClient
-
-Mono
-----
-You need mono >= 3.2.8
-
-Xamarin Android: 
-Remember to set internet permissions in the manifest.
-You must also configure a route for your android device.
-
-External documentation
-----------------------
-
-[Specification for the ADS/AMS protocol](http://infosys.beckhoff.com/english.php?content=../content/1033/TcAdsAmsSpec/HTML/TcAdsAmsSpec_Intro.htm&id=)
-
-[Index-Group/Offset specification](http://infosys.beckhoff.com/content/1033/tcadsdeviceplc/html/tcadsdeviceplc_intro.htm?id=11742)
+The package is available from [NuGet](https://www.nuget.org/packages/Viscon.Communication.Ads).
 
 Examples
 ========
 
-## Simple hello machine
+## Connect to the PLC
 
-```C#
-using (AdsClient client = new AdsClient(
-        amsNetIdSource: "10.0.0.120.1.1",
-        ipTarget: "10.0.0.2",
-        amsNetIdTarget: "5.1.204.160.1.1"))
-{
-    AdsDeviceInfo deviceInfo = client.ReadDeviceInfo();
-    Console.WriteLine(deviceInfo.ToString());
-}
+<!-- snippet: Connect -->
+<a id='snippet-connect'></a>
+```cs
+using var client = new AdsClient(amsNetIdSource: "10.0.0.120.1.1", ipTarget: "10.0.0.2",
+    amsNetIdTarget: "10.0.0.2.1.1");
+
+await client.Ams.ConnectAsync();
 ```
+<sup><a href='/samples/Samples/Samples.cs#L13-L18' title='Snippet source file'>snippet source</a> | <a href='#snippet-connect' title='Start of snippet'>anchor</a></sup>
+<!-- endSnippet -->
 
-Async version:
+## Read device info
 
-```C#
-using (AdsClient client = new AdsClient(
-        amsNetIdSource: "10.0.0.120.1.1",
-        ipTarget: "10.0.0.2",
-        amsNetIdTarget: "5.1.204.160.1.1"))
-{
-    AdsDeviceInfo deviceInfo = await client.ReadDeviceInfoAsync();
-    Console.WriteLine(deviceInfo.ToString());
-}
+<!-- snippet: ReadDeviceInfoAsync -->
+<a id='snippet-readdeviceinfoasync'></a>
+```cs
+AdsDeviceInfo deviceInfo = await client.ReadDeviceInfoAsync();
+Console.WriteLine(deviceInfo.ToString());
 ```
-
-Disposing AdsClient may give you first chance exceptions in the output window.
-This happens because I'm closing the socket while it's listening for ads packets.
-These exceptions are handled in the library and don't cause any problems.
-(If someone knows a better way, please let me know)
+<sup><a href='/samples/Samples/Samples.cs#L20-L23' title='Snippet source file'>snippet source</a> | <a href='#snippet-readdeviceinfoasync' title='Start of snippet'>anchor</a></sup>
+<!-- endSnippet -->
 
 ## Read/Write a variable by name
 
-```C#
-using (AdsClient client = new AdsClient(
-        amsNetIdSource: "10.0.0.120.1.1",
-        ipTarget: "10.0.0.2",
-        amsNetIdTarget: "5.1.204.160.1.1"))
-{
-    uint varHandle = client.GetSymhandleByName(".TestVar");
-    client.Write<byte>(varHandle, 0);
-    byte value = client.Read<byte>(varHandle);
-    client.ReleaseSymhandle(varHandle);
-}
+<!-- snippet: ReadWriteVariableByName -->
+<a id='snippet-readwritevariablebyname'></a>
+```cs
+var varHandle = await client.GetSymhandleByNameAsync(".TestVar");
+await client.WriteAsync<byte>(varHandle, 0);
+var value = await client.ReadAsync<byte>(varHandle);
+await client.ReleaseSymhandleAsync(varHandle);
 ```
-
-Async version:
-
-```C#
-using (AdsClient client = new AdsClient(
-        amsNetIdSource: "10.0.0.120.1.1",
-        ipTarget: "10.0.0.2",
-        amsNetIdTarget: "5.1.204.160.1.1"))
-{
-    uint varHandle = await client.GetSymhandleByNameAsync(".TestVar");
-    await client.WriteAsync<byte>(varHandle, 0);
-    byte value = await client.ReadAsync<byte>(varHandle);
-    await client.ReleaseSymhandleAsync(varHandle);
-}
-```
+<sup><a href='/samples/Samples/Samples.cs#L25-L30' title='Snippet source file'>snippet source</a> | <a href='#snippet-readwritevariablebyname' title='Start of snippet'>anchor</a></sup>
+<!-- endSnippet -->
 
 You can also use the AdsCommands directly if you need to write directly with IndexGroup/IndexOffset
 
 ## Working with notifications
 
-```C#
-using (AdsClient client = new AdsClient(
-        amsNetIdSource: "10.0.0.120.1.1",
-        ipTarget: "10.0.0.2",
-        amsNetIdTarget: "5.1.204.160.1.1"))
-{
-  client.OnNotification += (sender, e) => { Console.WriteLine(e.Notification.ToString()); };
-  uint hVar1 = client.GetSymhandleByName(".VarTest1");
-  uint hVar2 = client.GetSymhandleByName(".VarTest2");
-  uint hNoti1 = client.AddNotification<byte>(hVar1, 
-                                    AdsTransmissionMode.Cyclic, 2000, null);
-  uint hNoti2 = client.AddNotification<byte>(hVar2, 
-                                    AdsTransmissionMode.OnChange, 10, null);
-  Thread.Sleep(5000);
-}
+<!-- snippet: WorkingWithNotifications -->
+<a id='snippet-workingwithnotifications'></a>
+```cs
+client.OnNotification += (sender, e) => { Console.WriteLine(e.Notification.ToString()); };
+var varHandle1 = await client.GetSymhandleByNameAsync(".VarTest1");
+var varHandle2 = await client.GetSymhandleByNameAsync(".VarTest2");
+var notificationHandle1 = await client.AddNotificationAsync<byte>(varHandle1, AdsTransmissionMode.Cyclic, 2000, null);
+var notificationHandle2 = await client.AddNotificationAsync<byte>(varHandle2, AdsTransmissionMode.OnChange, 10, null);
 ```
+<sup><a href='/samples/Samples/Samples.cs#L32-L38' title='Snippet source file'>snippet source</a> | <a href='#snippet-workingwithnotifications' title='Start of snippet'>anchor</a></sup>
+<!-- endSnippet -->
 
-## Simple async example with most basic functions
+## Simple example with most basic functions
 
-Here is an async example.
-The non async functions work the same. (functions without async at the end) 
-Just remove all the await/async words
+Here is a sample which shows usage of most basic functions.
 
-```C#
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Ads.Client;
-using Ads.Client.Common;
+<!-- snippet: Program -->
+<a id='snippet-program'></a>
+```cs
+using Viscon.Communication.Ads;
+using Viscon.Communication.Ads.Common;
 
-namespace AdsTest
+namespace Samples;
+
+public static class Program
 {
-  class Program
-  {
-    static void Main(string[] args)
+    static async Task Main()
     {
-      if (!RunTestAsync().Wait(10000)) 
-        Console.WriteLine("Timeout!");
-      else
-        Console.WriteLine("done");
-      Console.ReadKey();
+        var timeout = Task.Delay(10000);
+        var task = await Task.WhenAny(RunTestAsync(), timeout);
+        if (task == timeout)
+        {
+            Console.Error.WriteLine("Operation timed out!");
+        }
+        else
+        {
+            Console.WriteLine("Done!");
+        }
     }
 
-    private static async Task RunTest()
+    private static async Task RunTestAsync()
     {
-      using (AdsClient client = new AdsClient(
-                        amsNetIdSource:"192.168.5.6.1.1",  
-                        ipTarget:"192.168.3.4",       
-                        amsNetIdTarget:"192.168.3.4.1.1"))  
-      {
-          AdsDeviceInfo deviceInfo = await client.ReadDeviceInfoAsync();
-          Console.WriteLine("Device info: " + deviceInfo.ToString());
+        using var client = new AdsClient(
+            amsNetIdSource:"192.168.5.6.1.1",
+            ipTarget:"192.168.3.4",
+            amsNetIdTarget:"192.168.3.4.1.1");
 
-          AdsState state = await client.ReadStateAsync();
-          Console.WriteLine("State: " + state.ToString());
+        await client.Ams.ConnectAsync();
 
-          client.OnNotification += (sender,e) => { 
-                Console.WriteLine(e.Notification.ToString()); 
-          };
+        var deviceInfo = await client.ReadDeviceInfoAsync();
+        Console.WriteLine($"Device info: {deviceInfo}");
 
-          uint varHandle1 = await client.GetSymhandleByNameAsync(".VariableName1");
-          Console.WriteLine("Variable1 handle: " + varHandle1.ToString());
+        var state = await client.ReadStateAsync();
+        Console.WriteLine($"State: {state}");
 
-          uint varHandle2 = await client.GetSymhandleByNameAsync(".VariableName2");
-          Console.WriteLine("Variable2 handle: " + varHandle2.ToString());
+        client.OnNotification += (sender,e) => {
+            Console.WriteLine(e.Notification.ToString());
+        };
 
-          uint notification1Handle = await client.AddNotificationAsync<byte>(
-                varHandle1, AdsTransmissionMode.Cyclic, 5000, null);
-          uint notification2Handle = await client.AddNotificationAsync<byte>(
-                varHandle2, AdsTransmissionMode.OnChange, 10, null);
+        var varHandle1 = await client.GetSymhandleByNameAsync(".VariableName1");
+        Console.WriteLine($"Variable1 handle: {varHandle1}");
 
-          byte value = await client.ReadAsync<byte>(varHandle1);
-          Console.WriteLine("Value before write: " + value.ToString());
+        var varHandle2 = await client.GetSymhandleByNameAsync(".VariableName2");
+        Console.WriteLine($"Variable2 handle: {varHandle2}");
 
-          await client.WriteAsync<byte>(varHandle1, 1);
-          Console.WriteLine("I turned something on");
+        var notification1Handle = await client.AddNotificationAsync<byte>(
+            varHandle1, AdsTransmissionMode.Cyclic, 5000, null);
+        var notification2Handle = await client.AddNotificationAsync<byte>(
+            varHandle2, AdsTransmissionMode.OnChange, 10, null);
 
-          value = await client.ReadAsync<byte>(varHandle1);
-          Console.WriteLine("Value after write: " + value.ToString());
+        var value = await client.ReadAsync<byte>(varHandle1);
+        Console.WriteLine($"Value before write: {value}");
 
-          await Task.Delay(5000);  
+        await client.WriteAsync<byte>(varHandle1, 1);
+        Console.WriteLine("I turned something on");
 
-          await client.WriteAsync<byte>(varHandle1, 0);
-          Console.WriteLine("I turned something off");
+        value = await client.ReadAsync<byte>(varHandle1);
+        Console.WriteLine($"Value after write: {value}");
 
-          Console.WriteLine("Deleting active notifications...");
-          await client.DeleteActiveNotificationsAsync();
-      }
+        await Task.Delay(5000);
+
+        await client.WriteAsync<byte>(varHandle1, 0);
+        Console.WriteLine("I turned something off");
+
+        Console.WriteLine("Deleting active notifications...");
+        await client.DeleteActiveNotificationsAsync();
     }
-  }
 }
 ```
+<sup><a href='/samples/Samples/Program.cs#L1-L71' title='Snippet source file'>snippet source</a> | <a href='#snippet-program' title='Start of snippet'>anchor</a></sup>
+<!-- endSnippet -->
 
 ## Using commands directly
 
-```C#
-AdsReadStateCommand stateCmd = new AdsReadStateCommand();
-string state = stateCmd.Run(client.Ams).AdsState.ToString();
-Console.WriteLine("State: " + state);
+<!-- snippet: UsingCommands -->
+<a id='snippet-usingcommands'></a>
+```cs
+var stateCmd = new AdsReadStateCommand();
+var state = (await stateCmd.RunAsync(client.Ams, CancellationToken.None)).AdsState.ToString();
+Console.WriteLine($"State: {state}");
 ```
+<sup><a href='/samples/Samples/Samples.cs#L40-L44' title='Snippet source file'>snippet source</a> | <a href='#snippet-usingcommands' title='Start of snippet'>anchor</a></sup>
+<!-- endSnippet -->
 
 ## Serialize to class
 
@@ -232,20 +193,31 @@ It's possible to read directly to a class or write from a class.
 You need to set the AdsSerializable attribute on the class and the Ads attribute on the fields/properties you need.  
 The fields without the Ads attribute are ignored. 
 
-```C#
+<!-- snippet: TestClass -->
+<a id='snippet-testclass'></a>
+```cs
 [AdsSerializable]
 public class TestClass
 {
     [Ads]
-    public UInt16 Var1 { get; set; }
+    public ushort Var1 { get; set; }
 
     [Ads]
     public byte Var2 { get; set; }
 }
-
-var testobject = client.Read<TestClass>(handle);
-client.Write<TestClass>(handle, testobject);
 ```
+<sup><a href='/samples/Samples/Samples.cs#L58-L68' title='Snippet source file'>snippet source</a> | <a href='#snippet-testclass' title='Start of snippet'>anchor</a></sup>
+<!-- endSnippet -->
+
+<!-- snippet: ReadTestClass -->
+<a id='snippet-readtestclass'></a>
+```cs
+var handle = await client.GetSymhandleByNameAsync(".Test");
+var testInstance = await client.ReadAsync<TestClass>(handle);
+await client.WriteAsync(handle, testInstance);
+```
+<sup><a href='/samples/Samples/Samples.cs#L46-L50' title='Snippet source file'>snippet source</a> | <a href='#snippet-readtestclass' title='Start of snippet'>anchor</a></sup>
+<!-- endSnippet -->
 
 This is an example struct in Twincat:
 ```
@@ -263,16 +235,14 @@ These functions aren't documented by Beckhoff:
 
 ### Get target description
 
-```C#
-using (AdsClient client = new AdsClient(
-        amsNetIdSource: "10.0.0.120.1.1",
-        ipTarget: "10.0.0.2",
-        amsNetIdTarget: "5.1.204.130.1.1"))
-{
-  string xml = adsClient.Special.GetTargetDesc();
-  xml = XDocument.Parse(xml).ToString();
-}
+<!-- snippet: GetTargetDesc -->
+<a id='snippet-gettargetdesc'></a>
+```cs
+var xml = await client.Special.GetTargetDescAsync();
+xml = XDocument.Parse(xml).ToString();
 ```
+<sup><a href='/samples/Samples/Samples.cs#L52-L55' title='Snippet source file'>snippet source</a> | <a href='#snippet-gettargetdesc' title='Start of snippet'>anchor</a></sup>
+<!-- endSnippet -->
 
 Credits, sources and inspiration
 ================================
