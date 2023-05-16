@@ -1,4 +1,4 @@
-![license](https://img.shields.io/github/license/VisconFactoryIntelligence/AdsClient.svg)
+[![license](https://img.shields.io/github/license/VisconFactoryIntelligence/AdsClient.svg)](https://github.com/VisconFactoryIntelligence/AdsClient/blob/main/LICENSE)
 [![.NET](https://github.com/VisconFactoryIntelligence/AdsClient/actions/workflows/dotnet.yml/badge.svg)](https://github.com/VisconFactoryIntelligence/AdsClient/actions/workflows/dotnet.yml)
 [![NuGet](https://img.shields.io/nuget/v/Viscon.Communication.Ads.svg)](https://www.nuget.org/packages/Viscon.Communication.Ads)
 
