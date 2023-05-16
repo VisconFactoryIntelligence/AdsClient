@@ -93,11 +93,9 @@ var notificationHandle2 = await client.AddNotificationAsync<byte>(varHandle2, Ad
 <sup><a href='/samples/Samples/Samples.cs#L32-L38' title='Snippet source file'>snippet source</a> | <a href='#snippet-workingwithnotifications' title='Start of snippet'>anchor</a></sup>
 <!-- endSnippet -->
 
-## Simple async example with most basic functions
+## Simple example with most basic functions
 
-Here is an async example.
-The non async functions work the same. (functions without async at the end) 
-Just remove all the await/async words
+Here is a sample which shows usage of most basic functions.
 
 <!-- snippet: Program -->
 <a id='snippet-program'></a>
