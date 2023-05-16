@@ -1,22 +1,17 @@
 [![.NET](https://github.com/VisconFactoryIntelligence/AdsClient/actions/workflows/dotnet.yml/badge.svg)](https://github.com/VisconFactoryIntelligence/AdsClient/actions/workflows/dotnet.yml)
 
 This is the client implementation of the [Twincat](http://www.beckhoff.com/english.asp?twincat/default.htm) Ads protocol from [Beckhoff](http://http://www.beckhoff.com/).   
-(I'm not affiliated with Beckhoff)
 
-The implementation is in C# and can be used in .Net >= 4.5, Mono >= 3.2.8, Windows 8.1 WinRT/Phone.  
-Because of mono you can use it on unix/linux systems and even on Android/iPhone if you have xamarin.
+The implementation is in C# and targets .NET Framework 4.6.2, .NET Standard 2.0 and .NET Standard 2.1.
 
-This library contains sync and async methods.
-You can't combine them.
-
-AdsClient is the Portable Class Library.  
-AdsClient.WinSock can be used in normal .Net programs and Mono/Xamarin.  
-AdsClient.WinRT can be use in Widows 8.1 WinRT/Phone.  
+All communication methods are async.
 
 Contributors
 ============
-[MrCircuit](https://github.com/MrCircuit)
-[mycroes](https://github.com/mycroes)
+- [Inando](https://github.com/inando)
+- [MrCircuit](https://github.com/MrCircuit)
+- [mycroes](https://github.com/mycroes)
+- [Viscon Factory Intelligence](https://github.com/VisconFactoryIntelligence)
 
 Getting started
 ===============
@@ -40,22 +35,7 @@ You only need this library.
 Twincat is _not_ needed. 
 It will not work if you have programs like system manager or PLC control running.
 
-Here is the NuGet package: https://nuget.org/packages?q=AdsClient
-
-Mono
-----
-You need mono >= 3.2.8
-
-Xamarin Android: 
-Remember to set internet permissions in the manifest.
-You must also configure a route for your android device.
-
-External documentation
-----------------------
-
-[Specification for the ADS/AMS protocol](http://infosys.beckhoff.com/english.php?content=../content/1033/TcAdsAmsSpec/HTML/TcAdsAmsSpec_Intro.htm&id=)
-
-[Index-Group/Offset specification](http://infosys.beckhoff.com/content/1033/tcadsdeviceplc/html/tcadsdeviceplc_intro.htm?id=11742)
+The package is available from [NuGet](https://www.nuget.org/packages/Viscon.Communication.Ads).
 
 Examples
 ========
