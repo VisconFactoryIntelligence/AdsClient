@@ -30,20 +30,20 @@ public static class Program
         await client.Ams.ConnectAsync();
 
         var deviceInfo = await client.ReadDeviceInfoAsync();
-        Console.WriteLine("Device info: " + deviceInfo.ToString());
+        Console.WriteLine($"Device info: {deviceInfo}");
 
         var state = await client.ReadStateAsync();
-        Console.WriteLine("State: " + state.ToString());
+        Console.WriteLine($"State: {state}");
 
         client.OnNotification += (sender,e) => {
             Console.WriteLine(e.Notification.ToString());
         };
 
         var varHandle1 = await client.GetSymhandleByNameAsync(".VariableName1");
-        Console.WriteLine("Variable1 handle: " + varHandle1.ToString());
+        Console.WriteLine($"Variable1 handle: {varHandle1}");
 
         var varHandle2 = await client.GetSymhandleByNameAsync(".VariableName2");
-        Console.WriteLine("Variable2 handle: " + varHandle2.ToString());
+        Console.WriteLine($"Variable2 handle: {varHandle2}");
 
         var notification1Handle = await client.AddNotificationAsync<byte>(
             varHandle1, AdsTransmissionMode.Cyclic, 5000, null);
@@ -51,13 +51,13 @@ public static class Program
             varHandle2, AdsTransmissionMode.OnChange, 10, null);
 
         var value = await client.ReadAsync<byte>(varHandle1);
-        Console.WriteLine("Value before write: " + value.ToString());
+        Console.WriteLine($"Value before write: {value}");
 
         await client.WriteAsync<byte>(varHandle1, 1);
         Console.WriteLine("I turned something on");
 
         value = await client.ReadAsync<byte>(varHandle1);
-        Console.WriteLine("Value after write: " + value.ToString());
+        Console.WriteLine($"Value after write: {value}");
 
         await Task.Delay(5000);
 
