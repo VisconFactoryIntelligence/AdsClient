@@ -27,6 +27,8 @@ public static class Program
             ipTarget:"192.168.3.4",
             amsNetIdTarget:"192.168.3.4.1.1");
 
+        await client.Ams.ConnectAsync();
+
         var deviceInfo = await client.ReadDeviceInfoAsync();
         Console.WriteLine("Device info: " + deviceInfo.ToString());
 

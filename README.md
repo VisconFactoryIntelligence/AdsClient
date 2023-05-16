@@ -128,6 +128,8 @@ public static class Program
             ipTarget:"192.168.3.4",
             amsNetIdTarget:"192.168.3.4.1.1");
 
+        await client.Ams.ConnectAsync();
+
         var deviceInfo = await client.ReadDeviceInfoAsync();
         Console.WriteLine("Device info: " + deviceInfo.ToString());
 
@@ -168,7 +170,7 @@ public static class Program
     }
 }
 ```
-<sup><a href='/samples/Samples/Program.cs#L1-L69' title='Snippet source file'>snippet source</a> | <a href='#snippet-program' title='Start of snippet'>anchor</a></sup>
+<sup><a href='/samples/Samples/Program.cs#L1-L71' title='Snippet source file'>snippet source</a> | <a href='#snippet-program' title='Start of snippet'>anchor</a></sup>
 <!-- endSnippet -->
 
 ## Using commands directly
