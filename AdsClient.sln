@@ -9,9 +9,18 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{42A63E66-D
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdsDumper", "src\AdsDumper\AdsDumper.csproj", "{DA8FC5FD-E7B9-49F4-9B5D-2C6E9EE5DA7F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Viscon.Communication.Ads", "src\AdsClient\Viscon.Communication.Ads.csproj", "{EC644FCA-386D-431B-AD82-922081D0DA45}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Viscon.Communication.Ads", "src\AdsClient\Viscon.Communication.Ads.csproj", "{EC644FCA-386D-431B-AD82-922081D0DA45}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Viscon.Communication.Ads.Test", "test\AdsClient\Viscon.Communication.Ads.Test.csproj", "{C32CE653-CDB2-4354-9174-4EDBD82E769A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Viscon.Communication.Ads.Test", "test\AdsClient\Viscon.Communication.Ads.Test.csproj", "{C32CE653-CDB2-4354-9174-4EDBD82E769A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{E40E9B0E-4921-4B81-B38A-E17D374E9986}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Samples", "samples\Samples\Samples.csproj", "{4F4C2736-8474-4738-9228-9FB30D11107E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{0568D3C3-8A19-4342-B046-FB961D6DCA57}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,6 +40,10 @@ Global
 		{C32CE653-CDB2-4354-9174-4EDBD82E769A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C32CE653-CDB2-4354-9174-4EDBD82E769A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C32CE653-CDB2-4354-9174-4EDBD82E769A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4F4C2736-8474-4738-9228-9FB30D11107E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4F4C2736-8474-4738-9228-9FB30D11107E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4F4C2736-8474-4738-9228-9FB30D11107E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4F4C2736-8474-4738-9228-9FB30D11107E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -39,6 +52,7 @@ Global
 		{DA8FC5FD-E7B9-49F4-9B5D-2C6E9EE5DA7F} = {FAE628B5-BAFA-4F21-8174-7E47DCC63E29}
 		{EC644FCA-386D-431B-AD82-922081D0DA45} = {FAE628B5-BAFA-4F21-8174-7E47DCC63E29}
 		{C32CE653-CDB2-4354-9174-4EDBD82E769A} = {42A63E66-DB8D-48F6-AA8A-5943080A0202}
+		{4F4C2736-8474-4738-9228-9FB30D11107E} = {E40E9B0E-4921-4B81-B38A-E17D374E9986}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0528BDEE-A5EE-4879-B57E-35AC1826F92B}
