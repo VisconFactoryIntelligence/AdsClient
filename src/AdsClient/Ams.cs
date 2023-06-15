@@ -40,9 +40,9 @@ namespace Viscon.Communication.Ads
         /// </summary>
         public ushort AmsPortSource { get; set; } = 32905;
 
-        public Task ConnectAsync()
+        public Task ConnectAsync(CancellationToken cancellationToken = default)
         {
-            return AmsSocket.ConnectAsync(new MessageHandler(this));
+            return AmsSocket.ConnectAsync(new MessageHandler(this), cancellationToken);
         }
 
         public void Dispose()

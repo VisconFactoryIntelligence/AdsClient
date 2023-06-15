@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Viscon.Communication.Ads
@@ -9,7 +10,7 @@ namespace Viscon.Communication.Ads
 
         void Close();
 
-        Task ConnectAsync(IIncomingMessageHandler messageHandler);
+        Task ConnectAsync(IIncomingMessageHandler messageHandler, CancellationToken cancellationToken = default);
 
         Task SendAsync(byte[] message);
 

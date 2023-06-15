@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using FakeItEasy;
 using Shouldly;
@@ -18,12 +19,13 @@ namespace Viscon.Communication.Ads.Test
 
         public AdsCommandsAsyncTest()
         {
-            A.CallTo(() => amsSocket.ConnectAsync(A<IIncomingMessageHandler>.Ignored)).ReturnsLazily(call =>
-            {
-                messageHandler = call.GetArgument<IIncomingMessageHandler>(0);
-                connected = true;
-                return Task.CompletedTask;
-            });
+            A.CallTo(() => amsSocket.ConnectAsync(A<IIncomingMessageHandler>.Ignored, A<CancellationToken>.Ignored))
+                .ReturnsLazily(call =>
+                {
+                    messageHandler = call.GetArgument<IIncomingMessageHandler>(0);
+                    connected = true;
+                    return Task.CompletedTask;
+                });
             A.CallTo(() => amsSocket.Connected).ReturnsLazily(() => connected);
 
             client = new AdsClient(amsNetIdSource: "10.0.0.120.1.1", amsSocket: amsSocket,
