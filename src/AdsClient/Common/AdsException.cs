@@ -24,7 +24,7 @@ namespace Viscon.Communication.Ads.Common
         }
 
         private uint errorCode;
-        public uint ErrorCode { get { return errorCode; } }
+        public AdsError ErrorCode => (AdsError)errorCode;
 
         private static string GetErrorMessage(uint errorCode)
         {

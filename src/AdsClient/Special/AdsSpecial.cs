@@ -66,7 +66,7 @@ namespace Viscon.Communication.Ads.Special
                 }
                 catch (AdsException ex)
                 {
-                    if (ex.ErrorCode == 1814) ok = false;
+                    if ((uint) ex.ErrorCode == 1814) ok = false;
                     else throw;
                 }
             }
