@@ -28,6 +28,8 @@ internal static class TypeExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ref byte GetOffset(this ref byte source, int offset)
     {
-        return ref Unsafe.Add(ref source, offset);
+        // The cast to uint is in order to avoid a sign-extending move
+        // in the machine code.
+        return ref Unsafe.Add(ref source, (uint)offset);
     }
 }
