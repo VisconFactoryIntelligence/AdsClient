@@ -14,6 +14,7 @@ internal sealed class AmsSocketConnection
     private readonly IIncomingMessageHandler messageHandler;
     private readonly Task receiveTask;
     private readonly SocketAwaitable socketAwaitable = new SocketAwaitable();
+    private readonly byte[] headerBuffer = new byte[AmsHeaderHelper.AmsTcpHeaderSize];
 
     public AmsSocketConnection(Socket socket, IIncomingMessageHandler messageHandler)
     {
@@ -79,10 +80,8 @@ internal sealed class AmsSocketConnection
 
     private async Task<byte[]> ListenForHeader()
     {
-        var buffer = new byte[AmsHeaderHelper.AmsTcpHeaderSize];
-        await ReceiveAsync(buffer);
-
-        return buffer;
+        await ReceiveAsync(headerBuffer);
+        return headerBuffer;
     }
 
     private async Task ReceiveAsync(byte[] buffer)
