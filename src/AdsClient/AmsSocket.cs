@@ -26,6 +26,7 @@ namespace Viscon.Communication.Ads
         public bool Connected => TcpClient.Connected;
 
         private AmsSocketConnection connection;
+        private SocketAwaitable socketAwaitable;
 
         public void Close()
         {
@@ -56,22 +57,33 @@ namespace Viscon.Communication.Ads
 
         public async Task SendAsync(byte[] message)
         {
-            using var args = new SocketAsyncEventArgs();
-            args.SetBuffer(message, 0, message.Length);
+            var sa = Interlocked.Exchange(ref socketAwaitable, null) ?? new SocketAwaitable();
+            sa.SetBuffer(message, 0, message.Length);
 
-            await Socket.SendAsync(new SocketAwaitable(args));
+            await Socket.SendAwaitable(sa);
+
+            if (Interlocked.CompareExchange(ref socketAwaitable, sa, null) != null)
+            {
+                sa.Dispose();
+            }
         }
 
         public async Task SendAsync(ArraySegment<byte> buffer)
         {
-            using var args = new SocketAsyncEventArgs();
-            args.SetBuffer(buffer.Array, buffer.Offset, buffer.Count);
+            var sa = Interlocked.Exchange(ref socketAwaitable, null) ?? new SocketAwaitable();
+            sa.SetBuffer(buffer.Array, buffer.Offset, buffer.Count);
 
-            await Socket.SendAsync(new SocketAwaitable(args));
+            await Socket.SendAwaitable(sa);
+
+            if (Interlocked.CompareExchange(ref socketAwaitable, sa, null) != null)
+            {
+                sa.Dispose();
+            }
         }
 
         void IDisposable.Dispose()
         {
+            Close();
             TcpClient?.Dispose();
         }
     }

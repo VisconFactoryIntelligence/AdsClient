@@ -11,22 +11,17 @@ namespace Viscon.Communication.Ads.Internal;
 /// <remarks>
 /// Based on https://devblogs.microsoft.com/pfxteam/awaiting-socket-operations/.
 /// </remarks>
-internal sealed class SocketAwaitable : INotifyCompletion
+internal sealed class SocketAwaitable : SocketAsyncEventArgs, INotifyCompletion
 {
     private static readonly Action Sentinel = () => { };
 
-    public bool WasCompleted;
+    public volatile bool WasCompleted;
     private Action? continuation;
-    public readonly SocketAsyncEventArgs EventArgs;
 
-    public SocketAwaitable(SocketAsyncEventArgs eventArgs)
+    protected override void OnCompleted(SocketAsyncEventArgs _)
     {
-        EventArgs = eventArgs ?? throw new ArgumentNullException(nameof(eventArgs));
-        eventArgs.Completed += delegate
-        {
-            var prev = continuation ?? Interlocked.CompareExchange(ref continuation, Sentinel, null);
-            prev?.Invoke();
-        };
+        var prev = continuation ?? Interlocked.CompareExchange(ref continuation, Sentinel, null);
+        prev?.Invoke();
     }
 
     internal void Reset()
@@ -53,9 +48,9 @@ internal sealed class SocketAwaitable : INotifyCompletion
 
     public void GetResult()
     {
-        if (EventArgs.SocketError != SocketError.Success)
+        if (SocketError != SocketError.Success)
         {
-            throw new SocketException((int)EventArgs.SocketError);
+            throw new SocketException((int)SocketError);
         }
     }
 }
