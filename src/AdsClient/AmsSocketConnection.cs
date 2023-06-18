@@ -6,22 +6,24 @@ using Viscon.Communication.Ads.Internal;
 
 namespace Viscon.Communication.Ads;
 
-internal class AmsSocketConnection
+internal sealed class AmsSocketConnection
 {
     private const int ReceiveTaskTimeout = 3000;
 
     private readonly Socket socket;
     private readonly IIncomingMessageHandler messageHandler;
     private readonly Task receiveTask;
+    private readonly SocketAwaitable socketAwaitable = new SocketAwaitable();
+    private readonly byte[] headerBuffer = new byte[AmsHeaderHelper.AmsTcpHeaderSize];
 
     public AmsSocketConnection(Socket socket, IIncomingMessageHandler messageHandler)
     {
         this.socket = socket;
         this.messageHandler = messageHandler;
-        receiveTask = Task.Run(ReceiveLoop);
+        receiveTask = ReceiveLoop();
     }
 
-    private bool closed;
+    private volatile bool closed;
 
     public void Close()
     {
@@ -30,6 +32,7 @@ internal class AmsSocketConnection
         socket.Close();
 
         receiveTask.Wait(ReceiveTaskTimeout);
+        socketAwaitable.Dispose();
     }
 
     private async Task<byte[]> GetAmsMessage(byte[] tcpHeader)
@@ -49,7 +52,6 @@ internal class AmsSocketConnection
 
     private async Task Listen()
     {
-
         try
         {
             var buffer = await ListenForHeader();
@@ -78,33 +80,32 @@ internal class AmsSocketConnection
 
     private async Task<byte[]> ListenForHeader()
     {
-        var buffer = new byte[AmsHeaderHelper.AmsTcpHeaderSize];
-        await ReceiveAsync(buffer);
-
-        return buffer;
+        await ReceiveAsync(headerBuffer);
+        return headerBuffer;
     }
 
     private async Task ReceiveAsync(byte[] buffer)
     {
-        using var args = new SocketAsyncEventArgs();
-        args.SetBuffer(buffer, 0, buffer.Length);
-        var awaitable = new SocketAwaitable(args);
+        var sa = socketAwaitable;
+        sa.SetBuffer(buffer, 0, buffer.Length);
 
         do
         {
-            args.SetBuffer(args.Offset + args.BytesTransferred, args.Count - args.BytesTransferred);
-            await socket.ReceiveAsync(awaitable);
+            sa.SetBuffer(sa.Offset + sa.BytesTransferred, sa.Count - sa.BytesTransferred);
+            await socket.ReceiveAwaitable(sa);
 
-            if (args.BytesTransferred == 0)
+            if (sa.BytesTransferred == 0)
             {
                 messageHandler.HandleException(new Exception("Remote host closed the connection."));
                 Close();
             }
-        } while (args.Count != args.BytesTransferred);
+        } while (socketAwaitable.BytesTransferred != buffer.Length);
     }
 
     private async Task ReceiveLoop()
     {
+        await Task.Yield();
+
         while (!closed)
         {
             await Listen();

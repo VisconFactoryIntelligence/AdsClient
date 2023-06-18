@@ -10,18 +10,18 @@ namespace Viscon.Communication.Ads.Internal;
 /// </remarks>
 internal static class SocketExtensions
 {
-    public static SocketAwaitable ReceiveAsync(this Socket socket, SocketAwaitable awaitable)
+    public static SocketAwaitable ReceiveAwaitable(this Socket socket, SocketAwaitable awaitable)
     {
         awaitable.Reset();
-        if (!socket.ReceiveAsync(awaitable.EventArgs))
+        if (!socket.ReceiveAsync(awaitable))
             awaitable.WasCompleted = true;
         return awaitable;
     }
 
-    public static SocketAwaitable SendAsync(this Socket socket, SocketAwaitable awaitable)
+    public static SocketAwaitable SendAwaitable(this Socket socket, SocketAwaitable awaitable)
     {
         awaitable.Reset();
-        if (!socket.SendAsync(awaitable.EventArgs))
+        if (!socket.SendAsync(awaitable))
             awaitable.WasCompleted = true;
         return awaitable;
     }
